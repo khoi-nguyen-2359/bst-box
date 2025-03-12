@@ -1,6 +1,6 @@
 #include "BinaryTreeDisplay.h"
 
-BinaryTreeDisplay::BinaryTreeDisplay(BinaryTreeNode* node, int level = 0): level(level) {
+BinaryTreeDisplay::BinaryTreeDisplay(BinaryTreeNode* node, int level): level(level) {
     this->node = node;
     this->left = nullptr;
     this->right = nullptr;

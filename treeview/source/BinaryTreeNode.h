@@ -6,6 +6,10 @@
 using std::cout;
 using std::endl;
 
+/**
+ * @author Anh Khoi Nguyen
+ * @date 2025-Mar-12
+ */
 class BinaryTreeNode {
     private:
         int value;
@@ -20,6 +24,10 @@ class BinaryTreeNode {
         ~BinaryTreeNode();
         
         void insert(int value);
+        
+        int getValue() { return value; }
+        BinaryTreeNode* getLeft() { return left; }
+        BinaryTreeNode* getRight() { return right; }
 
         friend class BinaryTreeDisplay;
 };
