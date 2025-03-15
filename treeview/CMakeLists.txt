@@ -7,3 +7,8 @@ add_subdirectory(test)
 
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 add_library(TreeView ${SOURCES})
+
+target_link_libraries(TreeView
+   PRIVATE
+        Logger
+)
