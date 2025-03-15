@@ -6,4 +6,3 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(visualizer)
 add_subdirectory(treeview)
-add_subdirectory(logger)

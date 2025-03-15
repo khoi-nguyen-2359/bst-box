@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #define UNIT_TEST 1
+#include <spdlog/sinks/basic_file_sink.h>
+
 #include "../source/BinaryTreeNode.h"
 
 TEST(BinaryTreeNodeTest, ConstructorWithValue_CorrectMemberVariablesInitialized) {
@@ -69,7 +71,7 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleRightRotation) {
     root.insert(12);
     root.insert(18);
     root.insert(1);
-    root.insert(0);  // This should trigger balancing
+    root.insert(0);  // This should trigger right rotation
 
     EXPECT_EQ(10, root.getValue());
     EXPECT_EQ(5, root.getLeft()->getValue());
@@ -133,7 +135,16 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithDoubleRotationRightLeft) {
     EXPECT_EQ(18, root.getRight()->getRight()->getValue());
 }
 
+void initLogging();
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
+    initLogging();
     return RUN_ALL_TESTS();
+}
+
+void initLogging() {
+  spdlog::set_level(spdlog::level::debug);
+  auto file_logger = spdlog::basic_logger_mt("BinaryTreeNodeTest", "BinaryTreeNodeTestLogs.txt");
+  spdlog::set_default_logger(file_logger);
 }

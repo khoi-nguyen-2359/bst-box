@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "TestSupports.h"
-#include "../../logger/source/Logger.h"
+#include <spdlog/spdlog.h>
 
 using std::cout;
 using std::endl;

@@ -48,7 +48,7 @@ bool BinaryTreeNode::insert(BinaryTreeNode* node) {
         int oldNodeVal = this->value;
         bool exec = balance();
         if (exec) {
-            cout << "Balanced at: " << oldNodeVal << " when inserting: " << node->value << endl;
+            spdlog::debug("Balanced at: " + std::to_string(oldNodeVal) + " when inserting: " + std::to_string(node->value));
             updateHeight();
         }
     }
@@ -86,7 +86,7 @@ bool BinaryTreeNode::balance() {
 }
 
 void BinaryTreeNode::rotateLeft() {
-    cout << "Rotated left " << this->value << endl;
+    spdlog::debug("Rotated left " + std::to_string(this->value));
     BinaryTreeNode* newLeft = new BinaryTreeNode(value);
     newLeft->left = this->left;
     newLeft->right = this->right->left;
@@ -96,7 +96,7 @@ void BinaryTreeNode::rotateLeft() {
 }
 
 void BinaryTreeNode::rotateRight() {
-    cout << "Rotated right " << this->value << endl;
+    spdlog::debug("Rotated right " + std::to_string(this->value));
     BinaryTreeNode* newRight = new BinaryTreeNode(value);
     newRight->right = this->right;
     newRight->left = this->left->right;
