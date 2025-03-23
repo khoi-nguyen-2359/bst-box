@@ -29,6 +29,10 @@ class BinaryTreeDisplay {
         BinaryTreeDisplay(BinaryTreeNode* node, int level = 0);
         ~BinaryTreeDisplay();
 
+        BinaryTreeNode* getNode() { return node; }
+        BinaryTreeDisplay* getLeft() { return left; }
+        BinaryTreeDisplay* getRight() { return right; }
+
         void print();
 };
 

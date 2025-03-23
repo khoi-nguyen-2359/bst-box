@@ -49,7 +49,7 @@ bool BinaryTreeNode::insert(BinaryTreeNode* node) {
         bool exec = balance();
         if (exec) {
             spdlog::debug("Balanced at: " + std::to_string(oldNodeVal) + " when inserting: " + std::to_string(node->value));
-            updateHeight();
+            calculateHeights();
         }
     }
 
@@ -58,6 +58,16 @@ bool BinaryTreeNode::insert(BinaryTreeNode* node) {
 
 void BinaryTreeNode::updateHeight() {
     this->height = std::max(getLeftHeight(), getRightHeight()) + 1;
+}
+
+void BinaryTreeNode::calculateHeights() {
+    if (left) {
+        left->calculateHeights();
+    }
+    if (right) {
+        right->calculateHeights();
+    }
+    updateHeight();
 }
 
 bool BinaryTreeNode::balance() {

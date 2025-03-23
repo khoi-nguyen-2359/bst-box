@@ -62,7 +62,7 @@ TEST(BinaryTreeNodeTest, Insert_ThreeLevels_NoBalancingNeeded) {
     EXPECT_EQ(18, root.getRight()->getRight()->getValue());
 }
 
-TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleRightRotation) {
+TEST(BinaryTreeNodeTest, Insert_SingleRightRotation) {
     BinaryTreeNode root(10);
     root.insert(5);
     root.insert(15);
@@ -71,7 +71,12 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleRightRotation) {
     root.insert(12);
     root.insert(18);
     root.insert(1);
+
+    EXPECT_EQ(4, root.getHeight());
+
     root.insert(0);  // This should trigger right rotation
+
+    EXPECT_EQ(4, root.getHeight());
 
     EXPECT_EQ(10, root.getValue());
     EXPECT_EQ(5, root.getLeft()->getValue());
@@ -84,13 +89,18 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleRightRotation) {
     EXPECT_EQ(3, root.getLeft()->getLeft()->getRight()->getValue());
 }
 
-TEST(BinaryTreeNodeTest, Insert_BalancingWithDoubleRotationLeftRight) {
+TEST(BinaryTreeNodeTest, Insert_DoubleRotationLeftRight) {
     BinaryTreeNode root(10);
     root.insert(5);
     root.insert(15);
     root.insert(3);
     root.insert(7);
+
+    EXPECT_EQ(3, root.getHeight());
+
     root.insert(6);  // This should trigger double rotation (left-right)
+
+    EXPECT_EQ(3, root.getHeight());
 
     EXPECT_EQ(7, root.getValue());
     EXPECT_EQ(5, root.getLeft()->getValue());
@@ -101,13 +111,18 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithDoubleRotationLeftRight) {
     EXPECT_EQ(15, root.getRight()->getRight()->getValue());
 }
 
-TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleLeftRotation) {
+TEST(BinaryTreeNodeTest, Insert_SingleLeftRotation) {
     BinaryTreeNode root(10);
     root.insert(5);
     root.insert(15);
     root.insert(12);
     root.insert(18);
+
+    EXPECT_EQ(3, root.getHeight());
+
     root.insert(20);  // This should trigger single left rotation
+
+    EXPECT_EQ(3, root.getHeight());
 
     EXPECT_EQ(15, root.getValue());
     EXPECT_EQ(10, root.getLeft()->getValue());
@@ -118,13 +133,18 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithSingleLeftRotation) {
     EXPECT_EQ(12, root.getLeft()->getRight()->getValue());
 }
 
-TEST(BinaryTreeNodeTest, Insert_BalancingWithDoubleRotationRightLeft) {
+TEST(BinaryTreeNodeTest, Insert_DoubleRotationRightLeft) {
     BinaryTreeNode root(10);
     root.insert(5);
     root.insert(15);
     root.insert(18);
     root.insert(12);
+
+    EXPECT_EQ(3, root.getHeight());
+    
     root.insert(13);  // This should trigger double rotation (right-left)
+    
+    EXPECT_EQ(3, root.getHeight());
 
     EXPECT_EQ(12, root.getValue());
     EXPECT_EQ(10, root.getLeft()->getValue());
@@ -133,6 +153,41 @@ TEST(BinaryTreeNodeTest, Insert_BalancingWithDoubleRotationRightLeft) {
     EXPECT_EQ(nullptr, root.getLeft()->getRight());
     EXPECT_EQ(13, root.getRight()->getLeft()->getValue());
     EXPECT_EQ(18, root.getRight()->getRight()->getValue());
+}
+
+TEST(BinaryTreeNodeTest, Insert_FourLevels_NoBalancingNeeded) {
+    BinaryTreeNode root(10);
+    root.insert(5);
+    root.insert(15);
+    root.insert(3);
+    root.insert(7);
+    root.insert(12);
+    root.insert(18);
+    root.insert(1);
+    root.insert(4);
+    root.insert(6);
+    root.insert(8);
+    root.insert(11);
+    root.insert(13);
+    root.insert(17);
+    root.insert(19);
+
+    EXPECT_EQ(4, root.getHeight());
+    EXPECT_EQ(10, root.getValue());
+    EXPECT_EQ(5, root.getLeft()->getValue());
+    EXPECT_EQ(15, root.getRight()->getValue());
+    EXPECT_EQ(3, root.getLeft()->getLeft()->getValue());
+    EXPECT_EQ(7, root.getLeft()->getRight()->getValue());
+    EXPECT_EQ(12, root.getRight()->getLeft()->getValue());
+    EXPECT_EQ(18, root.getRight()->getRight()->getValue());
+    EXPECT_EQ(1, root.getLeft()->getLeft()->getLeft()->getValue());
+    EXPECT_EQ(4, root.getLeft()->getLeft()->getRight()->getValue());
+    EXPECT_EQ(6, root.getLeft()->getRight()->getLeft()->getValue());
+    EXPECT_EQ(8, root.getLeft()->getRight()->getRight()->getValue());
+    EXPECT_EQ(11, root.getRight()->getLeft()->getLeft()->getValue());
+    EXPECT_EQ(13, root.getRight()->getLeft()->getRight()->getValue());
+    EXPECT_EQ(17, root.getRight()->getRight()->getLeft()->getValue());
+    EXPECT_EQ(19, root.getRight()->getRight()->getRight()->getValue());
 }
 
 void initLogging();

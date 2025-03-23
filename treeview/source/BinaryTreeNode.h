@@ -38,16 +38,14 @@ class BinaryTreeNode {
         void insert(int value);
         
         int getValue() { return value; }
+        int getHeight() { return height; }
         BinaryTreeNode* getLeft() { return left; }
         BinaryTreeNode* getRight() { return right; }
 
         friend class BinaryTreeDisplay;
 
     VISIBLE_FOR_TESTING:
-        void setLeftTest(BinaryTreeNode* left) { this->left = left; }
-        void setRightTest(BinaryTreeNode* right) { this->right = right; }
-        void rotateRightTest() { rotateRight();}
-        void rotateLeftTest() { rotateLeft(); }
+        void calculateHeights();
 };
 
 #endif
