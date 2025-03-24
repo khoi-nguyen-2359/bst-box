@@ -7,6 +7,7 @@
 
 using std::cout;
 using std::endl;
+using spdlog::debug;
 
 /**
  * @author Anh Khoi Nguyen
@@ -14,10 +15,10 @@ using std::endl;
  */
 class BinaryTreeNode {
     private:
-        int value;
-        int height;
-        BinaryTreeNode* left;
-        BinaryTreeNode* right;
+        int value = 0;
+        int height = 1;
+        BinaryTreeNode* left = nullptr;
+        BinaryTreeNode* right = nullptr;
 
         bool insert(BinaryTreeNode* node);
         bool balance();
@@ -27,12 +28,17 @@ class BinaryTreeNode {
         int getLeftHeight() { return left ? left->height : 0; }
         int getRightHeight() { return right ? right->height : 0; }
 
-        void updateHeight();
+        int updateHeight();
+        void calculateHeights();
+
+        BinaryTreeNode& copy(const BinaryTreeNode& node);
 
     public:
         BinaryTreeNode();
-        BinaryTreeNode(int value);
-        BinaryTreeNode(int value, int height);
+        BinaryTreeNode(const BinaryTreeNode& node);
+        BinaryTreeNode(const int value);
+        BinaryTreeNode(const int value, const int height);
+        BinaryTreeNode(const int values[], const int length);
         ~BinaryTreeNode();
         
         void insert(int value);
@@ -42,10 +48,9 @@ class BinaryTreeNode {
         BinaryTreeNode* getLeft() { return left; }
         BinaryTreeNode* getRight() { return right; }
 
-        friend class BinaryTreeDisplay;
+        BinaryTreeNode& operator=(const BinaryTreeNode& node);
 
-    VISIBLE_FOR_TESTING:
-        void calculateHeights();
+        friend class BinaryTreeDisplay;
 };
 
 #endif

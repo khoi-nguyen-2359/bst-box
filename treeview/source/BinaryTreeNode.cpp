@@ -2,9 +2,40 @@
 
 BinaryTreeNode::BinaryTreeNode() : BinaryTreeNode(-1) {}
 
-BinaryTreeNode::BinaryTreeNode(int value) : value(value), height(1), left(nullptr), right(nullptr) {}
+BinaryTreeNode::BinaryTreeNode(const int value) : value(value) {}
 
-BinaryTreeNode::BinaryTreeNode(int value, int height) : value(value), height(height), left(nullptr), right(nullptr) {}
+BinaryTreeNode::BinaryTreeNode(const int value, const int height) : value(value), height(height) {}
+
+BinaryTreeNode::BinaryTreeNode(const int values[], const int length) {
+    if (length == 0) {
+        return;
+    }
+    this->value = values[0];
+    for (int i = 1; i < length; i++) {
+        debug("Inserting array value " + std::to_string(values[i]));
+        insert(values[i]);
+    }
+}
+
+BinaryTreeNode::BinaryTreeNode(const BinaryTreeNode& node) {
+    copy(node);
+}
+
+BinaryTreeNode& BinaryTreeNode::operator=(const BinaryTreeNode& node) {
+    return copy(node);
+}
+
+BinaryTreeNode& BinaryTreeNode::copy(const BinaryTreeNode& node) {
+    this->value = node.value;
+    this->height = node.height;
+    if (node.left) {
+        this->left = new BinaryTreeNode(*node.left);
+    }
+    if (node.right) {
+        this->right = new BinaryTreeNode(*node.right);
+    }
+    return *this;
+}
 
 BinaryTreeNode::~BinaryTreeNode() {
     if (left) {
@@ -17,17 +48,20 @@ BinaryTreeNode::~BinaryTreeNode() {
 
 void BinaryTreeNode::insert(int value) {
     BinaryTreeNode* insertNode = new BinaryTreeNode(value);
-    insert(insertNode);
+    debug("Inserting by value " + std::to_string(value));
+    if (!insert(insertNode)) {
+        delete insertNode;
+    }
 }
 
 bool BinaryTreeNode::insert(BinaryTreeNode* node) {
     if (node->value == this->value) {
-        delete node;
         return false;
     }
 
     bool inserted = false;
     if (node->value < this->value) {
+        debug("Inserting left " + std::to_string(node->value));
         if (left) {
             inserted = left->insert(node);
         } else {
@@ -44,20 +78,20 @@ bool BinaryTreeNode::insert(BinaryTreeNode* node) {
     }
 
     if (inserted) {
+        debug("Value inserted " + std::to_string(node->value));
         updateHeight();
         int oldNodeVal = this->value;
         bool exec = balance();
         if (exec) {
             spdlog::debug("Balanced at: " + std::to_string(oldNodeVal) + " when inserting: " + std::to_string(node->value));
-            calculateHeights();
         }
     }
 
     return inserted;
 }
 
-void BinaryTreeNode::updateHeight() {
-    this->height = std::max(getLeftHeight(), getRightHeight()) + 1;
+int BinaryTreeNode::updateHeight() {
+    return height = std::max(getLeftHeight(), getRightHeight()) + 1;
 }
 
 void BinaryTreeNode::calculateHeights() {
@@ -91,6 +125,9 @@ bool BinaryTreeNode::balance() {
             rotateRight();
         }
     }
+    left ? left->updateHeight() : 0;
+    right ? right->updateHeight() : 0;
+    updateHeight();
 
     return true;
 }

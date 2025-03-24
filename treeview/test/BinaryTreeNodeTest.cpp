@@ -190,6 +190,93 @@ TEST(BinaryTreeNodeTest, Insert_FourLevels_NoBalancingNeeded) {
     EXPECT_EQ(19, root.getRight()->getRight()->getRight()->getValue());
 }
 
+TEST(BinaryTreeNodeTest, Insert_FourLevelsOnlyLeftBranch) {
+    BinaryTreeNode root(0);
+    root.insert(-1);
+
+    EXPECT_EQ(2, root.getHeight());
+    EXPECT_EQ(0, root.getValue());
+    EXPECT_EQ(-1, root.getLeft()->getValue());
+
+    root.insert(-2);
+    
+    EXPECT_EQ(2, root.getHeight());
+
+    EXPECT_EQ(-1, root.getValue());
+    EXPECT_EQ(-2, root.getLeft()->getValue());
+    EXPECT_EQ(0, root.getRight()->getValue());
+
+    root.insert(-3);
+
+    EXPECT_EQ(3, root.getHeight());
+    EXPECT_EQ(-1, root.getValue());
+    EXPECT_EQ(-3, root.getLeft()->getLeft()->getValue());
+}
+
+TEST(BinaryTreeNodeTest, Insert_FourLevelsOnlyRightBranch) {
+    BinaryTreeNode root(0);
+    root.insert(1);
+
+    EXPECT_EQ(2, root.getHeight());
+    EXPECT_EQ(0, root.getValue());
+    EXPECT_EQ(1, root.getRight()->getValue());
+
+    root.insert(2);
+
+    EXPECT_EQ(2, root.getHeight());
+    EXPECT_EQ(1, root.getValue());
+    EXPECT_EQ(0, root.getLeft()->getValue());
+    EXPECT_EQ(2, root.getRight()->getValue());
+
+    root.insert(3);
+
+    EXPECT_EQ(3, root.getHeight());
+    EXPECT_EQ(1, root.getValue());
+    EXPECT_EQ(0, root.getLeft()->getValue());
+    EXPECT_EQ(2, root.getRight()->getValue());
+    EXPECT_EQ(3, root.getRight()->getRight()->getValue());
+}
+
+TEST(BinaryTreeNodeTest, Constructor_WithArray) {
+    int values[] = {10, 5, 15, 3, 7, 12, 18};
+    BinaryTreeNode root(values, 7);
+
+    EXPECT_EQ(10, root.getValue());
+    EXPECT_EQ(5, root.getLeft()->getValue());
+    EXPECT_EQ(15, root.getRight()->getValue());
+    EXPECT_EQ(3, root.getLeft()->getLeft()->getValue());
+    EXPECT_EQ(7, root.getLeft()->getRight()->getValue());
+    EXPECT_EQ(12, root.getRight()->getLeft()->getValue());
+    EXPECT_EQ(18, root.getRight()->getRight()->getValue());
+    EXPECT_EQ(3, root.getHeight());
+
+    // Test with empty array
+    int emptyArray[] = {};
+    BinaryTreeNode emptyRoot(emptyArray, 0);
+    EXPECT_EQ(0, emptyRoot.getValue());
+    EXPECT_EQ(nullptr, emptyRoot.getLeft());
+    EXPECT_EQ(nullptr, emptyRoot.getRight());
+    EXPECT_EQ(1, emptyRoot.getHeight());
+
+    // Test with single element
+    int singleValue[] = {5};
+    BinaryTreeNode singleRoot(singleValue, 1);
+    EXPECT_EQ(5, singleRoot.getValue());
+    EXPECT_EQ(nullptr, singleRoot.getLeft());
+    EXPECT_EQ(nullptr, singleRoot.getRight());
+    EXPECT_EQ(1, singleRoot.getHeight());
+
+    // Test with unbalanced array
+    int unbalancedValues[] = {1, 2, 3, 4, 5};
+    BinaryTreeNode unbalancedRoot(unbalancedValues, 5);
+    EXPECT_EQ(2, unbalancedRoot.getValue());
+    EXPECT_EQ(1, unbalancedRoot.getLeft()->getValue());
+    EXPECT_EQ(4, unbalancedRoot.getRight()->getValue());
+    EXPECT_EQ(3, unbalancedRoot.getRight()->getLeft()->getValue());
+    EXPECT_EQ(5, unbalancedRoot.getRight()->getRight()->getValue());
+    EXPECT_EQ(3, unbalancedRoot.getHeight());
+}
+
 void initLogging();
 
 int main(int argc, char **argv) {
@@ -199,7 +286,8 @@ int main(int argc, char **argv) {
 }
 
 void initLogging() {
-  spdlog::set_level(spdlog::level::debug);
-  auto file_logger = spdlog::basic_logger_mt("BinaryTreeNodeTest", "BinaryTreeNodeTestLogs.txt");
-  spdlog::set_default_logger(file_logger);
+    auto file_logger = spdlog::basic_logger_mt("TreeViewTest", "TreeViewTestLogs.txt");
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_default_logger(file_logger);
+    file_logger->flush_on(spdlog::level::debug);
 }
