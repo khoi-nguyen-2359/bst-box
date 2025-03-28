@@ -6,13 +6,24 @@ BinaryTreeNode::BinaryTreeNode(const int value) : value(value) {}
 
 BinaryTreeNode::BinaryTreeNode(const int value, const int height) : value(value), height(height) {}
 
-BinaryTreeNode::BinaryTreeNode(const int values[], const int length) {
-    if (length == 0) {
+BinaryTreeNode::BinaryTreeNode(const int values[], const int size) {
+    if (size == 0) {
         return;
     }
     this->value = values[0];
-    for (int i = 1; i < length; i++) {
+    for (int i = 1; i < size; i++) {
         debug("Inserting array value " + std::to_string(values[i]));
+        insert(values[i]);
+    }
+}
+
+BinaryTreeNode::BinaryTreeNode(const vector<int>& values) {
+    if (values.empty()) {
+        return;
+    }
+    this->value = values[0];
+    for (size_t i = 1; i < values.size(); i++) {
+        debug("Inserting vector value " + std::to_string(values[i]));
         insert(values[i]);
     }
 }

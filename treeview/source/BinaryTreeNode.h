@@ -8,6 +8,7 @@
 using std::cout;
 using std::endl;
 using spdlog::debug;
+using std::vector;
 
 /**
  * @author Anh Khoi Nguyen
@@ -38,7 +39,8 @@ class BinaryTreeNode {
         BinaryTreeNode(const BinaryTreeNode& node);
         BinaryTreeNode(const int value);
         BinaryTreeNode(const int value, const int height);
-        BinaryTreeNode(const int values[], const int length);
+        BinaryTreeNode(const int values[], const int size);
+        BinaryTreeNode(const vector<int> &values);
         ~BinaryTreeNode();
         
         void insert(int value);

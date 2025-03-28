@@ -10,6 +10,7 @@
 
 using std::queue;
 using std::cout;
+using std::wcout;
 using std::vector;
 using std::to_string;
 using spdlog::debug;
@@ -18,12 +19,14 @@ using std::min;
 using std::setw;
 using std::setfill;
 using std::ostream;
+using std::wostream;
 using std::string;
 
 class BinaryTreeDisplay {
     private:
         static const int MIN_SHOULDER_LEN = 2;
         static const int MIN_VALUE_WIDTH = 3;
+        static const int BORDER_WIDTH = 1;
 
         int value = 0;
         string valueString;
@@ -38,12 +41,17 @@ class BinaryTreeDisplay {
         int rightShoulderLen = 0;
         bool isLeft = false;
         int center = 0;
+        int height = 0;
 
-        inline int calculateValueWidth();
+        int calculateValueWidth();
+        int calculateValueWidth2();
         void updateWidth();
+        void updateWidth2();
     
         BinaryTreeDisplay(BinaryTreeNode* node, int level);
         void initialize(BinaryTreeNode* node, int level);
+
+        void render(char** output, const int centerX, const int centerY);
     public:
         BinaryTreeDisplay();
         BinaryTreeDisplay(BinaryTreeNode* node);
@@ -56,6 +64,7 @@ class BinaryTreeDisplay {
         int getWidth() { return width; }
 
         void present(ostream &out = cout);
+        char** present2(wostream &out = wcout);
         void measure();
 };
 

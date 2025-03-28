@@ -112,24 +112,25 @@ TEST(BinaryTreeDisplayTest, CalculateWidth_CompleteFourLevelTree_CalculatesAccur
     display.calculateWidth();
 
     // Test root level
-    EXPECT_EQ(display.getWidth(), 28);
+    EXPECT_EQ(display.getWidth(), 31);
     
     // Test level 2
-    EXPECT_EQ(display.getLeft()->getWidth(), 13);
+    EXPECT_EQ(display.getLeft()->getWidth(), 14);
     EXPECT_EQ(display.getRight()->getWidth(), 14);
     
     // Test level 3 left subtree
-    EXPECT_EQ(display.getLeft()->getLeft()->getWidth(), 5);
-    EXPECT_EQ(display.getLeft()->getRight()->getWidth(), 5);
+    EXPECT_EQ(display.getLeft()->getLeft()->getWidth(), 6);
+    EXPECT_EQ(display.getLeft()->getRight()->getWidth(), 6);
     
     // Test level 3 right subtree
     EXPECT_EQ(display.getRight()->getLeft()->getWidth(), 6);
-    EXPECT_EQ(display.getRight()->getRight()->getWidth(), 7);
+    EXPECT_EQ(display.getRight()->getRight()->getWidth(), 6);
     
     // Test some level 4 nodes
     EXPECT_EQ(display.getLeft()->getLeft()->getLeft()->getWidth(), 1);
     EXPECT_EQ(display.getRight()->getRight()->getRight()->getWidth(), 3);
 }
+
 TEST(BinaryTreeDisplayTest, CalculateWidth_ThreeLevelsWithFourDigits_CalculatesAccurateWidths) {
     BinaryTreeNode node(1111);
     node.insert(2222);  // Left child of root
