@@ -39,7 +39,6 @@ class BinaryTreeDisplay {
         int level = 0;
         int leftShoulderLen = 0;
         int rightShoulderLen = 0;
-        bool isLeft = false;
         int center = 0;
         int height = 0;
 

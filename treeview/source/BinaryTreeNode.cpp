@@ -101,6 +101,91 @@ bool BinaryTreeNode::insert(BinaryTreeNode* node) {
     return inserted;
 }
 
+int BinaryTreeNode::removeMax(BinaryTreeNode* parent, BinaryTreeNode* current) {
+    int removedValue = 0;
+    if (current->right) {
+        removedValue = removeMax(current, current->right);
+        current->updateHeight();
+        current->balance();
+    } else {
+        removedValue = current->value;
+        parent->right = current->left;
+        current->left = nullptr;
+        current->right = nullptr;
+        spdlog::debug("Removing max " + std::to_string(removedValue));
+        delete current;
+    }
+    return removedValue;
+}
+
+int BinaryTreeNode::removeMin(BinaryTreeNode* parent, BinaryTreeNode* current) {
+    int removedValue = 0;
+    if (current->left) {
+        removedValue = removeMin(current, current->left);
+        current->updateHeight();
+        current->balance();
+    } else {
+        removedValue = current->value;
+        if (parent) {
+            parent->left = current->right;
+        }
+        current->right = nullptr;
+        current->left = nullptr;
+        spdlog::debug("Removing min " + std::to_string(removedValue));
+        delete current;
+    }
+    return removedValue;
+}
+
+bool BinaryTreeNode::remove(int value) {
+    bool removed = false;
+    if (value < this->value) {
+        if (left) {
+            removed = left->remove(value);
+        }
+    } else if (value > this->value) {
+        if (right) {
+            removed = right->remove(value);
+        }
+    } else {
+        // Node found
+        if ((left ? left->height : 0) > (right ? right->height : 0)) {
+            if (left->right) {
+                int removedValue = removeMax(left, left->right);
+                this->value = removedValue;
+            } else {
+                this->value = left->value;
+                BinaryTreeNode* temp = left;
+                left = left->left;
+                temp->left = nullptr;
+                temp->right = nullptr;
+                delete temp;
+            }
+        } else if (right) {
+            if (right->left) {
+                int removedValue = removeMin(right, right->left);
+                this->value = removedValue;
+            } else {
+                this->value = right->value;
+                BinaryTreeNode* temp = right;
+                right = right->right;
+                temp->left = nullptr;
+                temp->right = nullptr;
+                delete temp;
+            }
+        } else {
+            // No children
+            delete this;
+        }
+        removed = true;
+    }
+    if (removed) {
+        updateHeight();
+        balance();
+    }
+    return removed;
+}
+
 int BinaryTreeNode::updateHeight() {
     return height = std::max(getLeftHeight(), getRightHeight()) + 1;
 }

@@ -22,10 +22,12 @@ class BinaryTreeNode {
         BinaryTreeNode* right = nullptr;
 
         bool insert(BinaryTreeNode* node);
+        int removeMin(BinaryTreeNode* parent, BinaryTreeNode* current);
+        int removeMax(BinaryTreeNode* parent, BinaryTreeNode* current);
         bool balance();
         void rotateRight();
         void rotateLeft();
-
+    
         int getLeftHeight() { return left ? left->height : 0; }
         int getRightHeight() { return right ? right->height : 0; }
 
@@ -44,6 +46,7 @@ class BinaryTreeNode {
         ~BinaryTreeNode();
         
         void insert(int value);
+        bool remove(int value);
         
         int getValue() { return value; }
         int getHeight() { return height; }

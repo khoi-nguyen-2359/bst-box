@@ -62,7 +62,6 @@ void BinaryTreeDisplay::initialize(BinaryTreeNode* node, int level) {
     calculateValueWidth2();
     if (node->left) {
         left = new BinaryTreeDisplay(node->left, level + 1);
-        left->isLeft = true;
     }
     if (node->right) {
         right = new BinaryTreeDisplay(node->right, level + 1);
@@ -147,10 +146,14 @@ int BinaryTreeDisplay::calculateWidth() {
 
 int BinaryTreeDisplay::calculateValueWidth2() {
     valueString = to_string(this->value);
+    valueWidth = valueString.length();
+    if (valueString.length() < MIN_VALUE_WIDTH) {
+        valueWidth = MIN_VALUE_WIDTH;
+    }
     if (valueWidth % 2 == 0) {
         valueWidth++;
     }
-    return valueWidth = max(valueWidth, MIN_VALUE_WIDTH);
+    return valueWidth;
 }
 
 int BinaryTreeDisplay::calculateValueWidth() {
