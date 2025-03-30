@@ -2,7 +2,6 @@
 #define BINARYTREENODE_H
 
 #include <iostream>
-#include "TestSupports.h"
 #include <spdlog/spdlog.h>
 
 using std::cout;

@@ -175,7 +175,7 @@ void repeat(ostream &out, const char* s, int n) {
     }
 }
 
-void repeat(char* row, const char c, int start, int end) {
+void repeatRow(char* row, const char c, int start, int end) {
     for (int i = start; i < end; i++) {
         row[i] = c;
     }
@@ -188,7 +188,7 @@ void BinaryTreeDisplay::render(char** output, const int centerX, const int cente
     const int startY = centerY;
     int y = startY;
     output[y][startX] = CORNER_TL_2;
-    repeat(output[y], LINE_HORZ_2, startX + 1, endX);
+    repeatRow(output[y], LINE_HORZ_2, startX + 1, endX);
     output[y][endX] = CORNER_TR_2;
     ++y;
     output[y][startX] = LINE_VERT_2;
@@ -198,7 +198,7 @@ void BinaryTreeDisplay::render(char** output, const int centerX, const int cente
     output[y][endX] = LINE_VERT_2;
     ++y;
     output[y][startX] = CORNER_BL_2;
-    repeat(output[y], LINE_HORZ_2, startX + 1, endX);
+    repeatRow(output[y], LINE_HORZ_2, startX + 1, endX);
     output[y][endX] = CORNER_BR_2;
 
     debug("Rendering shoulders: left " + to_string(leftShoulderLen) + ", right " + to_string(rightShoulderLen));
