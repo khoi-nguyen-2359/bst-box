@@ -4,7 +4,7 @@
 #define MIN_ARM_LEN 2
 #define BOX_BORDER 1
 #define BOX_HEIGHT 3
-#define MIN_TREE_WIDTH 9
+#define MIN_TREE_WIDTH 7
 #define ARM_HEIGHT 2
 
 #define LINE_HORZ_3 L'━'
@@ -82,12 +82,12 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
     buffer[y][boxEndX] = BOX_TR_CORNER;
     buffer[boxEndY][boxStartX] = BOX_BL_CORNER;
     buffer[boxEndY][boxEndX] = BOX_BR_CORNER;
-    wmemset(buffer[y] + boxStartX + 1, BOX_H_LINE, boxEndX - boxStartX - 1);
-    wmemset(buffer[boxEndY] + boxStartX + 1, BOX_H_LINE, boxEndX - boxStartX - 1);
+    wmemset(buffer[y] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
+    wmemset(buffer[boxEndY] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
     repeatOnColumn(buffer, boxStartX, BOX_V_LINE, y + 1, boxEndY);
     repeatOnColumn(buffer, boxEndX, BOX_V_LINE, y + 1, boxEndY);
     if (boxStartY > 0) {
-        buffer[boxStartY][boxStartX + node->boxWidth / 2] = L'┻';
+        buffer[boxStartY][boxStartX + node->boxWidth / 2] = ARM_T_JUNCTION;
     }
 
     // Draw the value
@@ -127,7 +127,7 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
     int endY = startY + ARM_HEIGHT - 1;
-    wchar_t corner, junction;
+    wchar_t corner;
     if (parent->left == child) {
         startX = x + parent->boxX - 1;
         endX = x + child->boxX + child->boxWidth / 2;
@@ -183,9 +183,7 @@ void measure(BSTBox* node) {
     // calculate width of display value
     node->valueString = to_string(node->value);
     node->valueWidth = max((int)node->valueString.length(), MIN_VALUE_WIDTH);
-    if (node->valueWidth % 2 == 0) {
-        ++node->valueWidth;
-    }
+    node->valueWidth += 1 - node->valueWidth % 2;
 
     // calculate width of the tree
     node->boxWidth = node->valueWidth + 2 * BOX_BORDER;
@@ -194,9 +192,9 @@ void measure(BSTBox* node) {
     node->rightWidth = (node->right ? node->right->width : widthAsLeaf / 2);
     node->width = node->leftWidth + node->rightWidth + 1;
     if (node->left && node->right) {
-        int childCenterDistance = node->left->rightWidth + 3 + node->right->leftWidth;
-        int centerX = node->left->leftWidth + childCenterDistance / 2;
-        node->boxX = centerX - node->boxWidth / 2;
+        int childDistance = node->right->boxX + node->left->width + 1 - node->left->boxX;
+        int centerX = node->left->leftWidth + childDistance / 2;
+        node->boxX = node->left->boxX + node->left->boxWidth / 2 + childDistance / 2 - node->boxWidth / 2;
     } else {
         node->boxX = node->leftWidth - node->boxWidth / 2;
     }

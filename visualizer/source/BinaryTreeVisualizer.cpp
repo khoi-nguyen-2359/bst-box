@@ -2,6 +2,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 
 #include "../../treeview/source/BST.h"
 #include "../../treeview/source/BSTBox.h"
@@ -11,7 +12,7 @@ using std::wcout;
 using std::cin;
 
 void initializeLogging();
-void createNewTree(BSTNode*& root);
+void randomizeNewTree(BSTNode*& root);
 void insertNodes(BSTNode*& root);
 void deleteNodes(BSTNode*& root);
 void present(BSTNode* root);
@@ -29,20 +30,20 @@ int main(int argc, char* argv[]) {
 ║ BINARY SEARCH TREE COMMAND LINE VISUALIZATION                         ║
 ╠═══════════════════════════════════════════════════════════════════════╣
 ║ Please choose one task below:                                         ║
-║ [C]reate a new binary search tree.                                    ║
-║ [I]nsert nodes into the current tree.                                 ║
-║ [D]elete nodes from the current tree.                                 ║
-║ [E]xit.                                                               ║
-║ Please enter your choice: [C|I|D|E][ENTER]                            ║
+║ > Create a new [R]andom binary search tree.                           ║
+║ > [I]nsert nodes into the current tree.                               ║
+║ > [D]elete nodes from the current tree.                               ║
+║ > [E]xit.                                                             ║
+║ Please enter your choice: [R|I|D|E][ENTER]                            ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 )";
         char operation;
         cin >> operation;
         switch (operation) {
-            case 'C':
-            case 'c':
-                createNewTree(tree);
-                break;
+            case 'R':
+            case 'r':
+                randomizeNewTree(tree);
+            break;
 
             case 'I':
             case 'i':
@@ -64,27 +65,33 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void createNewTree(BSTNode*& root) {
-    wcout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
-    vector<int> values = getInputIntegers();
-    debug("Creating new tree with values: ");
-    for (int value : values) {
-        debug(std::to_string(value));
+void randomizeNewTree(BSTNode*& root) {
+    const int MAX = 20;
+    int numResponse;
+    wcout << "Please enter number of node (not exceeding " << MAX << "): ";
+    cin >> numResponse;
+
+    srand(time(nullptr));
+    vector<int> randValues;
+    int nodeCount = min(MAX, numResponse);
+    for (int i = 0; i < nodeCount; ++i) {
+        randValues.push_back(rand() % 1000);
     }
-    wcout << endl;
-    root = createBSTNode(values.data(), values.size());
+    deleteBSTNode(root);
+    root = createBSTNode(randValues.data(), nodeCount);
 
     present(root);
 }
 
 void insertNodes(BSTNode*& root) {
-    wcout << "Please enter integer in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
+    wcout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
-    for (int value : values) {
-        if (!root) {
-            root = createBSTNode(value);
+    if (!root) {
+        root = createBSTNode(values.data(), values.size());
+    } else {
+        for (int value : values) {
+            insertBSTNode(root, value);
         }
-        insertBSTNode(root, value);
     }
 
     present(root);
@@ -111,7 +118,7 @@ void present(BSTNode* root) {
     BSTBox* treeBox = createBSTBox(root);
     wcout << LR"(
 ╔═══════════════════════════════════════════════════════════════════════╗
-║ EXISTING TREE                                                         ║
+║ CURRENT TREE                                                          ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 
 )";
