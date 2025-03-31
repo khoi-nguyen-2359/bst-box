@@ -4,97 +4,53 @@
 #include <iostream>
 
 #include "../../treeview/source/BST.h"
-// #include "../../treeview/source/BinaryTreeDisplay.h"
-#include "../../treeview/source/BSTBoxy.h"
+#include "../../treeview/source/BSTBox.h"
 
 using std::string;
 using std::wcout;
-// using std::cout;
 using std::cin;
 
 void initializeLogging();
 void createNewTree(BSTNode*& root);
-void insertNodes(BSTNode* root);
+void insertNodes(BSTNode*& root);
 void deleteNodes(BSTNode*& root);
 void present(BSTNode* root);
 vector<int> getInputIntegers();
+bool verifyEmptyTree(BSTNode* root);
 
 int main(int argc, char* argv[]) {
     initializeLogging();
-    // std::locale::global(std::locale("en_US.UTF-8")); // Set global locale
-    std::wcout.imbue(std::locale("en_US.UTF-8")); // Apply locale to wcout
+    wcout.imbue(std::locale("en_US.UTF-8"));
 
-    // wchar_t* wideStr = new wchar_t[20];
-    // // wideStr[0] = L'║';
-    // // wideStr[1] = L'\0';
-    // for (int i = 0; i < 10; ++i) {
-    //     wideStr[i] = L'A' + i; // Assign characters 'A' to 'J'
-    // }
-    // wideStr[10] = L'║';
-    // wideStr[11] = L'A'; // Null-terminate the wide string
-    // wideStr[12] = L'\0'; // Null-terminate the wide string
-
-    // // wprintf(L"Wide string content: %lc\n\n", wideStr[10]);
-    // // std::wcout << L"Wide string content: " << wideStr << std::endl;
-    // // wcout << wideStr << endl;
-    // cout << (int)(wideStr[10]) << endl;
-    // cout << (wchar_t)(L'║') << endl;
-    // string str = "Hello, ║ 世界!";
-    // const char* data = str.data();
-    // cout << data << endl;
-    // while (*data != '\0') {
-    //     cout << *data << " ";
-    //     data++;
-    // }
-    // cout << data[7] << endl;
-
-    // std::wstring wstr = L"Hello, ║ 世界!";
-    // wchar_t* wdata = new wchar_t[20]{L'║', L'\0'};
-    // wcout << wdata << endl;
-    
-    // while (*wdata != L'\0') {
-    //     wcout << *wdata << " ";
-    //     wdata++;
-    // }
-    // wcout << wdata[7] << endl;
-    
     BSTNode* tree;
     while (true) {
-
-        // Assign a wide string
-        // wcscpy(wideStr, L"Hello, 世界!");  
-    
-        // Print using std::wcout
-        // std::wprintf(wideStr);
-        // wchar_t* wstr = L"Hello, 世界!\0";
-        // char str[] = "Hello, 世║!\0";
-        // str[4] = L'║';
-        // cout << "║" << std::endl;
-        // cout << "Hello, 世界!" << std::endl;
-        // cout << (wchar_t)str[8] << std::endl;
-
-        // wcout << wstr << endl;
-        wcout << "A. Create a new binary search tree" << endl;
-        wcout << "B. Add more nodes into the current tree" << endl;
-        wcout << "C. Remove some nodes from the current tree" << endl;
-        wcout << "D. Switch tree presentation" << endl;
-        wcout << "E. Exit" << endl;
-        wcout << "Your choice: [A|B|C...][ENTER]" << endl;
+        wcout << LR"(
+╔═══════════════════════════════════════════════════════════════════════╗
+║ BINARY SEARCH TREE COMMAND LINE VISUALIZATION                         ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║ Please choose one task below:                                         ║
+║ [C]reate a new binary search tree.                                    ║
+║ [I]nsert nodes into the current tree.                                 ║
+║ [D]elete nodes from the current tree.                                 ║
+║ [E]xit.                                                               ║
+║ Please enter your choice: [C|I|D|E][ENTER]                            ║
+╚═══════════════════════════════════════════════════════════════════════╝
+)";
         char operation;
         cin >> operation;
         switch (operation) {
-            case 'A':
-            case 'a':
+            case 'C':
+            case 'c':
                 createNewTree(tree);
                 break;
 
-            case 'B':
-            case 'b':
+            case 'I':
+            case 'i':
                 insertNodes(tree);
                 break;
 
-            case 'C':
-            case 'c':
+            case 'D':
+            case 'd':
                 deleteNodes(tree);
                 break;
             
@@ -102,6 +58,8 @@ int main(int argc, char* argv[]) {
                 return 0;
         }
     }
+
+    deleteBSTNode(tree);
 
     return 0;
 }
@@ -114,39 +72,53 @@ void createNewTree(BSTNode*& root) {
         debug(std::to_string(value));
     }
     wcout << endl;
-    root = createNode(values.data(), values.size());
+    root = createBSTNode(values.data(), values.size());
 
     present(root);
 }
 
-void insertNodes(BSTNode* root) {
-    wcout << "Please enter values to insert: [int1] [int2] ... [intN][ENTER]" << endl;
+void insertNodes(BSTNode*& root) {
+    wcout << "Please enter integer in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
     for (int value : values) {
-        insert(root, value);
+        if (!root) {
+            root = createBSTNode(value);
+        }
+        insertBSTNode(root, value);
     }
 
     present(root);
 }
 
 void deleteNodes(BSTNode*& root) {
-    wcout << "Please enter values to delete: [int1] [int2] ... [intN][ENTER]" << endl;
+    if (!verifyEmptyTree(root)) {
+        return;
+    }
+    wcout << "Please enter integers in deletion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
     for (int value : values) {
-        remove(root, value);
+        removeBSTNode(root, value);
     }
 
     present(root);
 }
 
 void present(BSTNode* root) {
-    BSTBoxyNode* boxyRoot = createBoxyNode(root);
-    wcout << endl;
-    measure(boxyRoot);
-    present(wcout, boxyRoot);
-    wcout << endl;
+    if (!verifyEmptyTree(root)) {
+        return;
+    }
 
-    deleteBoxyTree(boxyRoot);
+    BSTBox* treeBox = createBSTBox(root);
+    wcout << LR"(
+╔═══════════════════════════════════════════════════════════════════════╗
+║ EXISTING TREE                                                         ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+)";
+
+    presentBSTBox(wcout, treeBox);
+
+    deleteBSTBox(treeBox);
 }
 
 void initializeLogging() {
@@ -168,4 +140,17 @@ vector<int> getInputIntegers() {
     }
     cin.ignore();
     return values;
+}
+
+bool verifyEmptyTree(BSTNode* root) {
+    if (!root) {
+        wcout << LR"(
+╔═══════════════════════════════════════════════════════════════════════╗
+║ TREE IS EMPTY!                                                        ║
+╚═══════════════════════════════════════════════════════════════════════╝
+)";
+        return false;
+    }
+
+    return true;
 }

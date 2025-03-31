@@ -1,5 +1,5 @@
-#ifndef BSTBOXY_H
-#define BSTBOXY_H
+#ifndef BSTBOX_H
+#define BSTBOX_H
 
 
 #include <iostream>
@@ -21,21 +21,22 @@ using std::ostream;
 using std::wostream;
 using std::string;
 
-struct BSTBoxyNode {
+struct BSTBox {
     int value = 0;
     string valueString;
     int valueWidth = 0;
-    BSTBoxyNode* left = nullptr;
-    BSTBoxyNode* right = nullptr;
+    BSTBox* left = nullptr;
+    BSTBox* right = nullptr;
     int width = 0;
+    int leftWidth = 0;
+    int rightWidth = 0;
     int height = 0;
     int boxX = 0;
-    int boxW = 0;
+    int boxWidth = 0;
 };
 
-BSTBoxyNode* createBoxyNode(BSTNode* bstNode);
-void deleteBoxyTree(BSTBoxyNode* root);
-void present(wostream& out, BSTBoxyNode* node);
-void measure(BSTBoxyNode* node);
+BSTBox* createBSTBox(BSTNode* bstNode);
+void deleteBSTBox(BSTBox* root);
+void presentBSTBox(wostream& out, BSTBox* node);
 
 #endif

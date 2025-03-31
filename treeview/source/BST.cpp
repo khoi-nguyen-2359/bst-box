@@ -16,7 +16,7 @@ inline void rotateRight(BSTNode* root);
 
 int removeMax(BSTNode* parent, BSTNode* node);
 
-BSTNode* createNode(int value) {
+BSTNode* createBSTNode(int value) {
     BSTNode* node = new BSTNode;
     node->value = value;
     node->height = 1;
@@ -25,21 +25,21 @@ BSTNode* createNode(int value) {
     return node;
 }
 
-BSTNode* createNode(int* values, int len) {
+BSTNode* createBSTNode(int* values, int len) {
     if (len == 0) {
         return nullptr;
     }
-    BSTNode* root = createNode(values[0]);
+    BSTNode* root = createBSTNode(values[0]);
     for (int i = 1; i < len; i++) {
-        insert(root, values[i]);
+        insertBSTNode(root, values[i]);
     }
     return root;
 }
 
-void deleteTree(BSTNode* root) {
+void deleteBSTNode(BSTNode* root) {
     if (!root) return;
-    deleteTree(root->left);
-    deleteTree(root->right);
+    deleteBSTNode(root->left);
+    deleteBSTNode(root->right);
     delete root;
 }
 
@@ -55,7 +55,7 @@ void updateHeight(BSTNode* node) {
 
 inline void rotateLeft(BSTNode* root) {
     debug("Rotating left at node " + std::to_string(root->value));
-    BSTNode* newLeft = createNode(root->value);
+    BSTNode* newLeft = createBSTNode(root->value);
     newLeft->left = root->left;
     newLeft->right = root->right->left;
     root->left = newLeft;
@@ -67,7 +67,7 @@ inline void rotateLeft(BSTNode* root) {
 
 inline void rotateRight(BSTNode* root) {
     debug("Rotating right at node " + std::to_string(root->value));
-    BSTNode* newRight = createNode(root->value);
+    BSTNode* newRight = createBSTNode(root->value);
     newRight->right = root->right;
     newRight->left = root->left->right;
     root->right = newRight;
@@ -103,7 +103,7 @@ void balance(BSTNode* root) {
     updateHeight(root);
 }
 
-bool insert(BSTNode* root, int value) {
+bool insertBSTNode(BSTNode* root, int value) {
     if (value == root->value) {
         return false; // Duplicate value
     }
@@ -111,16 +111,16 @@ bool insert(BSTNode* root, int value) {
     bool inserted = false;
     if (value < root->value) {
         if (root->left) {
-            inserted = insert(root->left, value);
+            inserted = insertBSTNode(root->left, value);
         } else {
-            root->left = createNode(value);
+            root->left = createBSTNode(value);
             inserted = true;
         }
     } else if (value > root->value) {
         if (root->right) {
-            inserted = insert(root->right, value);
+            inserted = insertBSTNode(root->right, value);
         } else {
-            root->right = createNode(value);
+            root->right = createBSTNode(value);
             inserted = true;
         }
     }
@@ -143,13 +143,13 @@ void replace(BSTNode* dest, BSTNode* src) {
     delete tempRight;
 }
 
-bool remove(BSTNode*& root, int value) {//}, BSTNode* parentOfLeft, BSTNode* parentOfRight) {
+bool removeBSTNode(BSTNode*& root, int value) {
     debug("Removing " + std::to_string(value) + " from node " + std::to_string(root->value));
     bool removed = false;
     if (value < root->value) {
-        removed = root->left ? remove(root->left, value) : false;
+        removed = root->left ? removeBSTNode(root->left, value) : false;
     } else if (value > root->value) {
-        removed = root->right ? remove(root->right, value) : false;
+        removed = root->right ? removeBSTNode(root->right, value) : false;
     } else {
         // Node found
         if (!root->left && !root->right) {

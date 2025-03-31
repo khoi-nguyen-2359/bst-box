@@ -18,11 +18,11 @@ struct BSTNode {
 };
 
 // Function declarations for working with BSTNode
-BSTNode* createNode(int value);
-BSTNode* createNode(int* values, int len);
-void deleteTree(BSTNode* root);
+BSTNode* createBSTNode(int value);
+BSTNode* createBSTNode(int* values, int len);
+void deleteBSTNode(BSTNode* root);
 
-bool insert(BSTNode* root, int value);
-bool remove(BSTNode*& root, int value);
+bool insertBSTNode(BSTNode* root, int value);
+bool removeBSTNode(BSTNode*& root, int value);
 
 #endif
