@@ -4,9 +4,6 @@ enable_testing()
 
 find_package(GTest REQUIRED)
 
-# include_directories("/opt/homebrew/opt/googletest/include")
-# link_directories("/opt/homebrew/opt/googletest/lib")
-
 file(GLOB_RECURSE TEST_SOURCES "*.cpp")
 add_executable(TreeViewTest ${TEST_SOURCES})
 
@@ -15,6 +12,6 @@ target_link_libraries(TreeViewTest
         TreeView
         GTest::gtest
 )
+target_include_directories(TreeViewTest PRIVATE ${CMAKE_SOURCE_DIR}/treeview/source)
 
-# include(GoogleTest)
 gtest_discover_tests(TreeViewTest)

@@ -6,8 +6,8 @@
 #include <fstream>
 #include <filesystem>
 
-#include "../../treeview/source/AVL.h"
-#include "../../treeview/source/BSTBox.h"
+#include "AVL.h"
+#include "BSTBox.h"
 
 using std::string;
 using std::wcout;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 void createRandomTree(AVLNode*& root) {
     const int MAX = 20;
     int numResponse;
-    wcout << "Please enter number of node (not exceeding " << MAX << "): ";
+    wcout << "Please enter number of nodes (not exceeding " << MAX << "): ";
     cin >> numResponse;
 
     srand(time(nullptr));
