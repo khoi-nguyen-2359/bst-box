@@ -16,36 +16,54 @@ using std::endl;
 using std::wofstream;
 using std::vector;
 
+// Locale for the output stream to display wide characters (node bounding box, connecting arms)
 #define LOCALE "en_US.UTF-8"
+
+// Width of the decoration frame for action menu and texts
 #define FRAME_WIDTH 60
 
+// Flags indicate which sides a text should be bound in a frame
 #define FLAG_TOP 0b00001
 #define FLAG_LEFT 0b00010
 #define FLAG_RIGHT 0b00100
 #define FLAG_BOTTOM 0b01000
-#define FLAG_SIDE FLAG_LEFT | FLAG_RIGHT
 #define FLAG_BOTTOM_T 0b10000
-#define FLAG_CLOSED 0b1111
+#define FLAG_SIDE (FLAG_LEFT | FLAG_RIGHT)
+#define FLAG_CLOSED (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
 
-void initializeLogging();
+#pragma Function Declarations
+// Create a new tree with randomly generated nodes.
 void createRandomTree(AVLNode*& root);
+// Insert new nodes into a tree.
 void insertNodes(AVLNode*& root);
+// Find and delete nodes from a tree.
 void deleteNodes(AVLNode*& root);
+// Print the tree to console output.
 void present(AVLNode* root);
-void exportToFile(AVLNode* root);
-void viewCurrentTree(AVLNode* root);
+// Delete all nodes of the tree.
 void resetCurrentTree(AVLNode*& root);
+// Export tree presentation into file.
+void exportToFile(AVLNode* root);
+// Initialize debug logging.
+void initializeLogging();
+// Read user input as vector of ints.
 vector<int> getInputIntegers();
+// Check if tree is empty.
 bool verifyTreeContent(AVLNode* root);
+// Print actions for user to interact with the program.
 char printActionMenu();
+// Print text content in a decoration frame.
 void printFrame(const wchar_t* text, int mask);
+#pragma endregion
 
 int main(int argc, char* argv[]) {
     initializeLogging();
+
+    // This is important because text visualization is based on Unicode characters.
     wcout.imbue(std::locale(LOCALE));
 
-    AVLNode* tree;
-    char action;
+    AVLNode* tree;  // Pointer to the main tree object of the program.
+    char action;    // Action user chooses from the menu below.
     while (true) {
         action = printActionMenu();
         switch (action) {
@@ -66,7 +84,7 @@ int main(int argc, char* argv[]) {
 
             case 'V':
             case 'v':
-                viewCurrentTree(tree);
+                present(tree);
                 break;
 
             case 'R':
@@ -89,15 +107,21 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+/**
+ * @brief First receive from user a number for node count, then generate random integers for node values.
+ * 
+ * Randomized values range around -500 -> 500.
+ * @param root Tree's root node, will be deleted and re-allocated before insertion.
+ */
 void createRandomTree(AVLNode*& root) {
-    const int MAX = 20;
+    const int MAX_RAND_NODE = 20;
     int numResponse;
-    wcout << "Please enter number of nodes (not exceeding " << MAX << "): ";
+    wcout << "Please enter number of nodes (not exceeding " << MAX_RAND_NODE << "): ";
     cin >> numResponse;
 
     srand(time(nullptr));
     vector<int> randValues;
-    int nodeCount = std::min(MAX, numResponse);
+    int nodeCount = std::min(MAX_RAND_NODE, numResponse);
     for (int i = 0; i < nodeCount; ++i) {
         randValues.push_back(rand() % 1000 - 500);
     }
@@ -107,6 +131,11 @@ void createRandomTree(AVLNode*& root) {
     present(root);
 }
 
+/**
+ * @brief Prompt user to enter a sequence of nodes to insert to the current tree.
+ * 
+ * @param root Tree's root node, will be allocated before insertion if null.
+ */
 void insertNodes(AVLNode*& root) {
     wcout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
@@ -114,6 +143,12 @@ void insertNodes(AVLNode*& root) {
     present(root);
 }
 
+/**
+ * @brief Prompt user to key in a number of integers to delete from the current tree.
+ * 
+ * The last node can also be deleted.
+ * @param root Tree's root node, will be null if all nodes are deleted.
+ */
 void deleteNodes(AVLNode*& root) {
     if (!verifyTreeContent(root)) {
         return;
@@ -127,6 +162,32 @@ void deleteNodes(AVLNode*& root) {
     present(root);
 }
 
+/**
+ * @brief Use BSTBox implementation to print the tree content to console output.
+ * 
+ * @param root Tree's root node.
+ */
+void present(AVLNode* root) {
+    if (!verifyTreeContent(root)) {
+        return;
+    }
+
+    BSTBox* treeBox = createBSTBox(root);
+
+    wcout << endl;
+    printFrame(L"CURRENT TREE", FLAG_CLOSED);
+
+    wcout << endl;
+    presentBSTBox(wcout, treeBox);
+
+    deleteBSTBox(treeBox);
+}
+
+/**
+ * @brief Prompt user to put in the text file's name to store tree content as presented on console UI.
+ * 
+ * @param root Tree's root node.
+ */
 void exportToFile(AVLNode* root) {
     if (!verifyTreeContent(root)) {
         return;
@@ -134,16 +195,19 @@ void exportToFile(AVLNode* root) {
     wcout << "Please enter file name: ";
     string fileName;
     cin >> fileName;
+
     wofstream wofs;
     wofs.open(fileName, std::ofstream::out);
-    wofs.imbue(std::locale(LOCALE));
+    wofs.imbue(std::locale(LOCALE)); // This locale must be similar to the console output's.
+
     if (!wofs.is_open()) {
         wcout << "Error opening file " << fileName.data() << endl;
         return;
     }
 
     BSTBox* box = createBSTBox(root);
-    presentBSTBox(wofs, box);
+
+    presentBSTBox(wofs, box); // Print the tree into output file stream instead of console output stream.
 
     wcout << "File exported successfully at " << fileName.data() << endl;
 
@@ -151,53 +215,25 @@ void exportToFile(AVLNode* root) {
     deleteBSTBox(box);
 }
 
-void viewCurrentTree(AVLNode* root) {
-    present(root);
-}
-
+/**
+ * @brief Delete all nodes from the tree and set to null.
+ * 
+ * @param root Tree's root node.
+ */
 void resetCurrentTree(AVLNode*& root) {
     deleteAVLNode(root);
-    root = nullptr;
     verifyTreeContent(root);
 }
 
-void present(AVLNode* root) {
-    wcout << endl;
-    if (!verifyTreeContent(root)) {
-        return;
-    }
-
-    BSTBox* treeBox = createBSTBox(root);
-    printFrame(L"CURRENT TREE", FLAG_CLOSED);
-
-    presentBSTBox(wcout, treeBox);
-
-    deleteBSTBox(treeBox);
-}
-
-void initializeLogging() {
-    auto file_logger = spdlog::basic_logger_mt("BSTBox", "BSTBoxLogs.log");
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::set_default_logger(file_logger);
-    file_logger->flush_on(spdlog::level::debug);
-}
-
-vector<int> getInputIntegers() {
-    vector<int> values;
-    int response;
-    if (cin.peek() == '\n') {
-        cin.ignore();
-    }
-    while (cin.peek() != '\n') {
-        cin >> response;
-        values.push_back(response);
-    }
-    cin.ignore();
-    return values;
-}
-
+/**
+ * @brief Show a notice telling whether the tree is empty. 
+ * 
+ * This is to check before some tree's operations.
+ * @return True If tree contains nodes, otherwise False.
+ */
 bool verifyTreeContent(AVLNode* root) {
     if (!root) {
+        wcout << endl;
         printFrame(L"TREE IS EMPTY.", FLAG_CLOSED);
         return false;
     }
@@ -205,8 +241,14 @@ bool verifyTreeContent(AVLNode* root) {
     return true;
 }
 
+/**
+ * @brief Print the program name and actions that the program offers in a menu.
+ * 
+ * @return Letter represents the action to proceed.
+ */
 char printActionMenu() {
-    printFrame(L"BINARY SEARCH TREE COMMAND LINE VISUALIZATION", FLAG_TOP | FLAG_SIDE | FLAG_BOTTOM_T);
+    wcout << endl;
+    printFrame(L"BST BOX - BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDE | FLAG_BOTTOM_T);
     printFrame(
 LR"(Please choose one action below:
     > [C]reate a binary search tree from random nodes.
@@ -224,8 +266,20 @@ Please enter your choice: [C|I|D|V|R|E|Q][ENTER]
     return action;
 }
 
+/**
+ * @brief Utility function to print a text content embedded inside a bounding box for decoration purpose.
+ * 
+ * @example 
+ * ╔═══════════╗ -> top line
+ * ║ BST BOX 1 ║ -> text content lines
+ * ║ BST BOX 2 ║ -> (can be multiple)
+ * ╚═══════════╝ -> bottom line
+ */
 void printFrame(const wchar_t* text, int mask) {
-    wchar_t* buffer = new wchar_t[FRAME_WIDTH + 1];
+    // Allocate output buffer memory for one line.
+    wchar_t* buffer = new wchar_t[FRAME_WIDTH + 1]; 
+
+    // Print the top line
     if (mask & FLAG_TOP) {
         wmemset(buffer, L'═', FRAME_WIDTH);
         buffer[0] = L'╔';
@@ -234,24 +288,31 @@ void printFrame(const wchar_t* text, int mask) {
         wcout << buffer << endl;
     }
     
+    // Split the text content into lines and print each line in a loop
     const wchar_t* found = std::wcschr(text, L'\n');
     const wchar_t* line = text;
     do {
+        // Pre-fill the entire line with spaces
         wmemset(buffer, L' ', FRAME_WIDTH);
+
+        // Left edge
         if (mask & FLAG_LEFT) {
             buffer[0] = L'║';
             buffer[1] = ' ';
         }
 
+        // Copy line's text content into buffer, cut off at frame's end
         int lineLen = found ? (found - line) : wcslen(text);
         int copyLen = std::min(lineLen, FRAME_WIDTH - 4);
         std::wmemcpy(buffer + 2, line, copyLen);
 
+        // Right edge
         if (mask & FLAG_RIGHT) {
             buffer[FRAME_WIDTH - 2] = ' ';
             buffer[FRAME_WIDTH - 1] = L'║';
         }
 
+        // Print line's buffer into output stream
         buffer[FRAME_WIDTH] = '\0';
         wcout << buffer << endl;
 
@@ -262,6 +323,7 @@ void printFrame(const wchar_t* text, int mask) {
         found = std::wcschr(line, L'\n');
     } while (found);
 
+    // Print bottom line
     if (mask & FLAG_BOTTOM || mask & FLAG_BOTTOM_T) {
         wmemset(buffer, L'═', FRAME_WIDTH);
         if (mask & FLAG_BOTTOM_T) {
@@ -274,4 +336,31 @@ void printFrame(const wchar_t* text, int mask) {
         buffer[FRAME_WIDTH] = '\0';
         wcout << buffer << endl;
     }
+}
+
+/**
+ * @brief Read user input as an array of integers before returning when hitting a line break.
+ * 
+ * @return Vector of integers.
+ */
+vector<int> getInputIntegers() {
+    vector<int> values;
+    int response;
+    if (cin.peek() == '\n') {
+        cin.ignore();
+    }
+    while (cin.peek() != '\n') {
+        cin >> response;
+        values.push_back(response);
+    }
+    cin.ignore();
+    return values;
+}
+
+// Initialize file logger for debugging.
+void initializeLogging() {
+    auto file_logger = spdlog::basic_logger_mt("BSTBox", "BSTBoxLogs.log");
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_default_logger(file_logger);
+    file_logger->flush_on(spdlog::level::debug);
 }

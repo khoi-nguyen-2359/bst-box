@@ -168,6 +168,7 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
 
 void presentBSTBox(wostream& out, BSTBox* node) {
     measure(node);
+    
     wchar_t* buffer[node->height];
     for (int i = 0; i < node->height; ++i) {
         buffer[i] = new wchar_t[node->width + 1];

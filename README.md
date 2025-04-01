@@ -18,7 +18,7 @@ The idea draws inspiration from visualizer apps that present programming concept
 an intuitive and engaging way. With this goal in mind, this project was developed to
 visualize Binary Tree on console UI with text-based presentation. Under text form, Binary Tree can be shared straightforwardly in text communication like technical documents, code reviews, or source code documentation, all without the need of images.
 
-Currently the program demonstrates how AVL Tree changes through out insertion and deletion of nodes. The output is made with Unicode characters, and can be exported to a text file for sharing.
+Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
 
 ## Processing Flow
 
@@ -57,13 +57,13 @@ Below is an abstract sequence of how the application operates:
    ```bash
    ./scripts/build.sh
    ```
-   Output executable: `build/visualizer/Visualizer`
+   Output executable: `build/bstbox/BSTBox`
 
 1. **Run the Application**:
    ```bash
    ./scripts/run.sh
    ```
-   Log file: `build/visualizer/TreePresenterLogs.log`
+   Log file: `build/bstbox/BSTBoxLogs.log`
 
 1. **Test the Core Logic**:
    ```bash
@@ -81,7 +81,7 @@ root/
 │                 # and output manipulation
 │                 # - CMake Library
 │
-├── visualizer/   # Main application interface
+├── bstbox/       # Main application interface
 │                 # - CMake Executable
 │
 ├── build/        # CMake build output directory
@@ -103,8 +103,8 @@ root/
 | **Version Control**     | Git for source code management                   |
 
 ## Future Enhancements
-- **Visualization**: Show step-by-step of tree changes for each insertion and deletion.
-- **Tree Types**: Implement different Self-Balacing Binary Tree types.
-- **Text-based presentation**: Non-monospaced font types.
+- **Visualization**: Show step-by-step of tree changes after each insertion and deletion.
+- **Tree Types**: Implement different BST balancing methods.
+- **Presentation**: Non-monospaced font types for sharing over messaging apps.
 - **Export Functionality**: Export to different content types (now only text file supported).
 - **Import Functionality**: Allow reading tree content from file.
