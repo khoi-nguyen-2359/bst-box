@@ -1,10 +1,28 @@
 #include "BSTBox.h"
+#include <iostream>
+#include <spdlog/spdlog.h>
+#include <iomanip>
+#include <queue>
+#include <vector>
+
+using std::endl;
+using std::queue;
+using std::vector;
+using std::to_string;
+using spdlog::debug;
+using std::max;
+using std::min;
+using std::setw;
+using std::setfill;
+using std::ostream;
+using std::wostream;
+using std::string;
 
 #define MIN_VALUE_WIDTH 3
 #define MIN_ARM_LEN 2
 #define BOX_BORDER 1
 #define BOX_HEIGHT 3
-#define MIN_TREE_WIDTH 7
+#define MIN_TREE_WIDTH 11
 #define ARM_HEIGHT 2
 
 #define LINE_HORZ_3 L'━'
@@ -52,11 +70,11 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child);
 void repeatOnColumn(wchar_t** buffer, int col, const wchar_t c, int start, int end);
 void drawBox(wchar_t** buffer, int x, int y, BSTBox* node);
 
-BSTBox* createBSTBox(BSTNode* bstNode) {
+BSTBox* createBSTBox(AVLNode* avlNode) {
     BSTBox* node = new BSTBox;
-    node->value = bstNode->value;
-    node->left = bstNode->left ? createBSTBox(bstNode->left) : nullptr;
-    node->right = bstNode->right ? createBSTBox(bstNode->right) : nullptr;
+    node->value = avlNode->value;
+    node->left = avlNode->left ? createBSTBox(avlNode->left) : nullptr;
+    node->right = avlNode->right ? createBSTBox(avlNode->right) : nullptr;
     return node;
 }
 

@@ -1,83 +1,83 @@
-#include <algorithm>
 #include <iostream>
 #include <spdlog/spdlog.h>
 
-#include "BST.h"
+#include "AVL.h"
 
 using std::max;
+using std::cout;
+using std::endl;
 using spdlog::debug;
+using std::vector;
 
-void updateHeight(BSTNode* node);
-int getHeight(BSTNode* node);
-
-void balance(BSTNode* root);
-inline void rotateLeft(BSTNode* root);
-inline void rotateRight(BSTNode* root);
-
-int removeMax(BSTNode* parent, BSTNode* node);
-
-BSTNode* createBSTNode(int value) {
-    BSTNode* node = new BSTNode;
+AVLNode* createAVLNode(int value) {
+    AVLNode* node = new AVLNode();
     node->value = value;
-    node->height = 1;
-    node->left = nullptr;
-    node->right = nullptr;
     return node;
 }
 
-BSTNode* createBSTNode(int* values, int len) {
-    if (len == 0) {
-        return nullptr;
-    }
-    BSTNode* root = createBSTNode(values[0]);
-    for (int i = 1; i < len; i++) {
-        insertBSTNode(root, values[i]);
-    }
-    return root;
-}
+void updateHeight(AVLNode* node);
+int getHeight(AVLNode* node);
 
-void deleteBSTNode(BSTNode* root) {
+void balance(AVLNode* root);
+inline void rotateLeft(AVLNode* root);
+inline void rotateRight(AVLNode* root);
+
+int removeMax(AVLNode* parent, AVLNode* node);
+
+void deleteAVLNode(AVLNode*& root) {
     if (!root) return;
-    deleteBSTNode(root->left);
-    deleteBSTNode(root->right);
+    deleteAVLNode(root->left);
+    deleteAVLNode(root->right);
     delete root;
 }
 
-int getHeight(BSTNode* node) {
+AVLNode* createAVLTree(const int* values, int len) {
+    AVLNode* root = nullptr;
+    insertAVLNodes(root, values, len);
+    return root;
+}
+
+void insertAVLNodes(AVLNode*& root, const int* values, int len) {
+    for (int i = 0; i < len; ++i) {
+        insertAVLNode(root, values[i]);
+    }
+}
+
+int getHeight(AVLNode* node) {
     return node ? node->height : 0;
 }
 
-void updateHeight(BSTNode* node) {
+void updateHeight(AVLNode* node) {
     if (node) {
         node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
     }
 }
 
-inline void rotateLeft(BSTNode* root) {
+inline void rotateLeft(AVLNode* root) {
     debug("Rotating left at node " + std::to_string(root->value));
-    BSTNode* newLeft = createBSTNode(root->value);
+    AVLNode* newLeft = createAVLNode(root->value);
     newLeft->left = root->left;
     newLeft->right = root->right->left;
     root->left = newLeft;
     root->value = root->right->value;
-    BSTNode* temp = root->right;
+    AVLNode* temp = root->right;
     root->right = root->right->right;
     delete temp;
 }
 
-inline void rotateRight(BSTNode* root) {
+inline void rotateRight(AVLNode* root) {
     debug("Rotating right at node " + std::to_string(root->value));
-    BSTNode* newRight = createBSTNode(root->value);
+    AVLNode* newRight = createAVLNode(root->value);
     newRight->right = root->right;
     newRight->left = root->left->right;
     root->right = newRight;
     root->value = root->left->value;
-    BSTNode* temp = root->left;
+    AVLNode* temp = root->left;
     root->left = root->left->left;
     delete temp;
 }
 
-void balance(BSTNode* root) {
+void balance(AVLNode* root) {
     int heightDiff = getHeight(root->left) - getHeight(root->right);
     if (heightDiff >= -1 && heightDiff <= 1) {
         return;
@@ -103,7 +103,10 @@ void balance(BSTNode* root) {
     updateHeight(root);
 }
 
-bool insertBSTNode(BSTNode* root, int value) {
+bool insertAVLNode(AVLNode*& root, int value) {
+    if (!root) {
+        root = createAVLNode(value);
+    }
     if (value == root->value) {
         return false; // Duplicate value
     }
@@ -111,16 +114,16 @@ bool insertBSTNode(BSTNode* root, int value) {
     bool inserted = false;
     if (value < root->value) {
         if (root->left) {
-            inserted = insertBSTNode(root->left, value);
+            inserted = insertAVLNode(root->left, value);
         } else {
-            root->left = createBSTNode(value);
+            root->left = createAVLNode(value);
             inserted = true;
         }
     } else if (value > root->value) {
         if (root->right) {
-            inserted = insertBSTNode(root->right, value);
+            inserted = insertAVLNode(root->right, value);
         } else {
-            root->right = createBSTNode(value);
+            root->right = createAVLNode(value);
             inserted = true;
         }
     }
@@ -132,9 +135,9 @@ bool insertBSTNode(BSTNode* root, int value) {
     return inserted;
 }
 
-void replace(BSTNode* dest, BSTNode* src) {
-    BSTNode* tempLeft = dest->left;
-    BSTNode* tempRight = dest->right;
+void replace(AVLNode* dest, AVLNode* src) {
+    AVLNode* tempLeft = dest->left;
+    AVLNode* tempRight = dest->right;
     dest->value = src->value;
     dest->left = src->left;
     dest->right = src->right;
@@ -143,13 +146,13 @@ void replace(BSTNode* dest, BSTNode* src) {
     delete tempRight;
 }
 
-bool removeBSTNode(BSTNode*& root, int value) {
+bool removeAVLNode(AVLNode*& root, int value) {
     debug("Removing " + std::to_string(value) + " from node " + std::to_string(root->value));
     bool removed = false;
     if (value < root->value) {
-        removed = root->left ? removeBSTNode(root->left, value) : false;
+        removed = root->left ? removeAVLNode(root->left, value) : false;
     } else if (value > root->value) {
-        removed = root->right ? removeBSTNode(root->right, value) : false;
+        removed = root->right ? removeAVLNode(root->right, value) : false;
     } else {
         // Node found
         if (!root->left && !root->right) {
@@ -157,7 +160,7 @@ bool removeBSTNode(BSTNode*& root, int value) {
             root = nullptr;
         } else if (!root->left) {  // move up the right child
             root->value = root->right->value;
-            BSTNode* tempRight = root->right;
+            AVLNode* tempRight = root->right;
             root->right = root->right->right;
             delete tempRight;
         } else if (root->left->right) {
@@ -165,7 +168,7 @@ bool removeBSTNode(BSTNode*& root, int value) {
             root->value = removedValue;
         } else {    // move up the left child
             root->value = root->left->value;
-            BSTNode* tempLeft = root->left;
+            AVLNode* tempLeft = root->left;
             root->left = root->left->left;
             delete tempLeft;
         }
@@ -180,13 +183,13 @@ bool removeBSTNode(BSTNode*& root, int value) {
     return removed;
 }
 
-int removeMax(BSTNode* parent, BSTNode* current) {
+int removeMax(AVLNode* parent, AVLNode* current) {
     int removedValue = 0;
     if (current->right) {
         removedValue = removeMax(current, current->right);
     } else {
         removedValue = current->value;
-        BSTNode* currentLeft = current->left;
+        AVLNode* currentLeft = current->left;
         spdlog::debug("Removing max " + std::to_string(removedValue));
         delete current;
         parent->right = currentLeft;
@@ -198,7 +201,7 @@ int removeMax(BSTNode* parent, BSTNode* current) {
     return removedValue;
 }
 
-void printInOrder(BSTNode* root) {
+void printInOrder(AVLNode* root) {
     if (!root) return;
     printInOrder(root->left);
     std::cout << root->value << " ";

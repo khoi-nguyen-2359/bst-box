@@ -1,23 +1,10 @@
 #ifndef BSTBOX_H
 #define BSTBOX_H
 
-
 #include <iostream>
-#include <iomanip>
-#include <queue>
-#include <vector>
 
-#include "BST.h"
+#include "AVL.h"
 
-using std::queue;
-using std::vector;
-using std::to_string;
-using spdlog::debug;
-using std::max;
-using std::min;
-using std::setw;
-using std::setfill;
-using std::ostream;
 using std::wostream;
 using std::string;
 
@@ -35,7 +22,7 @@ struct BSTBox {
     int boxWidth = 0;
 };
 
-BSTBox* createBSTBox(BSTNode* bstNode);
+BSTBox* createBSTBox(AVLNode* avlNode);
 void deleteBSTBox(BSTBox* root);
 void presentBSTBox(wostream& out, BSTBox* node);
 
