@@ -62,13 +62,12 @@ using std::string;
 #define ARM_T_JUNCTION L'┻'
 
 #pragma region Function Declarations
+void measure(BSTBox* node);
+void draw(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node);
+void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child);
+void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node);
 int getWidth(BSTBox* node);
 int getHeight(BSTBox* node);
-void measure(BSTBox* node);
-void draw(wchar_t** buffer, int x, int y, BSTBox* node);
-void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child);
-void repeatOnColumn(wchar_t** buffer, int col, const wchar_t c, int start, int end);
-void drawBox(wchar_t** buffer, int x, int y, BSTBox* node);
 #pragma endregion
 
 /**
@@ -92,13 +91,7 @@ void deleteBSTBox(BSTBox* root) {
     delete root;
 }
 
-void repeatOnColumn(wchar_t** buffer, int col, const wchar_t c, int start, int end) {
-    for (int i = start; i < end; i++) {
-        buffer[i][col] = c;
-    }
-}
-
-void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
+void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     int boxStartX = x + node->boxX;
     int boxEndX = boxStartX + node->boxWidth - 1;
     int boxStartY = y;
@@ -108,11 +101,17 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
     buffer[y][boxEndX] = BOX_TR_CORNER;
     buffer[boxEndY][boxStartX] = BOX_BL_CORNER;
     buffer[boxEndY][boxEndX] = BOX_BR_CORNER;
+
+    // Draw horizontal lines on top and bottom
     wmemset(buffer[y] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
     wmemset(buffer[boxEndY] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
-    repeatOnColumn(buffer, boxStartX, BOX_V_LINE, y + 1, boxEndY);
-    repeatOnColumn(buffer, boxEndX, BOX_V_LINE, y + 1, boxEndY);
-    if (boxStartY > 0) {
+
+    // Draw vertical lines on two sides
+    buffer[y + 1][boxStartX] = BOX_V_LINE;
+    buffer[y + 1][boxEndX] = BOX_V_LINE;
+
+    // If the box is a child node, show the connecting point with its parent's arm.
+    if (parent) {
         buffer[boxStartY][boxStartX + node->boxWidth / 2] = ARM_T_JUNCTION;
     }
 
@@ -134,10 +133,11 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
  * @param buffer 2-D buffer holding drawing characters.
  * @param x Offset x from the origin of the buffer.
  * @param y Offset y from the origin of the buffer.
- * @param node Tree's root.
+ * @param node Tree's root to be drawn.
+ * @param parent Parent node, for additional information while drawing.
  */
-void draw(wchar_t** buffer, int x, int y, BSTBox* node) {
-    drawBox(buffer, x, y, node);
+void draw(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
+    drawBox(buffer, x, y, parent, node);
 
     // Draw the arms
     if (node->left) {
@@ -148,14 +148,22 @@ void draw(wchar_t** buffer, int x, int y, BSTBox* node) {
     }
 
     if (node->left) {
-        draw(buffer, x, y + BOX_HEIGHT, node->left);
+        draw(buffer, x, y + BOX_HEIGHT, node, node->left);
     }
     
     if (node->right) {
-        draw(buffer, x + node->leftWidth + 1, y + BOX_HEIGHT, node->right);
+        draw(buffer, x + node->leftWidth + 1, y + BOX_HEIGHT, node, node->right);
     }
 }
 
+/**
+ * @brief Draw the connecting line from parent node to child node.
+ * @param buffer 2-D drawing buffer
+ * @param parent Parent node
+ * @param child Child node
+ * @param x Starting x position of the child from the drawing origin.
+ * @param y Starting y position of the child from the drawing origin.
+ */
 void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
@@ -173,28 +181,34 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
         buffer[startY][startX - 1] = ARM_R_JUNCTION;
     }
     wmemset(buffer[startY] + min(startX, endX), ARM_H_LINE, max(startX, endX) + 1 - min(startX, endX));
-    repeatOnColumn(buffer, endX, ARM_V_LINE, startY + 1, endY + 1);
-    buffer[startY][endX] = corner;
+    buffer[startY + 1][endX] = ARM_V_LINE;
     
     debug("Drawing arm for node " + to_string(parent->value) + ":");
     debug("    Arm start: (" + to_string(startX) + ", " + to_string(startY) + ")");
     debug("    Arm end: (" + to_string(endX) + ", " + to_string(endY) + ")");
 }
 
+/**
+ * @brief Print the tree content into an output stream.
+ * @param out The output stream to print the result
+ * @param node Tree's root.
+ */
 void presentBSTBox(wostream& out, BSTBox* node) {
+    // Do measurement before drawing
     measure(node);
     
+    // Allocate memory for drawing buffer based on tree's measured width and height
     wchar_t* buffer[node->height];
     for (int i = 0; i < node->height; ++i) {
-        buffer[i] = new wchar_t[node->width + 1];
+        buffer[i] = new wchar_t[node->width + 1]; // plus 1 for end of line character
         wmemset(buffer[i], L' ', node->width);
     }
 
-    debug("Initialized buffer, size: width " + to_string(node->width) + ", height " + to_string(node->height));
+    debug("Buffer initialized, size: width " + to_string(node->width) + ", height " + to_string(node->height));
 
-    draw(buffer, 0, 0, node);
+    draw(buffer, 0, 0, nullptr, node);
 
-    debug("Printing tree " + to_string(node->value) + ":");
+    debug("Printing tree " + to_string(node->value));
     for (int i = 0; i < node->height; ++i) {
         buffer[i][node->width] = L'\0';
         out << buffer[i] << endl;
@@ -206,7 +220,12 @@ void presentBSTBox(wostream& out, BSTBox* node) {
     }
 }
 
+/**
+ * @brief Calculate dimensions and sizes needed for drawing for all nodes in the tree.
+ * @param node Tree's root node.
+ */
 void measure(BSTBox* node) {
+    // Parent node's sizes are summed up from children's size, so measure children first
     if (node->left) {
         measure(node->left);
     }
@@ -219,14 +238,17 @@ void measure(BSTBox* node) {
     node->valueWidth = max((int)node->valueString.length(), MIN_VALUE_WIDTH);
     node->valueWidth += 1 - node->valueWidth % 2;
 
-    // calculate width of the tree
+    // Calculate width of the tree:
+
+    // Width of the bounding box
     node->boxWidth = node->valueWidth + 2 * BOX_BORDER;
+    // Plain width in case there's no child nodes, can be larger than the box
     int widthAsLeaf = max(node->boxWidth, MIN_TREE_WIDTH);
     node->leftWidth = (node->left ? node->left->width : widthAsLeaf / 2);
     node->rightWidth = (node->right ? node->right->width : widthAsLeaf / 2);
     node->width = node->leftWidth + node->rightWidth + 1;
 
-    // calculate x position so that the node's bounding box is center-aligned
+    // Calculate x position so that the node is center-aligned between its children
     if (node->left && node->right) {
         int childDistance = node->right->boxX + node->left->width + 1 - node->left->boxX;
         node->boxX = node->left->boxX + node->left->boxWidth / 2 + childDistance / 2 - node->boxWidth / 2;
@@ -247,10 +269,12 @@ void measure(BSTBox* node) {
     debug("    Right width: " + to_string(getWidth(node->right)));
 }
 
+// Return width of the node, or zero if node is null.
 int getWidth(BSTBox* node) {
     return node ? node->width : 0;
 }
 
+// Return height of the node, or zero if node is null.
 int getHeight(BSTBox* node) {
     return node ? node->height : 0;
 }

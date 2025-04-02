@@ -8,6 +8,7 @@ using std::cout;
 using std::endl;
 using spdlog::debug;
 using std::vector;
+using std::to_string;
 
 #pragma region Function Declarations
 AVLNode* createAVLNode(int value);
@@ -46,10 +47,13 @@ AVLNode* createAVLNode(int value) {
  */
 void deleteAVLNode(AVLNode*& root) {
     if (!root) return;
+    int rootValue = root->value;
+    debug("Deleting tree: " + to_string(rootValue));
     deleteAVLNode(root->left);
     deleteAVLNode(root->right);
     delete root;
     root = nullptr;
+    // debug("Tree deleted: " + to_string(rootValue));
 }
 
 /**

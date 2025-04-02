@@ -15,6 +15,8 @@ using std::cin;
 using std::endl;
 using std::wofstream;
 using std::vector;
+using spdlog::debug;
+using std::to_string;
 
 // Locale for the output stream to display wide characters (node bounding box, connecting arms)
 #define LOCALE "en_US.UTF-8"
@@ -56,14 +58,16 @@ void printFrame(const wchar_t* text, int mask);
  */
 int main(int argc, char* argv[]) {
     initializeLogging();
+    debug("Starting program ...");
 
     // This is important because text visualization is based on Unicode characters.
     wcout.imbue(std::locale(LOCALE));
 
-    AVLNode* tree;  // Pointer to the main tree object of the program.
+    AVLNode* tree = nullptr;  // Pointer to the main tree object of the program.
     char action;    // Action user chooses from the menu below.
     while (true) {
         action = printActionMenu();
+        debug(string("Action selected: ") + action);
         switch (action) {
             case 'C':
             case 'c':
@@ -121,7 +125,9 @@ void createRandomTree(AVLNode*& root) {
     vector<int> randValues;
     int nodeCount = std::min(MAX_RAND_NODE, numResponse);
     for (int i = 0; i < nodeCount; ++i) {
-        randValues.push_back(rand() % 1000 - 500);
+        int randVal = rand() % 1000 - 500;
+        randValues.push_back(randVal);
+        debug("Randomized value " + to_string(randVal));
     }
     deleteAVLNode(root);
     insertAVLNodes(root, randValues.data(), nodeCount);

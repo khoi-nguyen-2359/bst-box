@@ -40,10 +40,10 @@ root/
 ```
 
 
-## Architecture Design
+## Architecture Diagram
 ```
 ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
-┆                                   BSTBox  ┆
+┆                      Main program module  ┆
 ┆       ┏━━━━━━━━━━━━━━━━━━━┓               ┆ 
 ┆    ┏━━┫ Program Interface ┣━━┓            ┆
 ┆    ┃  ┗━━━━━━━━━━━━━━━━━━━┛  ┃            ┆
@@ -52,7 +52,7 @@ root/
 ┆ ┃ BST ┃               ┃ BST Drawing ┃     ┆
 ┆ ┗━━━━━┛               ┗━━━━━━━━━━━━━┛     ┆
 ┆                                           ┆
-┆                                 TreeView  ┆ 
+┆               Tree implementation module  ┆ 
 ╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╯
 ```
 
@@ -81,7 +81,7 @@ root/
 
 | **Technology**         | **Description**                                   |
 |-------------------------|---------------------------------------------------|
-| **Programming Language**| C++                                              |
+| **Programming Language**| C++ 14                                             |
 | **Build System**        | CMake                |
 | **Testing Framework**   | Google Test                     |
 | **Logging**       | spdlog                                           |
