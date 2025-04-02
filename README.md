@@ -16,7 +16,10 @@
 
 The idea draws inspiration from visualizer apps that present programming concepts in
 an intuitive and engaging way. With this goal in mind, this project was developed to
-visualize Binary Tree on console UI in text-based presentation.
+visualize Binary Tree on console UI in text-based presentation. Under text form, Binary Tree can be shared straightforwardly in text communication like technical documents, code reviews, or source code documentation, all without the need of images.
+
+Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
+
 
 The program will demonstrate how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
 

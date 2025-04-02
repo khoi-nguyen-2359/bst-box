@@ -61,15 +61,19 @@ using std::string;
 #define ARM_L_JUNCTION L'┫'
 #define ARM_T_JUNCTION L'┻'
 
+#pragma region Function Declarations
 int getWidth(BSTBox* node);
 int getHeight(BSTBox* node);
-
 void measure(BSTBox* node);
 void draw(wchar_t** buffer, int x, int y, BSTBox* node);
 void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child);
 void repeatOnColumn(wchar_t** buffer, int col, const wchar_t c, int start, int end);
 void drawBox(wchar_t** buffer, int x, int y, BSTBox* node);
+#pragma endregion
 
+/**
+ * @brief Construct the BSTBox node based on the AVL tree hierarchy.
+ */
 BSTBox* createBSTBox(AVLNode* avlNode) {
     BSTBox* node = new BSTBox;
     node->value = avlNode->value;
@@ -78,6 +82,9 @@ BSTBox* createBSTBox(AVLNode* avlNode) {
     return node;
 }
 
+/**
+ * @brief Delete entire BSTBox tree.
+ */
 void deleteBSTBox(BSTBox* root) {
     if (!root) return;
     deleteBSTBox(root->left);
@@ -96,6 +103,7 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
     int boxEndX = boxStartX + node->boxWidth - 1;
     int boxStartY = y;
     int boxEndY = y + BOX_HEIGHT - 1;
+    // 4 box's corners
     buffer[y][boxStartX] = BOX_TL_CORNER;
     buffer[y][boxEndX] = BOX_TR_CORNER;
     buffer[boxEndY][boxStartX] = BOX_BL_CORNER;
@@ -121,6 +129,13 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* node) {
     debug("    Value start: " + to_string(valueStartX));
 }
 
+/**
+ * @brief Draw a node to 2-D buffer.
+ * @param buffer 2-D buffer holding drawing characters.
+ * @param x Offset x from the origin of the buffer.
+ * @param y Offset y from the origin of the buffer.
+ * @param node Tree's root.
+ */
 void draw(wchar_t** buffer, int x, int y, BSTBox* node) {
     drawBox(buffer, x, y, node);
 
@@ -210,9 +225,10 @@ void measure(BSTBox* node) {
     node->leftWidth = (node->left ? node->left->width : widthAsLeaf / 2);
     node->rightWidth = (node->right ? node->right->width : widthAsLeaf / 2);
     node->width = node->leftWidth + node->rightWidth + 1;
+
+    // calculate x position so that the node's bounding box is center-aligned
     if (node->left && node->right) {
         int childDistance = node->right->boxX + node->left->width + 1 - node->left->boxX;
-        int centerX = node->left->leftWidth + childDistance / 2;
         node->boxX = node->left->boxX + node->left->boxWidth / 2 + childDistance / 2 - node->boxWidth / 2;
     } else {
         node->boxX = node->leftWidth - node->boxWidth / 2;

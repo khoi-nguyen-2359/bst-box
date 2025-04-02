@@ -2,7 +2,7 @@
 #define AVL_H
 
 /**
- * @brief AVL Binary Search Tree using node height as balancing factor.
+ * @brief AVL Binary Search Tree using node height for balancing factor.
  */
 struct AVLNode {
     // Each node has an integer value.

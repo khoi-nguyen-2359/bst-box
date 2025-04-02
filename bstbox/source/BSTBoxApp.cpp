@@ -31,7 +31,7 @@ using std::vector;
 #define FLAG_SIDE (FLAG_LEFT | FLAG_RIGHT)
 #define FLAG_CLOSED (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
 
-#pragma Function Declarations
+#pragma region Function Declarations
 void createRandomTree(AVLNode*& root);
 void insertNodes(AVLNode*& root);
 void deleteNodes(AVLNode*& root);
