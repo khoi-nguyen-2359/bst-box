@@ -7,7 +7,8 @@
 using spdlog::debug;
 
 TEST(BSTTest, Insert_NoRotation) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15, 3, 7}, 5);
+    int values[]{10, 5, 15, 3, 7};
+    AVLNode* root = createAVLTree(values, 5);
 
     EXPECT_EQ(10, root->value);
     EXPECT_EQ(5, root->left->value);
@@ -52,7 +53,8 @@ TEST(BSTTest, Insert_SingleLeftRotation) {
 }
 
 TEST(BSTTest, Insert_DoubleRightLeftRotation) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15, 18, 12}, 5);
+    int values[]{10, 5, 15, 18, 12};
+    AVLNode* root = createAVLTree(values, 5);
 
     EXPECT_EQ(3, root->height);
 
@@ -75,7 +77,8 @@ TEST(BSTTest, Insert_DoubleRightLeftRotation) {
 }
 
 TEST(BSTTest, Insert_DoubleLeftRightRotation) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15, 3, 7}, 5);
+    int values[]{10, 5, 15, 3, 7};
+    AVLNode* root = createAVLTree(values, 5);
 
     EXPECT_EQ(3, root->height);
 
@@ -99,7 +102,8 @@ TEST(BSTTest, Insert_DoubleLeftRightRotation) {
 }
 
 TEST(BSTTest, Remove_LeafNode) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15, 3, 7}, 5);
+    int values[]{10, 5, 15, 3, 7};
+    AVLNode* root = createAVLTree(values, 5);
     
     EXPECT_EQ(7, root->left->right->value);
     
@@ -116,7 +120,8 @@ TEST(BSTTest, Remove_LeafNode) {
 }
 
 TEST(BSTTest, Remove_RootNode) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15}, 3);
+    int values[]{10, 5, 15};
+    AVLNode* root = createAVLTree(values, 3);
     
     EXPECT_TRUE(removeAVLNode(root, 10));
     
@@ -137,7 +142,8 @@ TEST(BSTTest, Remove_OnlyRootNode) {
 }
 
 TEST(BSTTest, Remove_NodeWithTwoChildren_FourLevels) {
-    AVLNode* root = createAVLTree((int[]){20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 22, 27, 32, 37}, 15);
+    int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 22, 27, 32, 37};
+    AVLNode* root = createAVLTree(values, 15);
     
     EXPECT_TRUE(removeAVLNode(root, 10));  // Remove node with 2 children from second level
     
@@ -161,7 +167,8 @@ TEST(BSTTest, Remove_NodeWithTwoChildren_FourLevels) {
 }
 
 TEST(BSTTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
-    AVLNode* root = createAVLTree((int[]){20, 10, 30, 5, 15, 25, 35, 3, 12, 17, 22, 27, 32, 37}, 14);
+    int values[]{20, 10, 30, 5, 15, 25, 35, 3, 12, 17, 22, 27, 32, 37};
+    AVLNode* root = createAVLTree(values, 14);
     
     EXPECT_TRUE(removeAVLNode(root, 5));  // Remove node with only left child from third level
     
@@ -185,7 +192,8 @@ TEST(BSTTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
 }
 
 TEST(BSTTest, Remove_NodeWithOnlyRightChild_FourLevels) {
-    AVLNode* root = createAVLTree((int[]){20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 27, 32, 37}, 14);
+    int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 27, 32, 37};
+    AVLNode* root = createAVLTree(values, 14);
     
     EXPECT_TRUE(removeAVLNode(root, 25));  // Remove node with only left child from third level
     
@@ -209,7 +217,8 @@ TEST(BSTTest, Remove_NodeWithOnlyRightChild_FourLevels) {
 }
 
 TEST(BSTTest, Remove_NonexistentNode) {
-    AVLNode* root = createAVLTree((int[]){10, 5, 15}, 3);
+    int values[]{10, 5, 15};
+    AVLNode* root = createAVLTree(values, 3);
     
     EXPECT_FALSE(removeAVLNode(root, 7));
     
