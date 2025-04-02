@@ -1,4 +1,4 @@
-# BST Box - Binary Search Tree console visualization
+# Binary Search Tree Console Visualization
 
 ## Why It Was Developed
 
@@ -16,39 +16,44 @@
 
 The idea draws inspiration from visualizer apps that present programming concepts in
 an intuitive and engaging way. With this goal in mind, this project was developed to
-visualize Binary Tree on console UI with text-based presentation. Under text form, Binary Tree can be shared straightforwardly in text communication like technical documents, code reviews, or source code documentation, all without the need of images.
+visualize Binary Tree on console UI in text-based presentation.
 
-Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
+The program will demonstrate how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
 
-## Processing Flow
+## Project Structure
 
-Below is an abstract sequence of how the application operates:
+The project is organized as follows:
 
 ```
-+-----------------------+
-| Command Line Interface|
-+-----------------------+
-            |
-            v
-+-----------------------+
-|    Input Processing   |
-+-----------------------+
-            |
-            v
-+-----------------------+
-| Binary Search Tree    |
-| Implementation        |
-+-----------------------+
-            |
-            v
-+-----------------------+
-|     Tree Drawing      |
-+-----------------------+
-            |
-            v
-+-----------------------+
-|     Console Output    |
-+-----------------------+
+root/
+│
+├── bstbox/       # Main application interface
+│
+├── treeview/     # Binary tree implementation 
+│                 # and output manipulation
+│
+├── build/        # Build output directory
+│
+└── scripts/      # Scripts for one-line commands                 
+                  # to compile and run the app
+
+```
+
+
+## Architecture Design
+```
+╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
+┆                                   BSTBox  ┆
+┆       ┏━━━━━━━━━━━━━━━━━━━┓               ┆ 
+┆    ┏━━┫ Program Interface ┣━━┓            ┆
+┆    ┃  ┗━━━━━━━━━━━━━━━━━━━┛  ┃            ┆
+┆┄┄┄┄┃┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┃┄┄┄┄┄┄┄┄┄┄┄┄┆
+┆ ┏━━┻━━┓               ┏━━━━━━┻━━━━━━┓     ┆
+┆ ┃ BST ┃               ┃ BST Drawing ┃     ┆
+┆ ┗━━━━━┛               ┗━━━━━━━━━━━━━┛     ┆
+┆                                           ┆
+┆                                 TreeView  ┆ 
+╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╯
 ```
 
 ## How to Compile and Run
@@ -71,40 +76,23 @@ Below is an abstract sequence of how the application operates:
    ```
    Log file: `build/treeview/test/TreeViewTestLogs.log`
 
-## Project Structure
-
-The project is organized as follows:
-
-```
-root/
-├── treeview/     # Binary tree implementation 
-│                 # and output manipulation
-│                 # - CMake Library
-│
-├── bstbox/       # Main application interface
-│                 # - CMake Executable
-│
-├── build/        # CMake build output directory
-│
-└── scripts/      # Scripts for one-line commands                 
-                  # to compile and run the app
-
-```
 
 ## Technologies Used
 
 | **Technology**         | **Description**                                   |
 |-------------------------|---------------------------------------------------|
-| **Programming Language**| C++.                                              |
-| **Build System**        | CMake for managing modules and build process                |
-| **Testing Framework**   | Google Test for unit testing.                     |
-| **Logging**       | spdlog for debugging                                           |
-| **Scripting**   | Bash scripts for compile and execution           |
+| **Programming Language**| C++                                              |
+| **Build System**        | CMake                |
+| **Testing Framework**   | Google Test                     |
+| **Logging**       | spdlog                                           |
 | **Version Control**     | Git for source code management                   |
 
 ## Future Enhancements
-- **Visualization**: Show step-by-step of tree changes after each insertion and deletion.
-- **Tree Types**: Implement different BST balancing methods.
-- **Presentation**: Non-monospaced font types for sharing over messaging apps.
-- **Export Functionality**: Export to different content types (now only text file supported).
-- **Import Functionality**: Allow reading tree content from file.
+- **Visualization**: 
+   - Show tree changes step-by-step for each insertion and deletion.
+   - Add different drawing styles for nodes and connection arms.
+   - Support non-monospaced font types for sharing over different apps.
+- **BST Types**: Implement different BST balancing methods.
+- **Sharing**:
+   - Export to different content types (now only text file supported).
+   - Allow reading tree content from file.

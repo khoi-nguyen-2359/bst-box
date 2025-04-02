@@ -32,30 +32,28 @@ using std::vector;
 #define FLAG_CLOSED (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
 
 #pragma Function Declarations
-// Create a new tree with randomly generated nodes.
 void createRandomTree(AVLNode*& root);
-// Insert new nodes into a tree.
 void insertNodes(AVLNode*& root);
-// Find and delete nodes from a tree.
 void deleteNodes(AVLNode*& root);
-// Print the tree to console output.
 void present(AVLNode* root);
-// Delete all nodes of the tree.
 void resetCurrentTree(AVLNode*& root);
-// Export tree presentation into file.
 void exportToFile(AVLNode* root);
-// Initialize debug logging.
 void initializeLogging();
-// Read user input as vector of ints.
 vector<int> getInputIntegers();
-// Check if tree is empty.
 bool verifyTreeContent(AVLNode* root);
-// Print actions for user to interact with the program.
 char printActionMenu();
-// Print text content in a decoration frame.
 void printFrame(const wchar_t* text, int mask);
 #pragma endregion
 
+/**
+ Binary Tree Visualization
+        ┏━━━┓          
+     ┏━━┫ 4 ┣━━━━┓     
+     ┃  ┗━━━┛    ┃     
+   ┏━┻━┓      ┏━━┻━━┓  
+   ┃ 1 ┃      ┃2025 ┃  
+   ┗━━━┛      ┗━━━━━┛
+ */
 int main(int argc, char* argv[]) {
     initializeLogging();
 
@@ -248,7 +246,7 @@ bool verifyTreeContent(AVLNode* root) {
  */
 char printActionMenu() {
     wcout << endl;
-    printFrame(L"BST BOX - BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDE | FLAG_BOTTOM_T);
+    printFrame(L"BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDE | FLAG_BOTTOM_T);
     printFrame(
 LR"(Please choose one action below:
     > [C]reate a binary search tree from random nodes.
@@ -271,8 +269,8 @@ Please enter your choice: [C|I|D|V|R|E|Q][ENTER]
  * 
  * @example 
  * ╔═══════════╗ -> top line
- * ║ BST BOX 1 ║ -> text content lines
- * ║ BST BOX 2 ║ -> (can be multiple)
+ * ║ BST     1 ║ -> text content lines
+ * ║ BST     2 ║ -> (can be multi-line)
  * ╚═══════════╝ -> bottom line
  */
 void printFrame(const wchar_t* text, int mask) {
