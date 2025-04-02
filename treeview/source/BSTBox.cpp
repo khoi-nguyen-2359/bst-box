@@ -180,8 +180,11 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
         corner = ARM_TR_CORNER;
         buffer[startY][startX - 1] = ARM_R_JUNCTION;
     }
-    wmemset(buffer[startY] + min(startX, endX), ARM_H_LINE, max(startX, endX) + 1 - min(startX, endX));
+    int minX = min(startX, endX);
+    int maxX = max(startX, endX);
+    wmemset(buffer[startY] + minX, ARM_H_LINE, maxX - minX + 1);
     buffer[startY + 1][endX] = ARM_V_LINE;
+    buffer[startY][endX] = corner;
     
     debug("Drawing arm for node " + to_string(parent->value) + ":");
     debug("    Arm start: (" + to_string(startX) + ", " + to_string(startY) + ")");

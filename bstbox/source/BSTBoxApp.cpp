@@ -49,18 +49,22 @@ void printFrame(const wchar_t* text, int mask);
 
 /**
  Binary Tree Visualization
-        ┏━━━┓          
-     ┏━━┫ 4 ┣━━━━┓     
-     ┃  ┗━━━┛    ┃     
-   ┏━┻━┓      ┏━━┻━━┓  
-   ┃ 1 ┃      ┃2025 ┃  
-   ┗━━━┛      ┗━━━━━┛
+         ┏━━━┓         
+     ┏━━━┫22 ┣━━━┓     
+     ┃   ┗━━━┛   ┃     
+   ┏━┻━┓       ┏━┻━┓   
+   ┃ 1 ┃       ┃333┃   
+   ┗━━━┛       ┗━━━┛
  */
 int main(int argc, char* argv[]) {
     initializeLogging();
     debug("Starting program ...");
 
     // This is important because text visualization is based on Unicode characters.
+    // TODO: test this on Windows
+    #if __linux__
+        std::setlocale(LC_ALL, LOCALE);
+    #endif
     wcout.imbue(std::locale(LOCALE));
 
     AVLNode* tree = nullptr;  // Pointer to the main tree object of the program.

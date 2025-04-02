@@ -22,7 +22,7 @@ void balance(AVLNode* root);
 inline void rotateLeft(AVLNode* root);
 inline void rotateRight(AVLNode* root);
 
-int removeMax(AVLNode* parent, AVLNode* node);
+int removeMax(AVLNode* parent, AVLNode*& node);
 
 #pragma endregion
 
@@ -302,19 +302,19 @@ bool removeAVLNode(AVLNode*& root, int value) {
 
 /**
  * @brief Find the maximum node of the tree and remove it.
- * @param current Considering node.
+ * @param current Node to start finding.
  * @param parent Parent node of the current node. Needed for re-connecting with grandchild after deletion of current.
  */
-int removeMax(AVLNode* parent, AVLNode* current) {
+int removeMax(AVLNode* parent, AVLNode*& current) {
     int removedValue = 0;
     if (current->right) {
         removedValue = removeMax(current, current->right);
     } else {
         removedValue = current->value;
         AVLNode* currentLeft = current->left;
-        debug("Removing max " + std::to_string(removedValue));
+        debug("Removing maximum child" + std::to_string(removedValue));
         delete current;
-        parent->right = currentLeft;
+        current = currentLeft;
     }
 
     updateHeight(parent);
