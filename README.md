@@ -20,26 +20,6 @@ visualize Binary Tree on console UI in text-based presentation. Under text form,
 
 Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
 
-## Project Structure
-
-The project is organized as follows:
-
-```
-root/
-│
-├── bstbox/       # Main application interface
-│
-├── treeview/     # Binary tree implementation 
-│                 # and output manipulation
-│
-├── build/        # Build output directory
-│
-└── scripts/      # Scripts for one-line commands                 
-                  # to compile and run the app
-
-```
-
-
 ## Architecture Diagram
 ```
 ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
@@ -96,3 +76,4 @@ root/
 - **Sharing**:
    - Export to different content types (now only text file supported).
    - Allow reading tree content from file.
+- **Performance**: Optimize drawing buffer memory.
