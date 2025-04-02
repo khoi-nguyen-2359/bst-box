@@ -20,9 +20,6 @@ visualize Binary Tree on console UI in text-based presentation. Under text form,
 
 Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
 
-
-The program will demonstrate how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
-
 ## Project Structure
 
 The project is organized as follows:
@@ -60,7 +57,7 @@ root/
 ```
 
 ## How to Compile and Run
-
+   
 1. **Compile the Code**:
    ```bash
    ./scripts/build.sh
