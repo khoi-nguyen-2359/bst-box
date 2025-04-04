@@ -10,10 +10,10 @@
 #include "BSTBox.h"
 
 using std::string;
-using std::wcout;
+using std::cout;
 using std::cin;
 using std::endl;
-using std::wofstream;
+using std::ofstream;
 using std::vector;
 using spdlog::debug;
 using std::to_string;
@@ -25,13 +25,12 @@ using std::to_string;
 #define FRAME_WIDTH 60
 
 // Flags indicate which sides a text should be bound in a frame
-#define FLAG_TOP 0b00001
-#define FLAG_LEFT 0b00010
-#define FLAG_RIGHT 0b00100
-#define FLAG_BOTTOM 0b01000
-#define FLAG_BOTTOM_T 0b10000
-#define FLAG_SIDE (FLAG_LEFT | FLAG_RIGHT)
-#define FLAG_CLOSED (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
+#define FLAG_TOP        0x01
+#define FLAG_LEFT       0x02
+#define FLAG_RIGHT      0x04
+#define FLAG_BOTTOM     0x08
+#define FLAG_SIDES      (FLAG_LEFT | FLAG_RIGHT)
+#define FLAG_CLOSED     (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
 
 #pragma region Function Declarations
 void createRandomTree(AVLNode*& root);
@@ -44,7 +43,7 @@ void initializeLogging();
 vector<int> getInputIntegers();
 bool verifyTreeContent(AVLNode* root);
 char printActionMenu();
-void printFrame(const wchar_t* text, int mask);
+void printFrame(const char* text, int mask);
 #pragma endregion
 
 /**
@@ -62,10 +61,10 @@ int main(int argc, char* argv[]) {
 
     // This is important because text visualization is based on Unicode characters.
     // TODO: test this on Windows
-    #if __linux__
-        std::setlocale(LC_ALL, LOCALE);
-    #endif
-    wcout.imbue(std::locale(LOCALE));
+    // #if __linux__
+    //     std::setlocale(LC_ALL, LOCALE);
+    // #endif
+    // cout.imbue(std::locale(LOCALE));
 
     AVLNode* tree = nullptr;  // Pointer to the main tree object of the program.
     char action;    // Action user chooses from the menu below.
@@ -122,7 +121,7 @@ int main(int argc, char* argv[]) {
 void createRandomTree(AVLNode*& root) {
     const int MAX_RAND_NODE = 20;
     int numResponse;
-    wcout << "Please enter number of nodes (not exceeding " << MAX_RAND_NODE << "): ";
+    cout << "Please enter number of nodes (not exceeding " << MAX_RAND_NODE << "): ";
     cin >> numResponse;
 
     srand(time(nullptr));
@@ -145,7 +144,7 @@ void createRandomTree(AVLNode*& root) {
  * @param root Tree's root node, will be allocated before insertion if null.
  */
 void insertNodes(AVLNode*& root) {
-    wcout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
+    cout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
     insertAVLNodes(root, values.data(), values.size());
     present(root);
@@ -161,7 +160,7 @@ void deleteNodes(AVLNode*& root) {
     if (!verifyTreeContent(root)) {
         return;
     }
-    wcout << "Please enter integers in deletion order: [int1] [int2] ... [intN][ENTER]" << endl;
+    cout << "Please enter integers in deletion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
     for (int value : values) {
         removeAVLNode(root, value);
@@ -182,11 +181,11 @@ void present(AVLNode* root) {
 
     BSTBox* treeBox = createBSTBox(root);
 
-    wcout << endl;
-    printFrame(L"CURRENT TREE", FLAG_CLOSED);
+    cout << endl;
+    printFrame("CURRENT TREE", FLAG_CLOSED);
 
-    wcout << endl;
-    presentBSTBox(wcout, treeBox);
+    cout << endl;
+    presentBSTBox(cout, treeBox);
 
     deleteBSTBox(treeBox);
 }
@@ -200,16 +199,15 @@ void exportToFile(AVLNode* root) {
     if (!verifyTreeContent(root)) {
         return;
     }
-    wcout << "Please enter file name: ";
+    cout << "Please enter file name: ";
     string fileName;
     cin >> fileName;
 
-    wofstream wofs;
+    ofstream wofs;
     wofs.open(fileName, std::ofstream::out);
-    wofs.imbue(std::locale(LOCALE)); // This locale must be similar to the console output's.
 
     if (!wofs.is_open()) {
-        wcout << "Error opening file " << fileName.data() << endl;
+        cout << "Error opening file " << fileName.data() << endl;
         return;
     }
 
@@ -217,7 +215,7 @@ void exportToFile(AVLNode* root) {
 
     presentBSTBox(wofs, box); // Print the tree into output file stream instead of console output stream.
 
-    wcout << "File exported successfully at " << fileName.data() << endl;
+    cout << "File exported successfully at " << fileName.data() << endl;
 
     wofs.close();
     deleteBSTBox(box);
@@ -241,8 +239,8 @@ void resetCurrentTree(AVLNode*& root) {
  */
 bool verifyTreeContent(AVLNode* root) {
     if (!root) {
-        wcout << endl;
-        printFrame(L"TREE IS EMPTY.", FLAG_CLOSED);
+        cout << endl;
+        printFrame("TREE IS EMPTY.", FLAG_CLOSED);
         return false;
     }
 
@@ -255,10 +253,10 @@ bool verifyTreeContent(AVLNode* root) {
  * @return Letter represents the action to proceed.
  */
 char printActionMenu() {
-    wcout << endl;
-    printFrame(L"BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDE | FLAG_BOTTOM_T);
+    cout << endl;
+    printFrame("BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDES);
     printFrame(
-LR"(Please choose one action below:
+R"(Please choose one action below:
     > [C]reate a binary search tree from random nodes.
     > [I]nsert nodes to current tree.
     > [D]elete nodes from current tree.
@@ -267,7 +265,7 @@ LR"(Please choose one action below:
     > [E]xport to text file.
     > [Q]uit.
 Please enter your choice: [C|I|D|V|R|E|Q][ENTER]
-)", FLAG_SIDE | FLAG_BOTTOM);
+)", FLAG_SIDES | FLAG_BOTTOM);
 
     char action;
     cin >> action;
@@ -283,66 +281,61 @@ Please enter your choice: [C|I|D|V|R|E|Q][ENTER]
  * ║ BST     2 ║ -> (can be multi-line)
  * ╚═══════════╝ -> bottom line
  */
-void printFrame(const wchar_t* text, int mask) {
+void printFrame(const char* text, int mask) {
     // Allocate output buffer memory for one line.
-    wchar_t* buffer = new wchar_t[FRAME_WIDTH + 1]; 
+    char* buffer = new char[FRAME_WIDTH + 1]; 
 
     // Print the top line
     if (mask & FLAG_TOP) {
-        wmemset(buffer, L'═', FRAME_WIDTH);
-        buffer[0] = L'╔';
-        buffer[FRAME_WIDTH - 1] = L'╗';
+        memset(buffer, '-', FRAME_WIDTH);
+        buffer[0] = '+';
+        buffer[FRAME_WIDTH - 1] = '+';
         buffer[FRAME_WIDTH] = '\0';
-        wcout << buffer << endl;
+        cout << buffer << endl;
     }
     
     // Split the text content into lines and print each line in a loop
-    const wchar_t* found = std::wcschr(text, L'\n');
-    const wchar_t* line = text;
+    const char* found = std::strchr(text, '\n');
+    const char* line = text;
     do {
         // Pre-fill the entire line with spaces
-        wmemset(buffer, L' ', FRAME_WIDTH);
+        memset(buffer, ' ', FRAME_WIDTH);
 
         // Left edge
         if (mask & FLAG_LEFT) {
-            buffer[0] = L'║';
+            buffer[0] = '|';
             buffer[1] = ' ';
         }
 
         // Copy line's text content into buffer, cut off at frame's end
-        int lineLen = found ? (found - line) : wcslen(text);
+        int lineLen = found ? (found - line) : strlen(text);
         int copyLen = std::min(lineLen, FRAME_WIDTH - 4);
-        std::wmemcpy(buffer + 2, line, copyLen);
+        std::memcpy(buffer + 2, line, copyLen);
 
         // Right edge
         if (mask & FLAG_RIGHT) {
             buffer[FRAME_WIDTH - 2] = ' ';
-            buffer[FRAME_WIDTH - 1] = L'║';
+            buffer[FRAME_WIDTH - 1] = '|';
         }
 
         // Print line's buffer into output stream
         buffer[FRAME_WIDTH] = '\0';
-        wcout << buffer << endl;
+        cout << buffer << endl;
 
         if (!found) {
             break;
         }
         line = found + 1;
-        found = std::wcschr(line, L'\n');
+        found = std::strchr(line, '\n');
     } while (found);
 
     // Print bottom line
-    if (mask & FLAG_BOTTOM || mask & FLAG_BOTTOM_T) {
-        wmemset(buffer, L'═', FRAME_WIDTH);
-        if (mask & FLAG_BOTTOM_T) {
-            buffer[0] = L'╠';
-            buffer[FRAME_WIDTH - 1] = L'╣';
-        } else {
-            buffer[0] = L'╚';
-            buffer[FRAME_WIDTH - 1] = L'╝';
-        }
+    if (mask & FLAG_BOTTOM) {
+        memset(buffer, '-', FRAME_WIDTH);
+        buffer[0] = L'+';
+        buffer[FRAME_WIDTH - 1] = L'+';
         buffer[FRAME_WIDTH] = '\0';
-        wcout << buffer << endl;
+        cout << buffer << endl;
     }
 }
 

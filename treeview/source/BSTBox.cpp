@@ -32,12 +32,14 @@ using std::string;
 #define CORNER_BL_3 L'┗'
 #define CORNER_BR_3 L'┛'
 
-#define LINE_HORZ_2 L'─'
-#define LINE_VERT_2 L'│'
-#define CORNER_TL_2 L'┌'
-#define CORNER_TR_2 L'┐'
-#define CORNER_BL_2 L'└'
-#define CORNER_BR_2 L'┘'
+// ASCII
+#define LINE_HORZ_2 L'_'
+#define LINE_VERT_2 L'|'
+#define CORNER_TL_2 L'#'
+#define CORNER_TR_2 L'#'
+#define CORNER_BL_2 L'#'
+#define CORNER_BR_2 L'#'
+#define CORNER_2 L'.'
 
 #define LINE_HORZ_1 L'═'
 #define LINE_VERT_1 L'║'
@@ -46,26 +48,26 @@ using std::string;
 #define CORNER_BL_1 L'╚'
 #define CORNER_BR_1 L'╝'
 
-#define BOX_H_LINE LINE_HORZ_3
-#define BOX_V_LINE LINE_VERT_3
-#define BOX_TL_CORNER CORNER_TL_3
-#define BOX_TR_CORNER CORNER_TR_3
-#define BOX_BL_CORNER CORNER_BL_3
-#define BOX_BR_CORNER CORNER_BR_3
+#define BOX_H_LINE LINE_HORZ_2
+#define BOX_V_LINE LINE_VERT_2
+#define BOX_TL_CORNER CORNER_2
+#define BOX_TR_CORNER CORNER_2
+#define BOX_BL_CORNER LINE_VERT_2
+#define BOX_BR_CORNER LINE_VERT_2
 
-#define ARM_H_LINE LINE_HORZ_3
-#define ARM_V_LINE LINE_VERT_3
-#define ARM_TL_CORNER CORNER_TL_3
-#define ARM_TR_CORNER CORNER_TR_3
-#define ARM_R_JUNCTION L'┣'
-#define ARM_L_JUNCTION L'┫'
-#define ARM_T_JUNCTION L'┻'
+#define ARM_H_LINE LINE_HORZ_2
+#define ARM_V_LINE LINE_VERT_2
+#define ARM_TL_CORNER CORNER_2
+#define ARM_TR_CORNER CORNER_2
+#define ARM_R_JUNCTION LINE_VERT_2
+#define ARM_L_JUNCTION LINE_VERT_2
+#define ARM_T_JUNCTION LINE_VERT_2
 
 #pragma region Function Declarations
 void measure(BSTBox* node);
-void draw(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node);
-void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child);
-void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node);
+void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node);
+void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child);
+void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node);
 int getWidth(BSTBox* node);
 int getHeight(BSTBox* node);
 #pragma endregion
@@ -91,7 +93,7 @@ void deleteBSTBox(BSTBox* root) {
     delete root;
 }
 
-void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
+void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     int boxStartX = x + node->boxX;
     int boxEndX = boxStartX + node->boxWidth - 1;
     int boxStartY = y;
@@ -103,8 +105,8 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     buffer[boxEndY][boxEndX] = BOX_BR_CORNER;
 
     // Draw horizontal lines on top and bottom
-    wmemset(buffer[y] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
-    wmemset(buffer[boxEndY] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
+    memset(buffer[y] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
+    memset(buffer[boxEndY] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
 
     // Draw vertical lines on two sides
     buffer[y + 1][boxStartX] = BOX_V_LINE;
@@ -136,7 +138,7 @@ void drawBox(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
  * @param node Tree's root to be drawn.
  * @param parent Parent node, for additional information while drawing.
  */
-void draw(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
+void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     drawBox(buffer, x, y, parent, node);
 
     // Draw the arms
@@ -164,11 +166,11 @@ void draw(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
  * @param x Starting x position of the child from the drawing origin.
  * @param y Starting y position of the child from the drawing origin.
  */
-void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
+void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
     int endY = startY + ARM_HEIGHT - 1;
-    wchar_t corner;
+    char corner;
     if (parent->left == child) {
         startX = x + parent->boxX - 1;
         endX = x + child->boxX + child->boxWidth / 2;
@@ -182,7 +184,7 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
     }
     int minX = min(startX, endX);
     int maxX = max(startX, endX);
-    wmemset(buffer[startY] + minX, ARM_H_LINE, maxX - minX + 1);
+    memset(buffer[startY] + minX, ARM_H_LINE, maxX - minX + 1);
     buffer[startY + 1][endX] = ARM_V_LINE;
     buffer[startY][endX] = corner;
     
@@ -196,15 +198,15 @@ void drawArm(wchar_t** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
  * @param out The output stream to print the result
  * @param node Tree's root.
  */
-void presentBSTBox(wostream& out, BSTBox* node) {
+void presentBSTBox(ostream& out, BSTBox* node) {
     // Do measurement before drawing
     measure(node);
     
     // Allocate memory for drawing buffer based on tree's measured width and height
-    wchar_t* buffer[node->height];
+    char* buffer[node->height];
     for (int i = 0; i < node->height; ++i) {
-        buffer[i] = new wchar_t[node->width + 1]; // plus 1 for end of line character
-        wmemset(buffer[i], L' ', node->width);
+        buffer[i] = new char[node->width + 1]; // plus 1 for end of line character
+        memset(buffer[i], L' ', node->width);
     }
 
     debug("Buffer initialized, size: width " + to_string(node->width) + ", height " + to_string(node->height));

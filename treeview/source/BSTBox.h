@@ -5,7 +5,7 @@
 
 #include "AVL.h"
 
-using std::wostream;
+using std::ostream;
 using std::string;
 
 /**
@@ -14,13 +14,13 @@ using std::string;
  *
  * Drawing origin
  *  (0,0) ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
- *        ┆          ┏━━━┓           ┆ 
- *        ┆     ┏━━━━┫ B ┣━━━━┓      ┆ 
- *        ┆     ┃    ┗━━━┛    ┃      ┆ 
- *        ┆┄┄┄┄┄┃┄┄┄┄┄┬┄┬┄┄┄┄┄┃┄┄┄┄┄┄┆ total height
- *        ┆   ┏━┻━┓   ┆ ┆   ┏━┻━┓    ┆ 
- *        ┆   ┃ A ┃   ┆1┆   ┃ C ┃    ┆ 
- *        ┆   ┗━━━┛   ┆ ┆   ┗━━━┛    ┆ 
+ *        ┆          _____           ┆ 
+ *        ┆      ___|  B  |___       ┆ 
+ *        ┆     |   |_____|   |      ┆ 
+ *        ┆┄┄┄┄┄|┄┄┄┄┄┬┄┬┄┄┄┄┄|┄┄┄┄┄┄┆ total height
+ *        ┆   __v__   ┆ ┆   __v__    ┆ 
+ *        ┆  |  A  |  ┆1┆  |  C  |   ┆ 
+ *        ┆  |_____|  ┆ ┆  |_____|   ┆ 
  *        ╰┄┄┄┄┄┄┄┄┄┄┄┴┄┴┄┄┄┄┄┄┄┄┄┄┄┄╯
  *         A's width + 1 + C's width
  *                total width
@@ -51,7 +51,7 @@ struct BSTBox {
 #pragma region Function Declarations
 BSTBox* createBSTBox(AVLNode* avlNode);
 void deleteBSTBox(BSTBox* root);
-void presentBSTBox(wostream& out, BSTBox* node);
+void presentBSTBox(ostream& out, BSTBox* node);
 #pragma endregion
 
 #endif
