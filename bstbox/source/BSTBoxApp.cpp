@@ -6,8 +6,8 @@
 #include <fstream>
 #include <filesystem>
 
-#include "AVL.h"
-#include "BSTBox.h"
+#include "../../tree/source/AVL.h"
+#include "../../tree/source/BSTBox.h"
 
 using std::string;
 using std::cout;

@@ -40,22 +40,19 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
    
 1. **Compile the Code**:
    ```bash
-   ./scripts/build.sh
+   ./build.sh
    ```
-   Output executable: `build/bstbox/BSTBox`
+   Output executable: `build/bstbox`
 
 1. **Run the Application**:
    ```bash
-   ./scripts/run.sh
+   ./run.sh
    ```
-   Log file: `build/bstbox/BSTBoxLogs.log`
 
 1. **Test the Core Logic**:
    ```bash
    ./scripts/test.sh
    ```
-   Log file: `build/treeview/test/TreeViewTestLogs.log`
-
 
 ## Technologies Used
 
