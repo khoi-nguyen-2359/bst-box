@@ -51,7 +51,7 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
 
 1. **Test the Core Logic**:
    ```bash
-   ./scripts/test.sh
+   ./test.sh
    ```
 
 ## Technologies Used
