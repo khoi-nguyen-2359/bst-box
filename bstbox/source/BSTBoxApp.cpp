@@ -254,7 +254,7 @@ bool verifyTreeContent(AVLNode* root) {
  */
 char printActionMenu() {
     cout << endl;
-    printFrame("BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDES);
+    printFrame("BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDES | FLAG_BOTTOM);
     printFrame(
 R"(Please choose one action below:
     > [C]reate a binary search tree from random nodes.

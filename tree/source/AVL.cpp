@@ -204,7 +204,7 @@ void balance(AVLNode* root) {
         rotateLeft(root);
     }
 
-    // Affected nodes must be re-evaluate height.
+    // Affected nodes must re-evaluate height.
     updateHeight(root->right);
     updateHeight(root->left);
     updateHeight(root);

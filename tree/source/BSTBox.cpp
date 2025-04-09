@@ -33,13 +33,13 @@ using std::string;
 #define CORNER_BR_3 L'┛'
 
 // ASCII
-#define LINE_HORZ_2 L'_'
-#define LINE_VERT_2 L'|'
-#define CORNER_TL_2 L'#'
-#define CORNER_TR_2 L'#'
-#define CORNER_BL_2 L'#'
-#define CORNER_BR_2 L'#'
-#define CORNER_2 L'.'
+#define LINE_HORZ_2 '_'
+#define LINE_VERT_2 '|'
+#define CORNER_TL_2 ','
+#define CORNER_TR_2 ','
+#define CORNER_BL_2 '|'
+#define CORNER_BR_2 '|'
+#define CORNER_2 ','
 
 #define LINE_HORZ_1 L'═'
 #define LINE_VERT_1 L'║'
@@ -50,18 +50,18 @@ using std::string;
 
 #define BOX_H_LINE LINE_HORZ_2
 #define BOX_V_LINE LINE_VERT_2
-#define BOX_TL_CORNER CORNER_2
-#define BOX_TR_CORNER CORNER_2
+#define BOX_TL_CORNER CORNER_TL_2
+#define BOX_TR_CORNER CORNER_TR_2
 #define BOX_BL_CORNER LINE_VERT_2
 #define BOX_BR_CORNER LINE_VERT_2
 
 #define ARM_H_LINE LINE_HORZ_2
 #define ARM_V_LINE LINE_VERT_2
-#define ARM_TL_CORNER CORNER_2
-#define ARM_TR_CORNER CORNER_2
+#define ARM_TL_CORNER CORNER_TL_2
+#define ARM_TR_CORNER CORNER_TR_2
 #define ARM_R_JUNCTION LINE_VERT_2
 #define ARM_L_JUNCTION LINE_VERT_2
-#define ARM_T_JUNCTION LINE_VERT_2
+#define ARM_T_JUNCTION 'V'
 
 #pragma region Function Declarations
 void measure(BSTBox* node);
