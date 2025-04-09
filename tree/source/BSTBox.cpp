@@ -21,7 +21,8 @@ using std::string;
 #define MIN_VALUE_WIDTH 3
 #define MIN_ARM_LEN 2
 #define BOX_BORDER 1
-#define BOX_HEIGHT 3
+#define BOX_PADDING 1
+#define BOX_HEIGHT 4
 #define MIN_TREE_WIDTH 11
 #define ARM_HEIGHT 2
 
@@ -35,8 +36,8 @@ using std::string;
 // ASCII
 #define LINE_HORZ_2 '_'
 #define LINE_VERT_2 '|'
-#define CORNER_TL_2 ','
-#define CORNER_TR_2 ','
+#define CORNER_TL_2 ' '
+#define CORNER_TR_2 ' '
 #define CORNER_BL_2 '|'
 #define CORNER_BR_2 '|'
 #define CORNER_2 ','
@@ -52,8 +53,8 @@ using std::string;
 #define BOX_V_LINE LINE_VERT_2
 #define BOX_TL_CORNER CORNER_TL_2
 #define BOX_TR_CORNER CORNER_TR_2
-#define BOX_BL_CORNER LINE_VERT_2
-#define BOX_BR_CORNER LINE_VERT_2
+#define BOX_BL_CORNER CORNER_BL_2
+#define BOX_BR_CORNER CORNER_BR_2
 
 #define ARM_H_LINE LINE_HORZ_2
 #define ARM_V_LINE LINE_VERT_2
@@ -61,7 +62,7 @@ using std::string;
 #define ARM_TR_CORNER CORNER_TR_2
 #define ARM_R_JUNCTION LINE_VERT_2
 #define ARM_L_JUNCTION LINE_VERT_2
-#define ARM_T_JUNCTION 'V'
+#define ARM_T_JUNCTION LINE_VERT_2
 
 #pragma region Function Declarations
 void measure(BSTBox* node);
@@ -99,8 +100,8 @@ void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     int boxStartY = y;
     int boxEndY = y + BOX_HEIGHT - 1;
     // 4 box's corners
-    buffer[y][boxStartX] = BOX_TL_CORNER;
-    buffer[y][boxEndX] = BOX_TR_CORNER;
+    buffer[boxStartY][boxStartX] = BOX_TL_CORNER;
+    buffer[boxStartY][boxEndX] = BOX_TR_CORNER;
     buffer[boxEndY][boxStartX] = BOX_BL_CORNER;
     buffer[boxEndY][boxEndX] = BOX_BR_CORNER;
 
@@ -109,8 +110,10 @@ void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     memset(buffer[boxEndY] + boxStartX + BOX_BORDER, BOX_H_LINE, boxEndX - boxStartX - BOX_BORDER);
 
     // Draw vertical lines on two sides
-    buffer[y + 1][boxStartX] = BOX_V_LINE;
-    buffer[y + 1][boxEndX] = BOX_V_LINE;
+    for (int i = boxStartY + 1; i < boxEndY; ++i) {
+        buffer[i][boxStartX] = BOX_V_LINE;
+        buffer[i][boxEndX] = BOX_V_LINE;
+    }
 
     // If the box is a child node, show the connecting point with its parent's arm.
     if (parent) {
@@ -118,9 +121,10 @@ void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     }
 
     // Draw the value
-    int valueStartX = boxStartX + BOX_BORDER + (node->valueWidth - node->valueString.length()) / 2;
+    int valueStartX = boxStartX + BOX_BORDER + BOX_PADDING;
+    int valueY = (boxStartY + boxEndY + 1) / 2;
     for (int i = 0; i < node->valueString.length(); ++i) {
-        buffer[(boxEndY + boxStartY) / 2][valueStartX + i] = node->valueString[i];
+        buffer[valueY][valueStartX + i] = node->valueString[i];
     }
     
     debug("Drawing box for node " + to_string(node->value) + ":");
@@ -238,15 +242,11 @@ void measure(BSTBox* node) {
         measure(node->right);
     }
 
-    // calculate width of display value
-    node->valueString = to_string(node->value);
-    node->valueWidth = max((int)node->valueString.length(), MIN_VALUE_WIDTH);
-    node->valueWidth += 1 - node->valueWidth % 2;
-
     // Calculate width of the tree:
-
+    
     // Width of the bounding box
-    node->boxWidth = node->valueWidth + 2 * BOX_BORDER;
+    node->valueString = to_string(node->value);
+    node->boxWidth = node->valueString.size() + 2 * BOX_PADDING + 2 * BOX_BORDER;
     // Plain width in case there's no child nodes, can be larger than the box
     int widthAsLeaf = max(node->boxWidth, MIN_TREE_WIDTH);
     node->leftWidth = (node->left ? node->left->width : widthAsLeaf / 2);
@@ -268,7 +268,7 @@ void measure(BSTBox* node) {
     debug("    Height: " + to_string(node->height));
     debug("    Box width: " + to_string(node->boxWidth));
     debug("    Box X: " + to_string(node->boxX));
-    debug("    Value width: " + to_string(node->valueWidth));
+    // debug("    Value width: " + to_string(node->valueWidth));
     debug("    Value string: " + node->valueString);
     debug("    Left width: " + to_string(getWidth(node->left)));
     debug("    Right width: " + to_string(getWidth(node->right)));

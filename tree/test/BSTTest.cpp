@@ -2,7 +2,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "AVL.h"
+#include "../source/AVL.h"
 
 using spdlog::debug;
 
