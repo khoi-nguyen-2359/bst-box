@@ -18,9 +18,6 @@ using std::vector;
 using spdlog::debug;
 using std::to_string;
 
-// Locale for the output stream to display wide characters (node bounding box, connecting arms)
-#define LOCALE "en_US.UTF-8"
-
 // Width of the decoration frame for action menu and texts
 #define FRAME_WIDTH 60
 
@@ -58,13 +55,6 @@ void printFrame(const char* text, int mask);
 int main(int argc, char* argv[]) {
     initializeLogging();
     debug("Starting program ...");
-
-    // This is important because text visualization is based on Unicode characters.
-    // TODO: test this on Windows
-    // #if __linux__
-    //     std::setlocale(LC_ALL, LOCALE);
-    // #endif
-    // cout.imbue(std::locale(LOCALE));
 
     AVLNode* tree = nullptr;  // Pointer to the main tree object of the program.
     char action;    // Action user chooses from the menu below.
