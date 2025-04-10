@@ -19,12 +19,11 @@ using std::wostream;
 using std::string;
 
 #define MIN_VALUE_WIDTH 3
-#define MIN_ARM_LEN 2
 #define BOX_BORDER 1
 #define BOX_PADDING 1
 #define BOX_HEIGHT 4
 #define MIN_TREE_WIDTH 11
-#define ARM_HEIGHT 2
+#define BOX_MARGIN 1
 
 #define LINE_HORZ_3 L'━'
 #define LINE_VERT_3 L'┃'
@@ -58,8 +57,8 @@ using std::string;
 
 #define ARM_H_LINE LINE_HORZ_2
 #define ARM_V_LINE LINE_VERT_2
-#define ARM_TL_CORNER CORNER_TL_2
-#define ARM_TR_CORNER CORNER_TR_2
+#define ARM_TL_ELBOW CORNER_TL_2
+#define ARM_TR_ELBOW CORNER_TR_2
 #define ARM_R_JUNCTION LINE_VERT_2
 #define ARM_L_JUNCTION LINE_VERT_2
 #define ARM_T_JUNCTION LINE_VERT_2
@@ -154,11 +153,11 @@ void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     }
 
     if (node->left) {
-        draw(buffer, x, y + BOX_HEIGHT, node, node->left);
+        draw(buffer, x, y + BOX_HEIGHT + BOX_MARGIN, node, node->left);
     }
     
     if (node->right) {
-        draw(buffer, x + node->leftWidth + 1, y + BOX_HEIGHT, node, node->right);
+        draw(buffer, x + node->leftWidth + 1, y + BOX_HEIGHT + BOX_MARGIN, node, node->right);
     }
 }
 
@@ -171,26 +170,29 @@ void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
  * @param y Starting y position of the child from the drawing origin.
  */
 void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
+    int armHeight = (BOX_HEIGHT - 1) / 2 + BOX_MARGIN + 1;
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
-    int endY = startY + ARM_HEIGHT - 1;
-    char corner;
+    int endY = startY + armHeight - 1;
+    char elbow;
     if (parent->left == child) {
         startX = x + parent->boxX - 1;
         endX = x + child->boxX + child->boxWidth / 2;
-        corner = ARM_TL_CORNER;
+        elbow = ARM_TL_ELBOW;
         buffer[startY][startX + 1] = ARM_L_JUNCTION;
     } else if (parent->right == child) {
         startX = x + parent->boxX + parent->boxWidth;
         endX = x + parent->leftWidth + 1 + child->boxX + child->boxWidth / 2;
-        corner = ARM_TR_CORNER;
+        elbow = ARM_TR_ELBOW;
         buffer[startY][startX - 1] = ARM_R_JUNCTION;
     }
     int minX = min(startX, endX);
     int maxX = max(startX, endX);
     memset(buffer[startY] + minX, ARM_H_LINE, maxX - minX + 1);
-    buffer[startY + 1][endX] = ARM_V_LINE;
-    buffer[startY][endX] = corner;
+    for (int i = startY + 1; i <= endY; ++i) {
+        buffer[i][endX] = ARM_V_LINE;
+    }
+    buffer[startY][endX] = elbow;
     
     debug("Drawing arm for node " + to_string(parent->value) + ":");
     debug("    Arm start: (" + to_string(startX) + ", " + to_string(startY) + ")");
@@ -261,7 +263,7 @@ void measure(BSTBox* node) {
         node->boxX = node->leftWidth - node->boxWidth / 2;
     }
 
-    node->height = BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
+    node->height = BOX_MARGIN + BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
 
     debug("Measured node " + to_string(node->value) + ":");
     debug("    Width: " + to_string(node->width));
