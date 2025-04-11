@@ -13,12 +13,12 @@
    ┃ 1 ┃       ┃ 3 ┃       ┃ 7 ┃       ┃13 ┃   
    ┗━━━┛       ┗━━━┛       ┗━━━┛       ┗━━━┛
 ```
+This is Final Project of Programming Method & Abstraction course.
 
-The idea draws inspiration from visualizer apps that present programming concepts in
-an intuitive and engaging way. With this goal in mind, this project was developed to
-visualize Binary Tree on console UI in text-based presentation. Under text form, Binary Tree can be shared straightforwardly in text communication like technical documents, code reviews, or source code documentation, all without the need of images.
+Getting inspired by visualization websites, this project is developed to
+visualize Binary Tree on console UI in text-based presentation. Under this form, Binary Tree can be shared straightforwardly in text communication like technical documents, code reviews, or source code documentation, all without the need of images.
 
-Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with Unicode characters, and can be exported to a text file for sharing.
+Currently the program demonstrates how AVL Tree changes through out insertion and deletion. The output is made with ASCII characters, and can be exported to a text file for sharing.
 
 ## Architecture Diagram
 ```
@@ -42,12 +42,7 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
    ```bash
    ./build.sh
    ```
-   Output executable: `build/bstbox`
-
-1. **Run the Application**:
-   ```bash
-   ./run.sh
-   ```
+   Output dir: `build`
 
 1. **Test the Core Logic**:
    ```bash
@@ -59,7 +54,6 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
 | **Technology**         | **Description**                                   |
 |-------------------------|---------------------------------------------------|
 | **Programming Language**| C++ 14                                             |
-| **Build System**        | CMake                |
 | **Testing Framework**   | Google Test                     |
 | **Logging**       | spdlog                                           |
 | **Version Control**     | Git for source code management                   |
