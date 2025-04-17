@@ -18,12 +18,12 @@ using std::ostream;
 using std::wostream;
 using std::string;
 
-#define MIN_VALUE_WIDTH 3
 #define BOX_BORDER 1
 #define BOX_PADDING 1
 #define BOX_HEIGHT 4
-#define MIN_TREE_WIDTH 11
-#define BOX_MARGIN 1
+#define BOX_V_MARGIN 1
+#define BOX_H_MARGIN 2
+#define ARM_MIN_WIDTH 3
 
 #define LINE_HORZ_3 L'━'
 #define LINE_VERT_3 L'┃'
@@ -68,8 +68,9 @@ void measure(BSTBox* node);
 void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node);
 void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child);
 void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node);
-int getWidth(BSTBox* node);
-int getHeight(BSTBox* node);
+inline int getWidth(BSTBox* node);
+inline int getHeight(BSTBox* node);
+inline int getBoxCenterX(BSTBox* node, int offset = 0);
 #pragma endregion
 
 /**
@@ -144,7 +145,6 @@ void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
 void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     drawBox(buffer, x, y, parent, node);
 
-    // Draw the arms
     if (node->left) {
         drawArm(buffer, x, y, node, node->left);
     }
@@ -153,11 +153,11 @@ void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     }
 
     if (node->left) {
-        draw(buffer, x, y + BOX_HEIGHT + BOX_MARGIN, node, node->left);
+        draw(buffer, x, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->left);
     }
     
     if (node->right) {
-        draw(buffer, x + node->leftWidth + 1, y + BOX_HEIGHT + BOX_MARGIN, node, node->right);
+        draw(buffer, x + node->rightOffset, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->right);
     }
 }
 
@@ -170,25 +170,23 @@ void draw(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
  * @param y Starting y position of the child from the drawing origin.
  */
 void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
-    int armHeight = (BOX_HEIGHT - 1) / 2 + BOX_MARGIN + 1;
+    int armHeight = (BOX_HEIGHT - 1) / 2 + BOX_V_MARGIN + 1;
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
     int endY = startY + armHeight - 1;
     char elbow;
     if (parent->left == child) {
         startX = x + parent->boxX - 1;
-        endX = x + child->boxX + child->boxWidth / 2;
+        endX = getBoxCenterX(child, x);
         elbow = ARM_TL_ELBOW;
         buffer[startY][startX + 1] = ARM_L_JUNCTION;
     } else if (parent->right == child) {
         startX = x + parent->boxX + parent->boxWidth;
-        endX = x + parent->leftWidth + 1 + child->boxX + child->boxWidth / 2;
+        endX = getBoxCenterX(child, x + parent->rightOffset);
         elbow = ARM_TR_ELBOW;
         buffer[startY][startX - 1] = ARM_R_JUNCTION;
     }
-    int minX = min(startX, endX);
-    int maxX = max(startX, endX);
-    memset(buffer[startY] + minX, ARM_H_LINE, maxX - minX + 1);
+    memset(buffer[startY] + min(startX, endX), ARM_H_LINE, max(startX, endX) - min(startX, endX) + 1);
     for (int i = startY + 1; i <= endY; ++i) {
         buffer[i][endX] = ARM_V_LINE;
     }
@@ -212,7 +210,7 @@ void presentBSTBox(ostream& out, BSTBox* node) {
     char* buffer[node->height];
     for (int i = 0; i < node->height; ++i) {
         buffer[i] = new char[node->width + 1]; // plus 1 for end of line character
-        memset(buffer[i], L' ', node->width);
+        memset(buffer[i], ' ', node->width);
     }
 
     debug("Buffer initialized, size: width " + to_string(node->width) + ", height " + to_string(node->height));
@@ -221,7 +219,7 @@ void presentBSTBox(ostream& out, BSTBox* node) {
 
     debug("Printing tree " + to_string(node->value));
     for (int i = 0; i < node->height; ++i) {
-        buffer[i][node->width] = L'\0';
+        buffer[i][node->width] = '\0';
         out << buffer[i] << endl;
     }
 
@@ -236,7 +234,7 @@ void presentBSTBox(ostream& out, BSTBox* node) {
  * @param node Tree's root node.
  */
 void measure(BSTBox* node) {
-    // Parent node's sizes are summed up from children's size, so measure children first
+    // Postorder traversal
     if (node->left) {
         measure(node->left);
     }
@@ -244,33 +242,41 @@ void measure(BSTBox* node) {
         measure(node->right);
     }
 
-    // Calculate width of the tree:
-    
-    // Width of the bounding box
+    // The bounding box
     node->valueString = to_string(node->value);
     node->boxWidth = node->valueString.size() + 2 * BOX_PADDING + 2 * BOX_BORDER;
-    // Plain width in case there's no child nodes, can be larger than the box
-    int widthAsLeaf = max(node->boxWidth, MIN_TREE_WIDTH);
-    node->leftWidth = (node->left ? node->left->width : widthAsLeaf / 2);
-    node->rightWidth = (node->right ? node->right->width : widthAsLeaf / 2);
-    node->width = node->leftWidth + node->rightWidth + 1;
 
-    // Calculate x position so that the node is center-aligned between its children
-    if (node->left && node->right) {
-        int childDistance = node->right->boxX + node->left->width + 1 - node->left->boxX;
-        node->boxX = node->left->boxX + node->left->boxWidth / 2 + childDistance / 2 - node->boxWidth / 2;
-    } else {
-        node->boxX = node->leftWidth - node->boxWidth / 2;
+    // Use left child as parent's anchor
+    int leftBoxCenterX = node->left ? getBoxCenterX(node->left) : - ARM_MIN_WIDTH;
+    node->boxX = leftBoxCenterX + ARM_MIN_WIDTH;
+    node->width = node->boxX + node->boxWidth;
+    if (node->right) {
+        // First assume the two childs are back to back, then check for any overlappings.
+        node->rightOffset = node->left ? node->left->width : node->boxWidth / 2;
+
+        // 1. Check spaces for the right arm, shift the right node forwards if needed.
+        int rightBoxCenterX = getBoxCenterX(node->right, node->rightOffset);
+        int minRightBoxCenterX = node->boxX + node->boxWidth + ARM_MIN_WIDTH - 1;
+        int centerXOffset = max(0, minRightBoxCenterX - rightBoxCenterX);
+        node->rightOffset += centerXOffset;
+
+        // 2. Check if the two childs leave enough spaces in between, if not increase the offset.
+        int childSeparatorOffset = max(0, node->left ? (BOX_H_MARGIN - node->rightOffset + node->left->width) : 0);
+        node->rightOffset += childSeparatorOffset;
+
+        // Center-align the parent's box
+        node->boxX = (getBoxCenterX(node->right, node->rightOffset) + leftBoxCenterX + 1) / 2 - node->boxWidth / 2;
+
+        node->width = node->rightOffset + node->right->width;
     }
 
-    node->height = BOX_MARGIN + BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
+    node->height = BOX_V_MARGIN + BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
 
     debug("Measured node " + to_string(node->value) + ":");
     debug("    Width: " + to_string(node->width));
     debug("    Height: " + to_string(node->height));
     debug("    Box width: " + to_string(node->boxWidth));
     debug("    Box X: " + to_string(node->boxX));
-    // debug("    Value width: " + to_string(node->valueWidth));
     debug("    Value string: " + node->valueString);
     debug("    Left width: " + to_string(getWidth(node->left)));
     debug("    Right width: " + to_string(getWidth(node->right)));
@@ -284,4 +290,15 @@ int getWidth(BSTBox* node) {
 // Return height of the node, or zero if node is null.
 int getHeight(BSTBox* node) {
     return node ? node->height : 0;
+}
+
+int getBoxCenterX(BSTBox* node, int offset) {
+    return node->boxX + node->boxWidth / 2 + offset;
+}
+
+int getLeftWidth(BSTBox* node) {
+    if (node->left) {
+        return node->left->width;
+    }
+    return node->boxWidth / 2;
 }

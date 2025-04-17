@@ -6,9 +6,18 @@
 
 using spdlog::debug;
 
-TEST(BSTTest, Insert_NoRotation) {
+class AVLNodeTest : public ::testing::Test {
+    protected:
+        AVLNode *root = nullptr;
+
+        void TearDown() override {
+            deleteAVLNode(root);
+        }
+};
+
+TEST_F(AVLNodeTest, Insert_NoRotation) {
     int values[]{10, 5, 15, 3, 7};
-    AVLNode* root = createAVLTree(values, 5);
+    root = createAVLTree(values, 5);
 
     EXPECT_EQ(10, root->value);
     EXPECT_EQ(5, root->left->value);
@@ -20,12 +29,10 @@ TEST(BSTTest, Insert_NoRotation) {
     EXPECT_EQ(1, root->right->height);
     EXPECT_EQ(1, root->left->left->height);
     EXPECT_EQ(1, root->left->right->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Insert_SingleRightRotation) {
-    AVLNode* root = createAVLNode(10);
+TEST_F(AVLNodeTest, Insert_SingleRightRotation) {
+    root = createAVLNode(10);
     insertAVLNode(root, 5);
     insertAVLNode(root, 1);    // trigger rotation at node 10
 
@@ -33,12 +40,10 @@ TEST(BSTTest, Insert_SingleRightRotation) {
     EXPECT_EQ(1, root->left->value);
     EXPECT_EQ(10, root->right->value);
     EXPECT_EQ(2, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Insert_SingleLeftRotation) {
-    AVLNode* root = createAVLNode(10);
+TEST_F(AVLNodeTest, Insert_SingleLeftRotation) {
+    root = createAVLNode(10);
     insertAVLNode(root, 15);
     insertAVLNode(root, 11);    // trigger rotation at node 10
 
@@ -48,13 +53,11 @@ TEST(BSTTest, Insert_SingleLeftRotation) {
     EXPECT_EQ(2, root->height);
     EXPECT_EQ(1, root->left->height);
     EXPECT_EQ(1, root->right->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Insert_DoubleRightLeftRotation) {
+TEST_F(AVLNodeTest, Insert_DoubleRightLeftRotation) {
     int values[]{10, 5, 15, 18, 12};
-    AVLNode* root = createAVLTree(values, 5);
+    root = createAVLTree(values, 5);
 
     EXPECT_EQ(3, root->height);
 
@@ -72,13 +75,11 @@ TEST(BSTTest, Insert_DoubleRightLeftRotation) {
     EXPECT_EQ(1, root->left->left->height);
     EXPECT_EQ(1, root->right->left->height);
     EXPECT_EQ(1, root->right->right->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Insert_DoubleLeftRightRotation) {
+TEST_F(AVLNodeTest, Insert_DoubleLeftRightRotation) {
     int values[]{10, 5, 15, 3, 7};
-    AVLNode* root = createAVLTree(values, 5);
+    root = createAVLTree(values, 5);
 
     EXPECT_EQ(3, root->height);
 
@@ -97,13 +98,11 @@ TEST(BSTTest, Insert_DoubleLeftRightRotation) {
     EXPECT_EQ(1, root->left->left->height);
     EXPECT_EQ(1, root->left->right->height);
     EXPECT_EQ(1, root->right->right->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_LeafNode) {
+TEST_F(AVLNodeTest, Remove_LeafNode) {
     int values[]{10, 5, 15, 3, 7};
-    AVLNode* root = createAVLTree(values, 5);
+    root = createAVLTree(values, 5);
     
     EXPECT_EQ(7, root->left->right->value);
     
@@ -115,13 +114,11 @@ TEST(BSTTest, Remove_LeafNode) {
     EXPECT_EQ(3, root->left->left->value);
     EXPECT_EQ(nullptr, root->left->right);
     EXPECT_EQ(3, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_RootNode) {
+TEST_F(AVLNodeTest, Remove_RootNode) {
     int values[]{10, 5, 15};
-    AVLNode* root = createAVLTree(values, 3);
+    root = createAVLTree(values, 3);
     
     EXPECT_TRUE(removeAVLNode(root, 10));
     
@@ -129,21 +126,19 @@ TEST(BSTTest, Remove_RootNode) {
     EXPECT_EQ(nullptr, root->left);
     EXPECT_EQ(15, root->right->value);
     EXPECT_EQ(2, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_OnlyRootNode) {
-    AVLNode* root = createAVLNode(3);
+TEST_F(AVLNodeTest, Remove_OnlyRootNode) {
+    root = createAVLNode(3);
     
     EXPECT_TRUE(removeAVLNode(root, 3));
     
     EXPECT_EQ(nullptr, root);
 }
 
-TEST(BSTTest, Remove_NodeWithTwoChildren_FourLevels) {
+TEST_F(AVLNodeTest, Remove_NodeWithTwoChildren_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 22, 27, 32, 37};
-    AVLNode* root = createAVLTree(values, 15);
+    root = createAVLTree(values, 15);
     
     EXPECT_TRUE(removeAVLNode(root, 10));  // Remove node with 2 children from second level
     
@@ -162,13 +157,11 @@ TEST(BSTTest, Remove_NodeWithTwoChildren_FourLevels) {
     EXPECT_EQ(32, root->right->right->left->value);
     EXPECT_EQ(37, root->right->right->right->value);
     EXPECT_EQ(4, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
+TEST_F(AVLNodeTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 12, 17, 22, 27, 32, 37};
-    AVLNode* root = createAVLTree(values, 14);
+    root = createAVLTree(values, 14);
     
     EXPECT_TRUE(removeAVLNode(root, 5));  // Remove node with only left child from third level
     
@@ -187,13 +180,11 @@ TEST(BSTTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
     EXPECT_EQ(32, root->right->right->left->value);
     EXPECT_EQ(37, root->right->right->right->value);
     EXPECT_EQ(4, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_NodeWithOnlyRightChild_FourLevels) {
+TEST_F(AVLNodeTest, Remove_NodeWithOnlyRightChild_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 27, 32, 37};
-    AVLNode* root = createAVLTree(values, 14);
+    root = createAVLTree(values, 14);
     
     EXPECT_TRUE(removeAVLNode(root, 25));  // Remove node with only left child from third level
     
@@ -212,13 +203,11 @@ TEST(BSTTest, Remove_NodeWithOnlyRightChild_FourLevels) {
     EXPECT_EQ(32, root->right->right->left->value);
     EXPECT_EQ(37, root->right->right->right->value);
     EXPECT_EQ(4, root->height);
-
-    deleteAVLNode(root);
 }
 
-TEST(BSTTest, Remove_NonexistentNode) {
+TEST_F(AVLNodeTest, Remove_NonexistentNode) {
     int values[]{10, 5, 15};
-    AVLNode* root = createAVLTree(values, 3);
+    root = createAVLTree(values, 3);
     
     EXPECT_FALSE(removeAVLNode(root, 7));
     
@@ -226,8 +215,6 @@ TEST(BSTTest, Remove_NonexistentNode) {
     EXPECT_EQ(5, root->left->value);
     EXPECT_EQ(15, root->right->value);
     EXPECT_EQ(2, root->height);
-
-    deleteAVLNode(root);
 }
 
 void initLogging();

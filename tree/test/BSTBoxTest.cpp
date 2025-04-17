@@ -9,31 +9,71 @@
 using spdlog::debug;
 using std::stringstream;
 
-TEST(BSTBoxTest, Present) {
-    AVLNode* root = createAVLNode(1);
-    insertAVLNode(root, 2);
-    insertAVLNode(root, 3);
+class BSTBoxTest : public ::testing::Test {
+    protected:
+        AVLNode* avl = nullptr;
+        BSTBox* box = nullptr;
 
-    BSTBox* bstBox = createBSTBox(root);
+        void TearDown() override {
+            deleteAVLNode(avl);
+            deleteBSTBox(box);
+        }
+};
+
+TEST_F(BSTBoxTest, Present) {
+    avl = createAVLNode(1);
+    insertAVLNode(avl, 2);
+    insertAVLNode(avl, 3);
+
+    box = createBSTBox(avl);
     stringstream os;
 
-    presentBSTBox(os, bstBox);
+    presentBSTBox(os, box);
 
     string expectedOutput = 
-R"(          ___          
-         |   |         
-      ___| 2 |___      
-     |   |___|   |     
-     |           |     
-    _|_         _|_    
-   |   |       |   |   
-   | 1 |       | 3 |   
-   |___|       |___|   
-                       
+R"(      ___      
+     |   |     
+   __| 2 |__   
+  |  |___|  |  
+  |         |  
+ _|_       _|_ 
+|   |     |   |
+| 1 |     | 3 |
+|___|     |___|
+               
 )";
 
     EXPECT_EQ(os.str(), expectedOutput);
+}
 
-    deleteBSTBox(bstBox);
-    deleteAVLNode(root);
+TEST_F(BSTBoxTest, PresentLargeValues) {
+    avl = createAVLNode(1);
+    insertAVLNode(avl, 1000000000);
+    insertAVLNode(avl, 1000000001);
+    insertAVLNode(avl, -100000000);
+
+    box = createBSTBox(avl);
+    stringstream os;
+
+    presentBSTBox(os, box);
+
+    string expectedOutput = 
+R"(                ____________          
+               |            |         
+             __| 1000000000 |__       
+            |  |____________|  |      
+            |                  |      
+           _|_           ______|_____ 
+          |   |         |            |
+        __| 1 |         | 1000000001 |
+       |  |___|         |____________|
+       |                              
+ ______|_____                         
+|            |                        
+| -100000000 |                        
+|____________|                        
+                                      
+)";
+
+    EXPECT_EQ(os.str(), expectedOutput);
 }

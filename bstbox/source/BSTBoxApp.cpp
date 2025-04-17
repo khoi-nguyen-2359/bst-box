@@ -41,6 +41,7 @@ vector<int> getInputIntegers();
 bool verifyTreeContent(AVLNode* root);
 char printActionMenu();
 void printFrame(const char* text, int mask);
+int rand(int min, int max);
 #pragma endregion
 
 /**
@@ -110,6 +111,7 @@ int main(int argc, char* argv[]) {
  */
 void createRandomTree(AVLNode*& root) {
     const int MAX_RAND_NODE = 20;
+    const int MAX_RAND_VALUE = 1000;
     int numResponse;
     cout << "Please enter number of nodes (not exceeding " << MAX_RAND_NODE << "): ";
     cin >> numResponse;
@@ -118,7 +120,10 @@ void createRandomTree(AVLNode*& root) {
     vector<int> randValues;
     int nodeCount = std::min(MAX_RAND_NODE, numResponse);
     for (int i = 0; i < nodeCount; ++i) {
-        int randVal = rand() % 1000 - 500;
+        int digits = rand(1, 9);
+        int min = std::pow(10, digits - 1);
+        int max = std::pow(10, digits) - 1;
+        int randVal = rand(min, max) - max / 2;
         randValues.push_back(randVal);
         debug("Randomized value " + to_string(randVal));
     }
@@ -354,4 +359,8 @@ void initializeLogging() {
     spdlog::set_level(spdlog::level::debug);
     spdlog::set_default_logger(file_logger);
     file_logger->flush_on(spdlog::level::debug);
+}
+
+int rand(int min, int max) {
+    return min + (rand() % (max - min + 1));
 }
