@@ -1,12 +1,9 @@
 #include <gtest/gtest.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 #include <sstream>
 
 #include "../source/AVL.h"
 #include "../source/BSTBox.h"
 
-using spdlog::debug;
 using std::stringstream;
 
 class BSTBoxTest : public ::testing::Test {

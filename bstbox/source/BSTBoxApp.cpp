@@ -1,10 +1,7 @@
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
 #include <string>
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
-#include <filesystem>
 
 #include "../../tree/source/AVL.h"
 #include "../../tree/source/BSTBox.h"
@@ -15,7 +12,6 @@ using std::cin;
 using std::endl;
 using std::ofstream;
 using std::vector;
-using spdlog::debug;
 using std::to_string;
 
 // Width of the decoration frame for action menu and texts
@@ -36,7 +32,6 @@ void deleteNodes(AVLNode*& root);
 void present(AVLNode* root);
 void resetCurrentTree(AVLNode*& root);
 void exportToFile(AVLNode* root);
-void initializeLogging();
 vector<int> getInputIntegers();
 bool verifyTreeContent(AVLNode* root);
 char printActionMenu();
@@ -54,14 +49,10 @@ int rand(int min, int max);
    ┗━━━┛       ┗━━━┛
  */
 int main(int argc, char* argv[]) {
-    initializeLogging();
-    debug("Starting program ...");
-
     AVLNode* tree = nullptr;  // Pointer to the main tree object of the program.
     char action;    // Action user chooses from the menu below.
     while (true) {
         action = printActionMenu();
-        debug(string("Action selected: ") + action);
         switch (action) {
             case 'C':
             case 'c':
@@ -125,7 +116,6 @@ void createRandomTree(AVLNode*& root) {
         int max = std::pow(10, digits) - 1;
         int randVal = rand(min, max) - max / 2;
         randValues.push_back(randVal);
-        debug("Randomized value " + to_string(randVal));
     }
     deleteAVLNode(root);
     insertAVLNodes(root, randValues.data(), nodeCount);
@@ -351,14 +341,6 @@ vector<int> getInputIntegers() {
     }
     cin.ignore();
     return values;
-}
-
-// Initialize file logger for debugging.
-void initializeLogging() {
-    auto file_logger = spdlog::basic_logger_mt("BSTBox", "BSTBoxLogs.log");
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::set_default_logger(file_logger);
-    file_logger->flush_on(spdlog::level::debug);
 }
 
 int rand(int min, int max) {

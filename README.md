@@ -55,7 +55,6 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
 |-------------------------|---------------------------------------------------|
 | **Programming Language**| C++ 11                                             |
 | **Testing Framework**   | Google Test                     |
-| **Logging**       | spdlog                                           |
 | **Version Control**     | Git for source code management                   |
 
 ## Future Enhancements

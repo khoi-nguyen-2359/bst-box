@@ -1,12 +1,10 @@
 #include <iostream>
-#include <spdlog/spdlog.h>
 
 #include "AVL.h"
+#include "../../log/source/L.h"
 
 using std::max;
-using std::cout;
 using std::endl;
-using spdlog::debug;
 using std::vector;
 using std::to_string;
 
@@ -48,12 +46,11 @@ AVLNode* createAVLNode(int value) {
 void deleteAVLNode(AVLNode*& root) {
     if (!root) return;
     int rootValue = root->value;
-    debug("Deleting tree: " + to_string(rootValue));
+    logger << "Deleting tree: " << rootValue << "\n";
     deleteAVLNode(root->left);
     deleteAVLNode(root->right);
     delete root;
     root = nullptr;
-    // debug("Tree deleted: " + to_string(rootValue));
 }
 
 /**
@@ -139,7 +136,7 @@ void updateHeight(AVLNode* node) {
  *   ┗━━━┛     ┗━━━┛
  */
 inline void rotateLeft(AVLNode* root) {
-    debug("Rotating left at node " + std::to_string(root->value));
+    logger << "Rotating left at node " << root->value << "\n";
     // Right child node is taken out and reserved as its value will shift to the root node's position
     AVLNode* reservedNode = root->right;
     
@@ -163,7 +160,7 @@ inline void rotateLeft(AVLNode* root) {
  * @ref rotateLeft
  */
 inline void rotateRight(AVLNode* root) {
-    debug("Rotating right at node " + std::to_string(root->value));
+    logger << "Rotating right at node " << root->value << "\n";
     AVLNode* toReuseNode = root->left;
     int tempRootValue = root->value;
     root->value = root->left->value;
@@ -182,9 +179,9 @@ void balance(AVLNode* root) {
     if (balanceFactor >= -1 && balanceFactor <= 1) {
         return;
     }
-    debug("Balancing at node " + std::to_string(root->value) + ":");
-    debug("    left: " + std::to_string(getHeight(root->left)));
-    debug("    right: " + std::to_string(getHeight(root->right)));
+    logger << "Balancing at node " << root->value << ":\n";
+    logger << "    left: " << getHeight(root->left) << "\n";
+    logger << "    right: " << getHeight(root->right) << "\n";
 
     if (balanceFactor < -1) {   // Left child is by 2 higher than right child, consider right rotation.
 
@@ -258,7 +255,7 @@ bool insertAVLNode(AVLNode*& root, int value) {
  * @param root Tree's root node.
  */
 bool removeAVLNode(AVLNode*& root, int value) {
-    debug("Removing " + std::to_string(value) + " from node " + std::to_string(root->value));
+    logger << "Removing " << value << " from node " << root->value << "\n";
     bool removed = false;
     if (value < root->value) {
         // Continue finding on left sub-tree.
@@ -290,7 +287,7 @@ bool removeAVLNode(AVLNode*& root, int value) {
             delete tempLeft;
         }
         removed = true;
-        debug("Removed " + std::to_string(value));
+        logger << "Removed " << value << "\n";
     }
 
     if (removed && root) {
@@ -312,7 +309,7 @@ int removeMax(AVLNode* parent, AVLNode*& current) {
     } else {
         removedValue = current->value;
         AVLNode* currentLeft = current->left;
-        debug("Removing maximum child" + std::to_string(removedValue));
+        logger << "Removing maximum child" << removedValue << "\n";
         delete current;
         current = currentLeft;
     }

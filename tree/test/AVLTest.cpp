@@ -1,10 +1,6 @@
 #include <gtest/gtest.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 
 #include "../source/AVL.h"
-
-using spdlog::debug;
 
 class AVLNodeTest : public ::testing::Test {
     protected:
@@ -217,18 +213,7 @@ TEST_F(AVLNodeTest, Remove_NonexistentNode) {
     EXPECT_EQ(2, root->height);
 }
 
-void initLogging();
-
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
-    initLogging();
     return RUN_ALL_TESTS();
-}
-
-void initLogging() {
-    auto file_logger = spdlog::basic_logger_mt("TreeViewTest", "TreeViewTestLogs.log");
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::set_default_logger(file_logger);
-    file_logger->flush_on(spdlog::level::debug);
-    debug("Logging initialized");
 }

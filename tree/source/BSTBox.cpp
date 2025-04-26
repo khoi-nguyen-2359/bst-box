@@ -1,6 +1,6 @@
 #include "BSTBox.h"
+#include "../../log/source/L.h"
 #include <iostream>
-#include <spdlog/spdlog.h>
 #include <iomanip>
 #include <queue>
 #include <vector>
@@ -9,7 +9,6 @@ using std::endl;
 using std::queue;
 using std::vector;
 using std::to_string;
-using spdlog::debug;
 using std::max;
 using std::min;
 using std::setw;
@@ -126,12 +125,6 @@ void drawBox(char** buffer, int x, int y, BSTBox* parent, BSTBox* node) {
     for (int i = 0; i < node->valueString.length(); ++i) {
         buffer[valueY][valueStartX + i] = node->valueString[i];
     }
-    
-    debug("Drawing box for node " + to_string(node->value) + ":");
-    debug("    Box start: (" + to_string(boxStartX) + ", " + to_string(boxStartY) + ")");
-    debug("    Box end: (" + to_string(boxEndX) + ", " + to_string(boxEndY) + ")");
-    debug("    Box width: " + to_string(node->boxWidth));
-    debug("    Value start: " + to_string(valueStartX));
 }
 
 /**
@@ -191,10 +184,6 @@ void drawArm(char** buffer, int x, int y, BSTBox* parent, BSTBox* child) {
         buffer[i][endX] = ARM_V_LINE;
     }
     buffer[startY][endX] = elbow;
-    
-    debug("Drawing arm for node " + to_string(parent->value) + ":");
-    debug("    Arm start: (" + to_string(startX) + ", " + to_string(startY) + ")");
-    debug("    Arm end: (" + to_string(endX) + ", " + to_string(endY) + ")");
 }
 
 /**
@@ -213,17 +202,17 @@ void presentBSTBox(ostream& out, BSTBox* node) {
         memset(buffer[i], ' ', node->width);
     }
 
-    debug("Buffer initialized, size: width " + to_string(node->width) + ", height " + to_string(node->height));
+    logger << "Buffer initialized, size: width " << node->width << ", height " << node->height << "\n";
 
     draw(buffer, 0, 0, nullptr, node);
 
-    debug("Printing tree " + to_string(node->value));
+    logger << "Printing tree:\n";
     for (int i = 0; i < node->height; ++i) {
         buffer[i][node->width] = '\0';
         out << buffer[i] << endl;
     }
 
-    debug("Freeing buffer memory");
+    logger << "Freeing buffer memory\n";
     for (int i = 0; i < node->height; ++i) {
         delete[] buffer[i];
     }
@@ -272,14 +261,14 @@ void measure(BSTBox* node) {
 
     node->height = BOX_V_MARGIN + BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
 
-    debug("Measured node " + to_string(node->value) + ":");
-    debug("    Width: " + to_string(node->width));
-    debug("    Height: " + to_string(node->height));
-    debug("    Box width: " + to_string(node->boxWidth));
-    debug("    Box X: " + to_string(node->boxX));
-    debug("    Value string: " + node->valueString);
-    debug("    Left width: " + to_string(getWidth(node->left)));
-    debug("    Right width: " + to_string(getWidth(node->right)));
+    logger << "Measured node " << node->value << ":\n";
+    logger << "    Width: " << node->width << "\n";
+    logger << "    Height: " << node->height << "\n";
+    logger << "    Box width: " << node->boxWidth << "\n";
+    logger << "    Box X: " << node->boxX << "\n";
+    logger << "    Value string: " << node->valueString << "\n";
+    logger << "    Left width: " << getWidth(node->left) << "\n";
+    logger << "    Right width: " << getWidth(node->right) << "\n";
 }
 
 // Return width of the node, or zero if node is null.
