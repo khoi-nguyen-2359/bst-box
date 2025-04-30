@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "../source/AVL.h"
-#include "../source/BSTBox.h"
+#include "AVL.h"
+#include "BSTBox.h"
 
 using std::stringstream;
 

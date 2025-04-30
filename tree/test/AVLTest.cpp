@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../source/AVL.h"
+#include "AVL.h"
 
 class AVLNodeTest : public ::testing::Test {
     protected:
