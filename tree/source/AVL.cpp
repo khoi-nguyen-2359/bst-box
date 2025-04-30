@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "AVL.h"
-#include "../../log/source/L.h"
+#include "L.h"
 
 using std::max;
 using std::endl;

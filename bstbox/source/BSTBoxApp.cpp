@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "../../tree/source/AVL.h"
-#include "../../tree/source/BSTBox.h"
+#include "AVL.h"
+#include "BSTBox.h"
 
 using std::string;
 using std::cout;

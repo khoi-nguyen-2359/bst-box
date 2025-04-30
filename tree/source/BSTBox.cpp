@@ -1,5 +1,5 @@
 #include "BSTBox.h"
-#include "../../log/source/L.h"
+#include "L.h"
 #include <iostream>
 #include <iomanip>
 #include <queue>
