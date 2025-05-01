@@ -22,7 +22,7 @@ fi
 
 g++ -std=c++11 \
 $BUILD_FLAGS \
-bstbox/source/*.cpp tree/source/*.cpp log/source/*.cpp \
+bstbox/source/*.cpp tree/source/*.cpp \
 -Itree/include -Ilog/include \
 -o $OUTPUT_FILE
 

@@ -8,7 +8,11 @@ using std::ofstream;
 #ifdef LOGGABLE
     class Logger {
     public:
-        static Logger instance;
+        static Logger& getInstance() {
+            static Logger instance;
+            return instance;
+        }
+
         template <typename T>
         Logger& operator<<(const T& p) {
             if (loggerStream.is_open()) {
@@ -22,23 +26,27 @@ using std::ofstream;
                 loggerStream.close();
             }
         }
+
+        Logger(const Logger&) = delete;
+        Logger& operator=(const Logger&) = delete;
     private:
         ofstream loggerStream;
         Logger() {
-            loggerStream = ofstream("bstbox.log", std::ios::app);
+            loggerStream.open("bstbox.log", std::ios::app);
         }
     };
-    #define logger Logger::instance
 #else
     class Logger {
     public:
-        static Logger instance;
+        static Logger& getInstance() {
+            static Logger instance;
+            return instance;
+        }
         template <typename T>
         Logger& operator<<(const T&) noexcept { return *this; }
-    private:
-        Logger() = default;
     };
-    #define logger Logger::instance
 #endif
+
+#define logger Logger::getInstance()
 
 #endif
