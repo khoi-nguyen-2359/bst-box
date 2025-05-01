@@ -202,17 +202,17 @@ void presentBSTBox(ostream& out, BSTBox* node) {
         memset(buffer[i], ' ', node->width);
     }
 
-    logger << "Buffer initialized, size: width " << node->width << ", height " << node->height << "\n";
+    logger_printf("Buffer initialized, size: width %d, height %d\n", node->width, node->height);
 
     draw(buffer, 0, 0, nullptr, node);
 
-    logger << "Printing tree:\n";
+    logger_printf("Printing tree:\n");
     for (int i = 0; i < node->height; ++i) {
         buffer[i][node->width] = '\0';
         out << buffer[i] << endl;
     }
 
-    logger << "Freeing buffer memory\n";
+    logger_printf("Freeing buffer memory\n");
     for (int i = 0; i < node->height; ++i) {
         delete[] buffer[i];
     }
@@ -261,14 +261,14 @@ void measure(BSTBox* node) {
 
     node->height = BOX_V_MARGIN + BOX_HEIGHT + max(getHeight(node->left), getHeight(node->right));
 
-    logger << "Measured node " << node->value << ":\n";
-    logger << "    Width: " << node->width << "\n";
-    logger << "    Height: " << node->height << "\n";
-    logger << "    Box width: " << node->boxWidth << "\n";
-    logger << "    Box X: " << node->boxX << "\n";
-    logger << "    Value string: " << node->valueString << "\n";
-    logger << "    Left width: " << getWidth(node->left) << "\n";
-    logger << "    Right width: " << getWidth(node->right) << "\n";
+    logger_printf("Measured node %d:\n", node->value);
+    logger_printf("    Width: %d\n", node->width);
+    logger_printf("    Height: %d\n", node->height);
+    logger_printf("    Box width: %d\n", node->boxWidth);
+    logger_printf("    Box X: %d\n", node->boxX);
+    logger_printf("    Value: %d\n", node->value);
+    logger_printf("    Left width: %d\n", getWidth(node->left));
+    logger_printf("    Right width: %d\n", getWidth(node->right));
 }
 
 // Return width of the node, or zero if node is null.

@@ -46,7 +46,7 @@ AVLNode* createAVLNode(int value) {
 void deleteAVLNode(AVLNode*& root) {
     if (!root) return;
     int rootValue = root->value;
-    logger << "Deleting tree: " << rootValue << "\n";
+    logger_printf("Deleting tree: %d\n", rootValue);
     deleteAVLNode(root->left);
     deleteAVLNode(root->right);
     delete root;
@@ -136,7 +136,7 @@ void updateHeight(AVLNode* node) {
  *   ┗━━━┛     ┗━━━┛
  */
 inline void rotateLeft(AVLNode* root) {
-    logger << "Rotating left at node " << root->value << "\n";
+    logger_printf("Rotating left at node %d\n", root->value);
     // Right child node is taken out and reserved as its value will shift to the root node's position
     AVLNode* reservedNode = root->right;
     
@@ -160,7 +160,7 @@ inline void rotateLeft(AVLNode* root) {
  * @ref rotateLeft
  */
 inline void rotateRight(AVLNode* root) {
-    logger << "Rotating right at node " << root->value << "\n";
+    logger_printf("Rotating right at node %d\n", root->value);
     AVLNode* toReuseNode = root->left;
     int tempRootValue = root->value;
     root->value = root->left->value;
@@ -179,9 +179,9 @@ void balance(AVLNode* root) {
     if (balanceFactor >= -1 && balanceFactor <= 1) {
         return;
     }
-    logger << "Balancing at node " << root->value << ":\n";
-    logger << "    left: " << getHeight(root->left) << "\n";
-    logger << "    right: " << getHeight(root->right) << "\n";
+    logger_printf("Balancing at node %d:\n", root->value);
+    logger_printf("    left: %d\n", getHeight(root->left));
+    logger_printf("    right: %d\n", getHeight(root->right));
 
     if (balanceFactor < -1) {   // Left child is by 2 higher than right child, consider right rotation.
 
@@ -255,7 +255,7 @@ bool insertAVLNode(AVLNode*& root, int value) {
  * @param root Tree's root node.
  */
 bool removeAVLNode(AVLNode*& root, int value) {
-    logger << "Removing " << value << " from node " << root->value << "\n";
+    logger_printf("Removing %d from node %d\n", value, root->value);
     bool removed = false;
     if (value < root->value) {
         // Continue finding on left sub-tree.
@@ -287,7 +287,7 @@ bool removeAVLNode(AVLNode*& root, int value) {
             delete tempLeft;
         }
         removed = true;
-        logger << "Removed " << value << "\n";
+        logger_printf("Removed %d\n", value);
     }
 
     if (removed && root) {
@@ -309,7 +309,7 @@ int removeMax(AVLNode* parent, AVLNode*& current) {
     } else {
         removedValue = current->value;
         AVLNode* currentLeft = current->left;
-        logger << "Removing maximum child" << removedValue << "\n";
+        logger_printf("Removing maximum child %d\n", removedValue);
         delete current;
         current = currentLeft;
     }
