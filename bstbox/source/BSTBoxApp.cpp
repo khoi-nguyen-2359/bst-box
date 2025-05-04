@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "AVL.h"
+#include "avl.h"
 #include "BSTBox.h"
 
 using std::string;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    deleteAVLNode(tree);
+    avl_delete_tree(&tree);
 
     return 0;
 }
@@ -117,8 +117,8 @@ void createRandomTree(AVLNode*& root) {
         int randVal = rand(min, max) - max / 2;
         randValues.push_back(randVal);
     }
-    deleteAVLNode(root);
-    insertAVLNodes(root, randValues.data(), nodeCount);
+    avl_delete_tree(&root);
+    avl_insert_nodes(&root, randValues.data(), nodeCount);
 
     present(root);
 }
@@ -131,7 +131,7 @@ void createRandomTree(AVLNode*& root) {
 void insertNodes(AVLNode*& root) {
     cout << "Please enter integers in insertion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
-    insertAVLNodes(root, values.data(), values.size());
+    avl_insert_nodes(&root, values.data(), values.size());
     present(root);
 }
 
@@ -148,7 +148,7 @@ void deleteNodes(AVLNode*& root) {
     cout << "Please enter integers in deletion order: [int1] [int2] ... [intN][ENTER]" << endl;
     vector<int> values = getInputIntegers();
     for (int value : values) {
-        removeAVLNode(root, value);
+        avl_remove_node(&root, value);
     }
 
     present(root);
@@ -212,7 +212,7 @@ void exportToFile(AVLNode* root) {
  * @param root Tree's root node.
  */
 void resetCurrentTree(AVLNode*& root) {
-    deleteAVLNode(root);
+    avl_delete_tree(&root);
     verifyTreeContent(root);
 }
 

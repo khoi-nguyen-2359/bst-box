@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "AVL.h"
+#include "avl.h"
 
 using std::ostream;
 using std::string;
