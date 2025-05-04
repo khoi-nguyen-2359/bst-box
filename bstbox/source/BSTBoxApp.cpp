@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "avl.h"
+#include "avl_node.h"
 #include "BSTBox.h"
 
 using std::string;

@@ -1,12 +1,9 @@
 #ifndef BSTBOX_H
 #define BSTBOX_H
 
-#include <iostream>
-
-#include "avl.h"
-
-using std::ostream;
-using std::string;
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief Contain calculation results for BST drawing. 
@@ -14,39 +11,40 @@ using std::string;
  *
  * Drawing origin
  *  (0,0) ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
- *        ┆         ,_____,          ┆ 
- *        ┆     ,___|  B  |___,      ┆ 
- *        ┆     |   |_____|   |      ┆ 
- *        ┆┄┄┄┄┄|┄┄┄┄┄┬┄┬┄┄┄┄┄|┄┄┄┄┄┄┆ total height
- *        ┆  ,__v__,  ┆m┆  ,__v__,   ┆ 
- *        ┆  |  A  |  ┆m┆  |  C  |   ┆ 
- *        ┆  |_____|  ┆m┆  |_____|   ┆ 
- *        ╰┄┄┄┄┄┄┄┄┄┄┄┴┄┴┄┄┄┄┄┄┄┄┄┄┄┄╯
+ *        ┆          _____           ┆ 
+ *        ┆         |     |          ┆ 
+ *        ┆      ___|  B  |____      ┆ 
+ *        ┆     |   |_____|    |     ┆ 
+ *        ┆┄┄┄┄┄|┄┄┄┬┄┄┄┄┄┄┬┄┄┄|┄┄┄┄┄┆ total height
+ *        ┆   __|__ ┆      ┆ __|__   ┆ 
+ *        ┆  |     |┆      ┆|     |  ┆ 
+ *        ┆  |  A  |┆margin┆|  C  |  ┆ 
+ *        ┆  |_____|┆      ┆|_____|  ┆ 
+ *        ╰┄┄┄┄┄┄┄┄┄┴┄┄┄┄┄┄┴┄┄┄┄┄┄┄┄┄╯
  *         A's width + (m)argin + C's width
  *                total width
  */
-struct BSTBox {
-    int value = 0;
-    BSTBox* left = nullptr;
-    BSTBox* right = nullptr;
+typedef struct BSTBox {
+    int value;
+    struct BSTBox* left;
+    struct BSTBox* right;
     // Display value in string.
-    string valueString;
+    char* valueString;
     // Total width of the entire tree, covering nodes of all levels underneath.
-    int width = 0;
+    int width;
     // Total height of the tree
-    int height = 0;
+    int height;
     // Left position of the node value's bounding box, coordinated inside parent (not globally)
-    int boxX = 0;
+    int boxX;
     // Width of node value's bounding box
-    int boxWidth = 0;
+    int boxWidth;
     // Offset inside parent of the right child
-    int rightOffset = 0;
-};
+    int rightOffset;
+} BSTBox;
 
-#pragma region Function Declarations
-BSTBox* createBSTBox(AVLNode* avlNode);
+// Function declarations
+BSTBox* createBSTBox(struct AVLNode* avlNode);
 void deleteBSTBox(BSTBox* root);
-void presentBSTBox(ostream& out, BSTBox* node);
-#pragma endregion
+void presentBSTBox(FILE* out, BSTBox* node);
 
 #endif
