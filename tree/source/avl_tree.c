@@ -1,8 +1,8 @@
-#include "avl_node.h"
+#include "avl_tree.h"
 #include "L.h"
+#include "utils.h"
 
 #include <stdlib.h>
-#include <math.h>
 
 #pragma region Function Declarations
 int get_balance_factor(AVLNode* node);
@@ -303,7 +303,7 @@ int get_balance_factor(AVLNode* node) {
  */
 void update_height(AVLNode* node) {
     if (node) {
-        node->height = fmax(get_height(node->left), get_height(node->right)) + 1;
+        node->height = bstbox_max(get_height(node->left), get_height(node->right)) + 1;
     }
 }
 

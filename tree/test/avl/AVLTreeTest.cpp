@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "avl_node.h"
+#include "avl_tree.h"
 
-class AVLNodeTest : public ::testing::Test {
+class AVLTreeTest : public ::testing::Test {
     protected:
         AVLNode *root = nullptr;
 
@@ -11,7 +11,7 @@ class AVLNodeTest : public ::testing::Test {
         }
 };
 
-TEST_F(AVLNodeTest, Insert_NoRotation) {
+TEST_F(AVLTreeTest, Insert_NoRotation) {
     int values[]{10, 5, 15, 3, 7};
     root = avl_create_tree(values, 5);
 
@@ -27,7 +27,7 @@ TEST_F(AVLNodeTest, Insert_NoRotation) {
     EXPECT_EQ(1, root->left->right->height);
 }
 
-TEST_F(AVLNodeTest, Insert_SingleRightRotation) {
+TEST_F(AVLTreeTest, Insert_SingleRightRotation) {
     root = avl_create_node(10);
     avl_insert_node(&root, 5);
     avl_insert_node(&root, 1);    // trigger rotation at node 10
@@ -38,7 +38,7 @@ TEST_F(AVLNodeTest, Insert_SingleRightRotation) {
     EXPECT_EQ(2, root->height);
 }
 
-TEST_F(AVLNodeTest, Insert_SingleLeftRotation) {
+TEST_F(AVLTreeTest, Insert_SingleLeftRotation) {
     root = avl_create_node(10);
     avl_insert_node(&root, 15);
     avl_insert_node(&root, 11);    // trigger rotation at node 10
@@ -51,7 +51,7 @@ TEST_F(AVLNodeTest, Insert_SingleLeftRotation) {
     EXPECT_EQ(1, root->right->height);
 }
 
-TEST_F(AVLNodeTest, Insert_DoubleRightLeftRotation) {
+TEST_F(AVLTreeTest, Insert_DoubleRightLeftRotation) {
     int values[]{10, 5, 15, 18, 12};
     root = avl_create_tree(values, 5);
 
@@ -73,7 +73,7 @@ TEST_F(AVLNodeTest, Insert_DoubleRightLeftRotation) {
     EXPECT_EQ(1, root->right->right->height);
 }
 
-TEST_F(AVLNodeTest, Insert_DoubleLeftRightRotation) {
+TEST_F(AVLTreeTest, Insert_DoubleLeftRightRotation) {
     int values[]{10, 5, 15, 3, 7};
     root = avl_create_tree(values, 5);
 
@@ -96,7 +96,7 @@ TEST_F(AVLNodeTest, Insert_DoubleLeftRightRotation) {
     EXPECT_EQ(1, root->right->right->height);
 }
 
-TEST_F(AVLNodeTest, Remove_LeafNode) {
+TEST_F(AVLTreeTest, Remove_LeafNode) {
     int values[]{10, 5, 15, 3, 7};
     root = avl_create_tree(values, 5);
     
@@ -112,7 +112,7 @@ TEST_F(AVLNodeTest, Remove_LeafNode) {
     EXPECT_EQ(3, root->height);
 }
 
-TEST_F(AVLNodeTest, Remove_RootNode) {
+TEST_F(AVLTreeTest, Remove_RootNode) {
     int values[]{10, 5, 15};
     root = avl_create_tree(values, 3);
     
@@ -124,7 +124,7 @@ TEST_F(AVLNodeTest, Remove_RootNode) {
     EXPECT_EQ(2, root->height);
 }
 
-TEST_F(AVLNodeTest, Remove_OnlyRootNode) {
+TEST_F(AVLTreeTest, Remove_OnlyRootNode) {
     root = avl_create_node(3);
     
     EXPECT_TRUE(avl_remove_node(&root, 3));
@@ -132,7 +132,7 @@ TEST_F(AVLNodeTest, Remove_OnlyRootNode) {
     EXPECT_EQ(nullptr, root);
 }
 
-TEST_F(AVLNodeTest, Remove_NodeWithTwoChildren_FourLevels) {
+TEST_F(AVLTreeTest, Remove_NodeWithTwoChildren_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 22, 27, 32, 37};
     root = avl_create_tree(values, 15);
     
@@ -155,7 +155,7 @@ TEST_F(AVLNodeTest, Remove_NodeWithTwoChildren_FourLevels) {
     EXPECT_EQ(4, root->height);
 }
 
-TEST_F(AVLNodeTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
+TEST_F(AVLTreeTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 12, 17, 22, 27, 32, 37};
     root = avl_create_tree(values, 14);
     
@@ -178,7 +178,7 @@ TEST_F(AVLNodeTest, Remove_NodeWithOnlyLeftChild_FourLevels) {
     EXPECT_EQ(4, root->height);
 }
 
-TEST_F(AVLNodeTest, Remove_NodeWithOnlyRightChild_FourLevels) {
+TEST_F(AVLTreeTest, Remove_NodeWithOnlyRightChild_FourLevels) {
     int values[]{20, 10, 30, 5, 15, 25, 35, 3, 7, 12, 17, 27, 32, 37};
     root = avl_create_tree(values, 14);
     
@@ -201,7 +201,7 @@ TEST_F(AVLNodeTest, Remove_NodeWithOnlyRightChild_FourLevels) {
     EXPECT_EQ(4, root->height);
 }
 
-TEST_F(AVLNodeTest, Remove_NonexistentNode) {
+TEST_F(AVLTreeTest, Remove_NonexistentNode) {
     int values[]{10, 5, 15};
     root = avl_create_tree(values, 3);
     

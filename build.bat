@@ -19,8 +19,8 @@ if not exist build mkdir build
 
 g++ -std=c++11 ^
     %BUILD_FLAGS% ^
-    bstbox\source\*.cpp tree\source\*.cpp log\source\*.c ^
-    -Itree\include -Ilog\include ^
+    bstbox\source\*.cpp tree\source\*.c log\source\*.c utils\source\*.c ^
+    -Itree\include -Ilog\include -Iutils\include ^
     -o %OUTPUT_FILE%
 
 if %errorlevel% neq 0 (

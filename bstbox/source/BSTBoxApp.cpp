@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "avl_node.h"
-#include "BSTBox.h"
+#include "avl_tree.h"
+#include "bt_box.h"
+#include "L.h"
 
 using std::string;
 using std::cout;
@@ -90,6 +91,7 @@ int main(int argc, char* argv[]) {
     }
 
     avl_delete_tree(&tree);
+    logger_close();
 
     return 0;
 }
@@ -164,15 +166,16 @@ void present(AVLNode* root) {
         return;
     }
 
-    BSTBox* treeBox = createBSTBox(root);
+    BTBox* treeBox = btbox_create_tree(root);
 
     cout << endl;
     printFrame("CURRENT TREE", FLAG_CLOSED);
 
     cout << endl;
-    presentBSTBox(cout, treeBox);
+    
+    btbox_draw(stdout, treeBox);
 
-    deleteBSTBox(treeBox);
+    btbox_delete_tree(treeBox);
 }
 
 /**
@@ -188,22 +191,21 @@ void exportToFile(AVLNode* root) {
     string fileName;
     cin >> fileName;
 
-    ofstream wofs;
-    wofs.open(fileName, std::ofstream::out);
+    FILE *file = fopen(fileName.c_str(), "w");
 
-    if (!wofs.is_open()) {
-        cout << "Error opening file " << fileName.data() << endl;
+    if (!file) {
+        cout << "Error opening file " << fileName << endl;
         return;
     }
 
-    BSTBox* box = createBSTBox(root);
+    BTBox* box = btbox_create_tree(root);
 
-    presentBSTBox(wofs, box); // Print the tree into output file stream instead of console output stream.
+    btbox_draw(file, box); // Print the tree into output file stream instead of console output stream.
 
     cout << "File exported successfully at " << fileName.data() << endl;
 
-    wofs.close();
-    deleteBSTBox(box);
+    fclose(file);
+    btbox_delete_tree(box);
 }
 
 /**

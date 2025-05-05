@@ -22,8 +22,8 @@ fi
 
 g++ -std=c++11 \
 $BUILD_FLAGS \
-bstbox/source/*.cpp tree/source/*.cpp tree/source/*.c log/source/*.c \
--Itree/include -Ilog/include \
+bstbox/source/*.cpp tree/source/*.c log/source/*.c utils/source/*.c \
+-Itree/include -Ilog/include -Iutils/include \
 -o $OUTPUT_FILE
 
 if [[ $? -eq 0 ]]; then

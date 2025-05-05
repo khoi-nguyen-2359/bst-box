@@ -1,5 +1,7 @@
-#ifndef BSTBOX_H
-#define BSTBOX_H
+#ifndef BT_BOX_H
+#define BT_BOX_H
+
+#include "avl_tree.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,10 +26,10 @@
  *         A's width + (m)argin + C's width
  *                total width
  */
-typedef struct BSTBox {
+typedef struct BTBox {
     int value;
-    struct BSTBox* left;
-    struct BSTBox* right;
+    BTBox* left;
+    BTBox* right;
     // Display value in string.
     char* valueString;
     // Total width of the entire tree, covering nodes of all levels underneath.
@@ -40,11 +42,11 @@ typedef struct BSTBox {
     int boxWidth;
     // Offset inside parent of the right child
     int rightOffset;
-} BSTBox;
+} BTBox;
 
 // Function declarations
-BSTBox* createBSTBox(struct AVLNode* avlNode);
-void deleteBSTBox(BSTBox* root);
-void presentBSTBox(FILE* out, BSTBox* node);
+BTBox* btbox_create_tree(struct AVLNode* avlNode);
+void btbox_delete_tree(BTBox* root);
+void btbox_draw(FILE* file, BTBox* node);
 
 #endif

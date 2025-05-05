@@ -1,5 +1,5 @@
-#ifndef AVL_H
-#define AVL_H
+#ifndef AVL_TREE_H
+#define AVL_TREE_H
 
 /**
  * @brief AVL Binary Search Tree using node height for balancing factor.
