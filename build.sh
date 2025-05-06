@@ -20,11 +20,11 @@ if [[ ! -d build ]]; then
     mkdir build
 fi
 
-g++ -std=c++11 \
-$BUILD_FLAGS \
-bstbox/source/*.cpp tree/source/*.c log/source/*.c utils/source/*.c \
--Itree/include -Ilog/include -Iutils/include \
--o $OUTPUT_FILE
+gcc -Werror \
+    $BUILD_FLAGS \
+    bstbox/source/*.c tree/source/*.c log/source/*.c \
+    -Itree/include -Ilog/include \
+    -o $OUTPUT_FILE
 
 if [[ $? -eq 0 ]]; then
     echo "Build succeeded. Output file: $OUTPUT_FILE"

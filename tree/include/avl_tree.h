@@ -13,20 +13,20 @@ typedef struct AVLNode {
     int height;
 
     // Node represents the left child.
-    AVLNode* left;
+    struct AVLNode* left;
 
     // Node represents the right child. 
-    AVLNode* right;
+    struct AVLNode* right;
 } AVLNode;
 
 #pragma region Functions Declarations
 
 AVLNode* avl_create_tree(const int* values, const int len);
 AVLNode* avl_create_node(int value);
-bool avl_insert_node(AVLNode** root, int value);
+int avl_insert_node(AVLNode** root, int value);
 void avl_insert_nodes(AVLNode** root, const int* values, const int len);
-bool avl_remove_node(AVLNode** root, int value);
-void avl_delete_tree(AVLNode** root);
+int avl_remove_node(AVLNode** root, int value);
+void avl_free_tree(AVLNode** root);
 
 #pragma endregion
 

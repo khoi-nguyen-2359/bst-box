@@ -7,7 +7,7 @@ class AVLTreeTest : public ::testing::Test {
         AVLNode *root = nullptr;
 
         void TearDown() override {
-            avl_delete_tree(&root);
+            avl_free_tree(&root);
         }
 };
 

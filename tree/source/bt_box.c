@@ -1,6 +1,5 @@
 #include "bt_box.h"
 #include "L.h"
-#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,13 +38,18 @@
 #define ARM_T_JUNCTION LINE_VERT_2
 
 #pragma region Function Declarations
-void measure(BTBox* node);
-void draw(char** buffer, int x, int y, BTBox* parent, BTBox* node);
-void draw_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child);
-void draw_box(char** buffer, int x, int y, BTBox* parent, BTBox* node);
-inline int get_width(BTBox* node);
-inline int get_height(BTBox* node);
-inline int get_box_centerX(BTBox* node, int offset);
+void btbox_measure(BTBox* node);
+void btbox_print_buffer(char** buffer, int x, int y, BTBox* parent, BTBox* node);
+void btbox_print_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child);
+void btbox_print_box(char** buffer, int x, int y, BTBox* parent, BTBox* node);
+inline int btbox_get_width(BTBox* node);
+inline int btbox_get_height(BTBox* node);
+int btbox_get_box_center_x(BTBox* node, int offset);
+
+char* btbox_to_string(int value);
+inline int btbox_max(int a, int b);
+inline int btbox_min(int a, int b);
+
 #pragma endregion
 
 /**
@@ -62,15 +66,15 @@ BTBox* btbox_create_tree(AVLNode* avlNode) {
 /**
  * @brief Delete entire BSTBox tree.
  */
-void btbox_delete_tree(BTBox* root) {
+void btbox_free_tree(BTBox* root) {
     if (!root) return;
-    btbox_delete_tree(root->left);
-    btbox_delete_tree(root->right);
+    btbox_free_tree(root->left);
+    btbox_free_tree(root->right);
     free(root->valueString);
     free(root);
 }
 
-void draw_box(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
+void btbox_print_box(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
     int boxStartX = x + node->boxX;
     int boxEndX = boxStartX + node->boxWidth - 1;
     int boxStartY = y;
@@ -112,22 +116,22 @@ void draw_box(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
  * @param node Tree's root to be drawn.
  * @param parent Parent node, for additional information while drawing.
  */
-void draw(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
-    draw_box(buffer, x, y, parent, node);
+void btbox_print_buffer(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
+    btbox_print_box(buffer, x, y, parent, node);
 
     if (node->left) {
-        draw_arm(buffer, x, y, node, node->left);
+        btbox_print_arm(buffer, x, y, node, node->left);
     }
     if (node->right) {
-        draw_arm(buffer, x, y, node, node->right);
+        btbox_print_arm(buffer, x, y, node, node->right);
     }
 
     if (node->left) {
-        draw(buffer, x, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->left);
+        btbox_print_buffer(buffer, x, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->left);
     }
     
     if (node->right) {
-        draw(buffer, x + node->rightOffset, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->right);
+        btbox_print_buffer(buffer, x + node->rightOffset, y + BOX_HEIGHT + BOX_V_MARGIN, node, node->right);
     }
 }
 
@@ -139,7 +143,7 @@ void draw(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
  * @param x Starting x position of the child from the drawing origin.
  * @param y Starting y position of the child from the drawing origin.
  */
-void draw_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child) {
+void btbox_print_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child) {
     int armHeight = (BOX_HEIGHT - 1) / 2 + BOX_V_MARGIN + 1;
     int startX, endX;
     int startY = y + BOX_HEIGHT / 2;
@@ -147,16 +151,16 @@ void draw_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child) {
     char elbow;
     if (parent->left == child) {
         startX = x + parent->boxX - 1;
-        endX = get_box_centerX(child, x);
+        endX = btbox_get_box_center_x(child, x);
         elbow = ARM_TL_ELBOW;
         buffer[startY][startX + 1] = ARM_L_JUNCTION;
     } else if (parent->right == child) {
         startX = x + parent->boxX + parent->boxWidth;
-        endX = get_box_centerX(child, x + parent->rightOffset);
+        endX = btbox_get_box_center_x(child, x + parent->rightOffset);
         elbow = ARM_TR_ELBOW;
         buffer[startY][startX - 1] = ARM_R_JUNCTION;
     }
-    memset(buffer[startY] + (startX < endX ? startX : endX), ARM_H_LINE, abs(endX - startX) + 1);
+    memset(buffer[startY] + btbox_min(startX, endX), ARM_H_LINE, abs(endX - startX) + 1);
     for (int i = startY + 1; i <= endY; ++i) {
         buffer[i][endX] = ARM_V_LINE;
     }
@@ -168,23 +172,32 @@ void draw_arm(char** buffer, int x, int y, BTBox* parent, BTBox* child) {
  * @param out The output stream to print the result
  * @param node Tree's root.
  */
-void btbox_draw(FILE* file, BTBox* node) {
+void btbox_print(FILE* file, BTBox* node) {
     if (!file || !node) {
         return;
     }
 
     // Do measurement before drawing
-    measure(node);
+    btbox_measure(node);
     
     // Allocate memory for drawing buffer based on tree's measured width and height
+    int actualRows = 0;
     char** buffer = (char**)malloc(node->height * sizeof(char*));
+    if (!buffer) {
+        goto cleanup;
+    }
     for (int i = 0; i < node->height; ++i) {
-        buffer[i] = (char*)malloc((node->width + 1) * sizeof(char)); // plus 1 for end of line character
+        buffer[i] = (char*)malloc(node->width + 1); // plus 1 for end of line character
+        if (!buffer[i]) {
+            goto cleanup;
+        }
+
+        ++actualRows;
         memset(buffer[i], ' ', node->width);
         buffer[i][node->width] = '\0';
     }
 
-    draw(buffer, 0, 0, NULL, node);
+    btbox_print_buffer(buffer, 0, 0, NULL, node);
 
     for (int i = 0; i < node->height; ++i) {
         fprintf(file, "%s\n", buffer[i]);
@@ -192,7 +205,11 @@ void btbox_draw(FILE* file, BTBox* node) {
 
     fflush(file);
 
-    for (int i = 0; i < node->height; ++i) {
+cleanup:
+    if (actualRows < node->height) {
+        logger_printf("Tree drawing buffer allocation failed at %d\n", actualRows);
+    }
+    for (int i = 0; i < actualRows; ++i) {
         free(buffer[i]);
     }
     free(buffer);
@@ -202,22 +219,21 @@ void btbox_draw(FILE* file, BTBox* node) {
  * @brief Calculate dimensions and sizes needed for drawing for all nodes in the tree.
  * @param node Tree's root node.
  */
-void measure(BTBox* node) {
+void btbox_measure(BTBox* node) {
     // Postorder traversal
     if (node->left) {
-        measure(node->left);
+        btbox_measure(node->left);
     }
     if (node->right) {
-        measure(node->right);
+        btbox_measure(node->right);
     }
 
     // The bounding box
-    node->valueString = (char*) malloc(12 * sizeof(char));
-    bstbox_itoa(node->value, node->valueString, 10);
+    node->valueString = btbox_to_string(node->value);
     node->boxWidth = strlen(node->valueString) + 2 * BOX_PADDING + 2 * BOX_BORDER;
 
     // Use left child as parent's anchor
-    int leftBoxCenterX = node->left ? get_box_centerX(node->left, 0) : - ARM_MIN_WIDTH;
+    int leftBoxCenterX = node->left ? btbox_get_box_center_x(node->left, 0) : - ARM_MIN_WIDTH;
     node->boxX = leftBoxCenterX + ARM_MIN_WIDTH;
     node->width = node->boxX + node->boxWidth;
     if (node->right) {
@@ -225,7 +241,7 @@ void measure(BTBox* node) {
         node->rightOffset = node->left ? node->left->width : node->boxWidth / 2;
 
         // 1. Check spaces for the right arm, shift the right node forwards if needed.
-        int rightBoxCenterX = get_box_centerX(node->right, node->rightOffset);
+        int rightBoxCenterX = btbox_get_box_center_x(node->right, node->rightOffset);
         int minRightBoxCenterX = node->boxX + node->boxWidth + ARM_MIN_WIDTH - 1;
         int centerXOffset = (minRightBoxCenterX > rightBoxCenterX) ? (minRightBoxCenterX - rightBoxCenterX) : 0;
         node->rightOffset += centerXOffset;
@@ -235,31 +251,62 @@ void measure(BTBox* node) {
         node->rightOffset += childSeparatorOffset;
 
         // Center-align the parent's box
-        node->boxX = (get_box_centerX(node->right, node->rightOffset) + leftBoxCenterX + 1) / 2 - node->boxWidth / 2;
+        node->boxX = (btbox_get_box_center_x(node->right, node->rightOffset) + leftBoxCenterX + 1) / 2 - node->boxWidth / 2;
 
         node->width = node->rightOffset + node->right->width;
     }
 
-    node->height = BOX_V_MARGIN + BOX_HEIGHT + (get_height(node->left) > get_height(node->right) ? get_height(node->left) : get_height(node->right));
+    node->height = BOX_V_MARGIN + BOX_HEIGHT + btbox_max(btbox_get_height(node->left), btbox_get_height(node->right));
 }
 
 // Return width of the node, or zero if node is null.
-int get_width(BTBox* node) {
+int btbox_get_width(BTBox* node) {
     return node ? node->width : 0;
 }
 
 // Return height of the node, or zero if node is null.
-int get_height(BTBox* node) {
+int btbox_get_height(BTBox* node) {
     return node ? node->height : 0;
 }
 
-int get_box_centerX(BTBox* node, int offset) {
+int btbox_get_box_center_x(BTBox* node, int offset) {
     return node->boxX + node->boxWidth / 2 + offset;
 }
 
-int getLeftWidth(BTBox* node) {
-    if (node->left) {
-        return node->left->width;
+char* btbox_to_string(int value) {
+    const int maxLen = 12;
+    char* buffer = (char*)malloc(maxLen); // 32 bits int can be represented in 11 digits + 1 for null terminator
+    if (buffer == NULL) {
+        return NULL;
     }
-    return node->boxWidth / 2;
+    int i = maxLen - 1;
+    buffer[i--] = '\0';
+    int curr = abs(value);
+    do {
+        char digit = (curr % 10) + '0';
+        buffer[i--] = digit;
+        curr /= 10;
+    } while (curr > 0);
+
+    if (value < 0) {
+        buffer[i--] = '-';
+    }
+    int len = maxLen - i - 1;
+    if (len < maxLen) {
+        memmove(buffer, buffer + i + 1, len);
+        char* temp = (char*)realloc(buffer, len);
+        if (temp) {
+            buffer = temp;
+        }
+    }
+
+    return buffer;
+}
+
+int btbox_max(int a, int b) {
+    return a > b ? a : b;
+}
+
+int btbox_min(int a, int b) {
+    return a < b ? a : b;
 }

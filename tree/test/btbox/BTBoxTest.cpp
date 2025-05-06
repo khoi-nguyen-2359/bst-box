@@ -17,8 +17,8 @@ class BSTBoxTest : public ::testing::Test {
         BTBox* box = nullptr;
 
         void TearDown() override {
-            avl_delete_tree(&avl);
-            btbox_delete_tree(box);
+            avl_free_tree(&avl);
+            btbox_free_tree(box);
         }
 };
 
@@ -31,7 +31,7 @@ TEST_F(BSTBoxTest, Draw_PerfectTree_2Levels) {
     char outputPath[] = "Draw_PerfectTree_2Levels.output";
     FILE *outputFile = fopen(outputPath, "w");
 
-    btbox_draw(outputFile, box);
+    btbox_print(outputFile, box);
 
     string output = readFileContent(outputPath);
     string expect = readFileContent("../tree/test/btbox/Draw_PerfectTree_2Levels.expect");
@@ -52,7 +52,7 @@ TEST_F(BSTBoxTest, Draw_LargeValues) {
     char outputPath[] = "Draw_LargeValues.output";
     FILE *outputFile = fopen(outputPath, "w");
 
-    btbox_draw(outputFile, box);
+    btbox_print(outputFile, box);
 
     string output = readFileContent(outputPath);
     string expect = readFileContent("../tree/test/btbox/Draw_LargeValues.expect");

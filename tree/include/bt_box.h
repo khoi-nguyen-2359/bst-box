@@ -28,8 +28,8 @@
  */
 typedef struct BTBox {
     int value;
-    BTBox* left;
-    BTBox* right;
+    struct BTBox* left;
+    struct BTBox* right;
     // Display value in string.
     char* valueString;
     // Total width of the entire tree, covering nodes of all levels underneath.
@@ -46,7 +46,7 @@ typedef struct BTBox {
 
 // Function declarations
 BTBox* btbox_create_tree(struct AVLNode* avlNode);
-void btbox_delete_tree(BTBox* root);
-void btbox_draw(FILE* file, BTBox* node);
+void btbox_free_tree(BTBox* root);
+void btbox_print(FILE* file, BTBox* node);
 
 #endif

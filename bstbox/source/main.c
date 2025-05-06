@@ -1,0 +1,365 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#include "avl_tree.h"
+#include "bt_box.h"
+#include "L.h"
+
+// Width of the decoration frame for action menu and texts
+#define FRAME_WIDTH 60
+
+// Flags indicate which sides a text should be bound in a frame
+#define FLAG_TOP        0x01
+#define FLAG_LEFT       0x02
+#define FLAG_RIGHT      0x04
+#define FLAG_BOTTOM     0x08
+#define FLAG_SIDES      (FLAG_LEFT | FLAG_RIGHT)
+#define FLAG_CLOSED     (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
+
+#pragma region Function Declarations
+
+void create_random_tree(AVLNode** root, char* input);
+void insert_nodes(AVLNode** root, char* input);
+void delete_nodes(AVLNode** root, char* input);
+void print_tree(AVLNode* root);
+void reset_current_tree(AVLNode** root);
+void export_to_file(AVLNode* root, char* input);
+int* get_input_integers(int* size);
+int verify_tree_content(AVLNode* root);
+char* print_action_menu();
+void print_frame(const char* text, int mask);
+int rand_range(int min, int max);
+
+int* parse_input_ints(char* input, int* size);
+
+#pragma endregion
+
+/**
+ Binary Tree Visualization
+         ┏━━━┓         
+     ┏━━━┫22 ┣━━━┓     
+     ┃   ┗━━━┛   ┃     
+   ┏━┻━┓       ┏━┻━┓   
+   ┃ 1 ┃       ┃333┃   
+   ┗━━━┛       ┗━━━┛
+ */
+int main(int argc, char* argv[]) {
+    AVLNode* tree = NULL;  // Pointer to the main tree object of the program.
+    char* input;
+    while (1) {
+        input = print_action_menu();
+        if (!input) {
+            continue;
+        }
+        switch (input[0]) { // Action user chooses from the menu.
+            case 'C':
+            case 'c':
+                create_random_tree(&tree, input);
+                break;
+
+            case 'I':
+            case 'i':
+                insert_nodes(&tree, input);
+                break;
+
+            case 'D':
+            case 'd':
+                delete_nodes(&tree, input);
+                break;
+
+            case 'V':
+            case 'v':
+                print_tree(tree);
+                break;
+
+            case 'R':
+            case 'r':
+                reset_current_tree(&tree);
+                break;
+
+            case 'E':
+            case 'e':
+                export_to_file(tree, input);
+                break;
+
+            default:
+                return 0;
+        }
+        free(input);
+    }
+
+    avl_free_tree(&tree);
+    logger_close();
+
+    return 0;
+}
+
+/**
+ * @brief First receive from user a number for node count, then generate random integers for node values.
+ * 
+ * Randomized values range around -500 -> 500.
+ * @param root Tree's root node, will be deleted and re-allocated before insertion.
+ */
+void create_random_tree(AVLNode** root, char* input) {
+    static const int MAX_RAND_VALUE = 1000;
+    int nodeCount = atoi(input + 2);    // Skip the first two characters, which are 'C' and a space.
+    printf("Creating tree with %d random nodes\n", nodeCount);
+
+    srand(time(NULL));
+    int* randValues = (int*)malloc(nodeCount * sizeof(int));
+    for (int i = 0; i < nodeCount; ++i) {
+        int digits = rand_range(1, 9);
+        int min = pow(10, digits - 1);
+        int max = pow(10, digits) - 1;
+        randValues[i] = rand_range(min, max) - max / 2;
+    }
+    
+    logger_printf("Random values: ");
+    for (int i = 0; i < nodeCount; ++i) {
+        logger_printf("%d ", randValues[i]);
+    }
+    logger_printf("\n");
+
+    avl_free_tree(root);
+    avl_insert_nodes(root, randValues, nodeCount);
+
+    free(randValues);
+    print_tree(*root);
+}
+
+/**
+ * @brief Prompt user to enter a sequence of nodes to insert to the current tree.
+ * 
+ * @param root Tree's root node, will be allocated before insertion if null.
+ */
+void insert_nodes(AVLNode** root, char* input) {
+    int size = 0;
+    int* ints = parse_input_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
+    printf("Inserting %d integers.\n", size);
+    avl_insert_nodes(root, ints, size);
+    free(ints);
+    print_tree(*root);
+}
+
+/**
+ * @brief Prompt user to key in a number of integers to delete from the current tree.
+ * 
+ * The last node can also be deleted.
+ * @param root Tree's root node, will be null if all nodes are deleted.
+ */
+void delete_nodes(AVLNode** root, char* input) {
+    if (!verify_tree_content(*root)) {
+        return;
+    }
+    int size = 0;
+    int* ints = parse_input_ints(input + 2, &size);
+    printf("Removing %d integers.\n", size);
+    for (int i = 0; i < size; ++i) {
+        avl_remove_node(root, ints[i]);
+    }
+    free(ints);
+    print_tree(*root);
+}
+
+/**
+ * @brief Use BSTBox implementation to print the tree content to console output.
+ * 
+ * @param root Tree's root node.
+ */
+void print_tree(AVLNode* root) {
+    if (!verify_tree_content(root)) {
+        return;
+    }
+
+    BTBox* treeBox = btbox_create_tree(root);
+
+    printf("\n");
+    print_frame("CURRENT TREE", FLAG_CLOSED);
+
+    printf("\n");
+    btbox_print(stdout, treeBox);
+
+    btbox_free_tree(treeBox);
+}
+
+/**
+ * @brief Prompt user to put in the text file's name to store tree content as presented on console UI.
+ * 
+ * @param root Tree's root node.
+ */
+void export_to_file(AVLNode* root, char* input) {
+    if (!verify_tree_content(root)) {
+        return;
+    }
+
+    char* fileName = strndup(input + 2, strlen(input) - 3); // Remove two chars at the beginning and the line break at the end of the input.
+    printf("Exporting current tree content to file \"%s\"\n", fileName);
+
+    FILE* file = fopen(fileName, "w");
+
+    if (!file) {
+        printf("Error opening file \"%s\"\n", fileName);
+        return;
+    }
+
+    BTBox* box = btbox_create_tree(root);
+
+    btbox_print(file, box); // Print the tree into output file stream instead of console output stream.
+
+    printf("File exported successfully at %s\n", fileName);
+
+    fclose(file);
+    free(fileName);
+    btbox_free_tree(box);
+}
+
+/**
+ * @brief Delete all nodes from the tree and set to null.
+ * 
+ * @param root Tree's root node.
+ */
+void reset_current_tree(AVLNode** root) {
+    avl_free_tree(root);
+    verify_tree_content(*root);
+}
+
+/**
+ * @brief Show a notice telling whether the tree is empty. 
+ * 
+ * This is to check before some tree's operations.
+ * @return True If tree contains nodes, otherwise False.
+ */
+int verify_tree_content(AVLNode* root) {
+    if (!root) {
+        printf("\n");
+        print_frame("TREE IS EMPTY.", FLAG_CLOSED);
+        return 0;
+    }
+
+    return 1;
+}
+
+/**
+ * @brief Print the program name and actions that the program offers in a menu.
+ * 
+ * @return Letter represents the action to proceed.
+ */
+char* print_action_menu() {
+    printf("\n");
+    print_frame("BINARY SEARCH TREE CONSOLE VISUALIZATION", FLAG_TOP | FLAG_SIDES | FLAG_BOTTOM);
+    print_frame(
+        "Please choose one action below:\n"
+        "    > [C]reate a binary search tree from random nodes.\n"
+        "    > [I]nsert nodes to current tree.\n"
+        "    > [D]elete nodes from current tree.\n"
+        "    > [V]iew current tree.\n"
+        "    > [R]eset current tree.\n"
+        "    > [E]xport to text file.\n"
+        "    > [Q]uit.\n"
+        "Please enter your choice: [C|I|D|V|R|E|Q][ENTER]\n",
+        FLAG_SIDES | FLAG_BOTTOM);
+
+    char* input = NULL;
+    size_t inputLen = 0;
+    getline(&input, &inputLen, stdin);
+    return input;
+}
+
+/**
+ * @brief Utility function to print a text content embedded inside a bounding box for decoration purpose.
+ * 
+ * @example 
+ * ╔═══════════╗ -> top line
+ * ║ BST     1 ║ -> text content lines
+ * ║ BST     2 ║ -> (can be multi-line)
+ * ╚═══════════╝ -> bottom line
+ */
+void print_frame(const char* text, int mask) {
+    char buffer[FRAME_WIDTH + 1];
+
+    if (mask & FLAG_TOP) {
+        memset(buffer, '-', FRAME_WIDTH);
+        buffer[0] = '+';
+        buffer[FRAME_WIDTH - 1] = '+';
+        buffer[FRAME_WIDTH] = '\0';
+        printf("%s\n", buffer);
+    }
+
+    const char* found = strchr(text, '\n');
+    const char* line = text;
+    do {
+        memset(buffer, ' ', FRAME_WIDTH);
+
+        if (mask & FLAG_LEFT) {
+            buffer[0] = '|';
+            buffer[1] = ' ';
+        }
+
+        int lineLen = found ? (found - line) : strlen(line);
+        int copyLen = lineLen < FRAME_WIDTH - 4 ? lineLen : FRAME_WIDTH - 4;
+        memcpy(buffer + 2, line, copyLen);
+
+        if (mask & FLAG_RIGHT) {
+            buffer[FRAME_WIDTH - 2] = ' ';
+            buffer[FRAME_WIDTH - 1] = '|';
+        }
+
+        buffer[FRAME_WIDTH] = '\0';
+        printf("%s\n", buffer);
+
+        if (!found) {
+            break;
+        }
+        line = found + 1;
+        found = strchr(line, '\n');
+    } while (found);
+
+    if (mask & FLAG_BOTTOM) {
+        memset(buffer, '-', FRAME_WIDTH);
+        buffer[0] = '+';
+        buffer[FRAME_WIDTH - 1] = '+';
+        buffer[FRAME_WIDTH] = '\0';
+        printf("%s\n", buffer);
+    }
+}
+
+/**
+ * @brief Read user input as an array of integers before returning when hitting a line break.
+ * 
+ * @return Pointer to an array of integers and its size.
+ */
+int* get_input_integers(int* size) {
+    int* values = (int*)malloc(100 * sizeof(int));
+    int count = 0;
+    int response;
+    while (scanf("%d", &response) == 1) {
+        values[count++] = response;
+    }
+    *size = count;
+    return values;
+}
+
+int rand_range(int min, int max) {
+    return min + (rand() % (max - min + 1));
+}
+
+int* parse_input_ints(char* input, int* size) {
+    const int inputLen = strlen(input);
+    for (int i = 0; i < inputLen; ++i) {
+        *size += (input[i-1] == ' ' && input[i] != ' ') ? 1 : 0;
+    }
+    int* values = (int*)malloc(*size * sizeof(int));
+    if (!values) {
+        return NULL;
+    }
+    char* token = strtok(input, " ");
+    int i = 0;
+    while (token != NULL) {
+        values[i++] = atoi(token);
+        token = strtok(NULL, " ");
+    }
+    return values;
+}

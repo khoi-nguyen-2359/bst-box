@@ -1,19 +1,18 @@
 #include "avl_tree.h"
 #include "L.h"
-#include "utils.h"
 
 #include <stdlib.h>
 
 #pragma region Function Declarations
-int get_balance_factor(AVLNode* node);
-void update_height(AVLNode* node);
-int get_height(AVLNode* node);
+int avl_get_balance_factor(AVLNode* node);
+void avl_update_height(AVLNode* node);
+int avl_get_height(AVLNode* node);
 
-void balance(AVLNode* root);
-void rotate_left(AVLNode* root);
-void rotate_right(AVLNode* root);
+void avl_balance(AVLNode* root);
+void avl_rotate_left(AVLNode* root);
+void avl_rotate_right(AVLNode* root);
 
-int remove_max(AVLNode* parent, AVLNode** node);
+int avl_remove_max(AVLNode* parent, AVLNode** node);
 
 #pragma endregion
 
@@ -59,12 +58,12 @@ void avl_insert_nodes(AVLNode** root, const int* values, const int len) {
  * @brief Delete assigned memory of the entire tree recursively.
  * @param root Pointer to the root node of the tree to be freed, assigned to null after finished.
  */
-void avl_delete_tree(AVLNode** root) {
+void avl_free_tree(AVLNode** root) {
     if (!(*root)) return;
     int rootValue = (*root)->value;
     logger_printf("Deleting tree: %d\n", rootValue);
-    avl_delete_tree(&(*root)->left);
-    avl_delete_tree(&(*root)->right);
+    avl_free_tree(&(*root)->left);
+    avl_free_tree(&(*root)->right);
     free(*root);
     *root = NULL;
 }
@@ -74,15 +73,15 @@ void avl_delete_tree(AVLNode** root) {
  * @param root Tree's root.
  * @param value Value to insert.
  */
-bool avl_insert_node(AVLNode** root, int value) {
+int avl_insert_node(AVLNode** root, int value) {
     if (!(*root)) {
         *root = avl_create_node(value);
     }
     if (value == (*root)->value) {
-        return false;
+        return 0;
     }
     
-    bool inserted = false;
+    int inserted = 0;
     if (value < (*root)->value) {
         if ((*root)->left) {
             // Continue finding on the left sub-tree.
@@ -90,7 +89,7 @@ bool avl_insert_node(AVLNode** root, int value) {
         } else {
             // Left child is empty, insert here.
             (*root)->left = avl_create_node(value);
-            inserted = true;
+            inserted = 1;
         }
     } else if (value > (*root)->value) {
         if ((*root)->right) {
@@ -99,14 +98,14 @@ bool avl_insert_node(AVLNode** root, int value) {
         } else {
             // Right child is empty, insert here.
             (*root)->right = avl_create_node(value);
-            inserted = true;
+            inserted = 1;
         }
     }
 
     if (inserted) {
         // Update height and rebalance if needed.
-        update_height(*root);
-        balance(*root);
+        avl_update_height(*root);
+        avl_balance(*root);
     }
     return inserted;
 }
@@ -114,36 +113,36 @@ bool avl_insert_node(AVLNode** root, int value) {
 /**
  * @brief Check for balance factors at a node and its children to determine if rotations needed.
  */
-void balance(AVLNode* root) {
-    int balanceFactor = get_balance_factor(root);
+void avl_balance(AVLNode* root) {
+    int balanceFactor = avl_get_balance_factor(root);
     if (balanceFactor >= -1 && balanceFactor <= 1) {
         return;
     }
     logger_printf("Balancing at node %d:\n", root->value);
-    logger_printf("    left: %d\n", get_height(root->left));
-    logger_printf("    right: %d\n", get_height(root->right));
+    logger_printf("    left: %d\n", avl_get_height(root->left));
+    logger_printf("    right: %d\n", avl_get_height(root->right));
 
     if (balanceFactor < -1) {   // Left child is by 2 higher than right child, consider right rotation.
 
         // Left child is slightly right-heavy, a right rotation at root might make its right child higher.
         // Therefore a left rotation at left child is needed.
-        if (get_balance_factor(root->left) > 0) {
-            rotate_left(root->left);
+        if (avl_get_balance_factor(root->left) > 0) {
+            avl_rotate_left(root->left);
         }
 
-        rotate_right(root);
+        avl_rotate_right(root);
     } else if (balanceFactor > 1) {
         // Similar implementation on the other side.
 
-        if (get_balance_factor(root->right) < 0) {
-            rotate_right(root->right);
+        if (avl_get_balance_factor(root->right) < 0) {
+            avl_rotate_right(root->right);
         }
-        rotate_left(root);
+        avl_rotate_left(root);
     }
 
-    update_height(root->right);
-    update_height(root->left);
-    update_height(root);
+    avl_update_height(root->right);
+    avl_update_height(root->left);
+    avl_update_height(root);
 }
 
 /**
@@ -180,7 +179,7 @@ void balance(AVLNode* root) {
  *   ┃ X1┃     ┃ Z1┃
  *   ┗━━━┛     ┗━━━┛
  */
-void rotate_left(AVLNode* root) {
+void avl_rotate_left(AVLNode* root) {
     logger_printf("Rotating left at node %d\n", root->value);
     // Right child node is taken out and reserved as its value will shift to the root node's position
     AVLNode* reservedNode = root->right;
@@ -204,7 +203,7 @@ void rotate_left(AVLNode* root) {
  * @brief Similar to left rotation.
  * @ref rotateLeft
  */
-void rotate_right(AVLNode* root) {
+void avl_rotate_right(AVLNode* root) {
     logger_printf("Rotating right at node %d\n", root->value);
     AVLNode* toReuseNode = root->left;
     int tempRootValue = root->value;
@@ -221,15 +220,15 @@ void rotate_right(AVLNode* root) {
  * @param value Value to be removed.
  * @param root Tree's root node.
  */
-bool avl_remove_node(AVLNode** root, int value) {
+int avl_remove_node(AVLNode** root, int value) {
     logger_printf("Removing %d from node %d\n", value, (*root)->value);
-    bool removed = false;
+    int removed = 0;
     if (value < (*root)->value) {
         // Continue finding on left sub-tree.
-        removed = (*root)->left ? avl_remove_node(&(*root)->left, value) : false;
+        removed = (*root)->left ? avl_remove_node(&(*root)->left, value) : 0;
     } else if (value > (*root)->value) {
         // Continue finding on right sub-tree.
-        removed = (*root)->right ? avl_remove_node(&(*root)->right, value) : false;
+        removed = (*root)->right ? avl_remove_node(&(*root)->right, value) : 0;
     } else {
         // Node found
         if (!(*root)->left && !(*root)->right) {
@@ -243,7 +242,7 @@ bool avl_remove_node(AVLNode** root, int value) {
             free(tempRight);
         } else if ((*root)->left->right) {
             // Left child exists, find the maximum node on the left sub-tree to replace root.
-            int removedValue = remove_max((*root)->left, &(*root)->left->right);
+            int removedValue = avl_remove_max((*root)->left, &(*root)->left->right);
             (*root)->value = removedValue;
         } else {
             // No right child, or left child is the maximum in its subtree (left child has no right child)
@@ -253,13 +252,13 @@ bool avl_remove_node(AVLNode** root, int value) {
             (*root)->left = (*root)->left->left;
             free(tempLeft);
         }
-        removed = true;
+        removed = 1;
         logger_printf("Removed %d\n", value);
     }
 
     if (removed && *root) {
-        update_height(*root);
-        balance(*root);
+        avl_update_height(*root);
+        avl_balance(*root);
     }
     return removed;
 }
@@ -269,10 +268,10 @@ bool avl_remove_node(AVLNode** root, int value) {
  * @param current Node to start finding.
  * @param parent Parent node of the current node. Needed for re-connecting with grandchild after deletion of current.
  */
-int remove_max(AVLNode* parent, AVLNode** current) {
+int avl_remove_max(AVLNode* parent, AVLNode** current) {
     int removedValue = 0;
     if ((*current)->right) {
-        removedValue = remove_max(*current, &((*current)->right));
+        removedValue = avl_remove_max(*current, &((*current)->right));
     } else {
         removedValue = (*current)->value;
         AVLNode* currentLeft = (*current)->left;
@@ -281,8 +280,8 @@ int remove_max(AVLNode* parent, AVLNode** current) {
         *current = currentLeft;
     }
 
-    update_height(parent);
-    balance(parent);
+    avl_update_height(parent);
+    avl_balance(parent);
 
     return removedValue;
 }
@@ -291,8 +290,8 @@ int remove_max(AVLNode* parent, AVLNode** current) {
  * @param node A tree's node.
  * @return Height of given node, or zero if node is null.
  */
-int get_balance_factor(AVLNode* node) {
-    return node ? get_height(node->right) - get_height(node->left) : 0;
+int avl_get_balance_factor(AVLNode* node) {
+    return node ? avl_get_height(node->right) - avl_get_height(node->left) : 0;
 }
 
 /**
@@ -301,9 +300,11 @@ int get_balance_factor(AVLNode* node) {
  * This step is necessary after insertion or deletion occurs under this node's subtree.
  * @param node Node to update height.
  */
-void update_height(AVLNode* node) {
+void avl_update_height(AVLNode* node) {
     if (node) {
-        node->height = bstbox_max(get_height(node->left), get_height(node->right)) + 1;
+        int leftHeight = avl_get_height(node->left);
+        int rightHeight = avl_get_height(node->right);
+        node->height = (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
     }
 }
 
@@ -311,6 +312,6 @@ void update_height(AVLNode* node) {
  * @param node A tree's node.
  * @return Height of given node, or zero if node is null.
  */
-int get_height(AVLNode* node) {
+int avl_get_height(AVLNode* node) {
     return node ? node->height : 0;
 }
