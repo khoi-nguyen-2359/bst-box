@@ -39,7 +39,7 @@
 #define ARM_T_JUNCTION LINE_VERT_2
 
 typedef struct BTBoxRestoreNode {
-    AVLNode* node;
+    BTNode* node;
     int leftChild; // 0 or 1
     int rightChild; // 0 or 1
 } BTBoxRestoreNode;
@@ -125,15 +125,23 @@ LinkedListEntry_BTBoxRestoreNode* btbox_restore_nodes(char* line, int len);
 
 #pragma endregion
 
-/**
- * @brief Construct the BSTBox node based on the AVL tree hierarchy.
- */
-BTBox* btbox_create_tree(AVLNode* avlNode) {
-    BTBox* node = (BTBox*)malloc(sizeof(BTBox));
-    node->value = avlNode->value;
-    node->left = avlNode->left ? btbox_create_tree(avlNode->left) : NULL;
-    node->right = avlNode->right ? btbox_create_tree(avlNode->right) : NULL;
+BTNode* btbox_create_node(int value) {
+    BTNode *node = (BTNode*)malloc(sizeof(BTNode));
+    node->value = value;
+    node->left = NULL;
+    node->right = NULL;
     return node;
+}
+
+/**
+ * @brief Construct the BSTBox node based on the binary tree hierarchy.
+ */
+BTBox* btbox_create_tree(BTNode* tree) {
+    BTBox* box = (BTBox*)malloc(sizeof(BTBox));
+    box->value = tree->value;
+    box->left = tree->left ? btbox_create_tree(tree->left) : NULL;
+    box->right = tree->right ? btbox_create_tree(tree->right) : NULL;
+    return box;
 }
 
 /**
@@ -145,6 +153,19 @@ void btbox_free_tree(BTBox* root) {
     btbox_free_tree(root->right);
     free(root->valueString);
     free(root);
+}
+
+void btbox_free_node(BTNode *node) {
+    if (node == NULL) {
+        return;
+    }
+    if (node->left) {
+        btbox_free_node(node->left);
+    }
+    if (node->right) {
+        btbox_free_node(node->right);
+    }
+    free(node);
 }
 
 void btbox_print_box(char** buffer, int x, int y, BTBox* parent, BTBox* node) {
@@ -384,7 +405,7 @@ int btbox_min(int a, int b) {
     return a < b ? a : b;
 }
 
-AVLNode* btbox_restore_tree(FILE* file) {
+BTNode* btbox_restore_tree(FILE* file) {
     char *buffer = NULL;
     size_t bufferSize = 0;
     ssize_t len = 0;
@@ -414,7 +435,7 @@ AVLNode* btbox_restore_tree(FILE* file) {
         return NULL;
     }
     
-    AVLNode *root = rootInfo->node; // keep the root for something to return
+    BTNode *root = rootInfo->node; // keep the root for something to return
     Queue_BTBoxRestoreNode *queue = queue_create();
     queue_push(queue, rootInfo);
     do {
@@ -500,7 +521,7 @@ LinkedListEntry_BTBoxRestoreNode* btbox_restore_nodes(char* buffer, int len) {
                 BTBoxRestoreNode *node = btbox_create_restore_node();
                 node->leftChild = btbox_search_arm(buffer, len, numStart - 1, -1);
                 node->rightChild = btbox_search_arm(buffer, len, numEnd + 1, 1);
-                node->node = avl_create_node(detectNum);
+                node->node = btbox_create_node(detectNum);
 
                 LinkedListEntry_BTBoxRestoreNode* entry = linkedlist_create_entry(node);
                 entry->next = list;

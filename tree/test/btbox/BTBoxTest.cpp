@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 
-#include "avl_tree.h"
 #include "bt_box.h"
 
 using std::ifstream;
@@ -13,21 +12,21 @@ string readFileContent(const std::string& path);
 
 class BSTBoxTest : public ::testing::Test {
     protected:
-        AVLNode* avl = nullptr;
+        BTNode* tree = nullptr;
         BTBox* box = nullptr;
 
         void TearDown() override {
-            avl_free_tree(&avl);
+            btbox_free_node(tree);
             btbox_free_tree(box);
         }
 };
 
 TEST_F(BSTBoxTest, Draw_PerfectTree_2Levels) {
-    avl = avl_create_node(1);
-    avl_insert_node(&avl, 2);
-    avl_insert_node(&avl, 3);
+    tree = btbox_create_node(2);
+    tree->left = btbox_create_node(1);
+    tree->right = btbox_create_node(3);
 
-    box = btbox_create_tree(avl);
+    box = btbox_create_tree(tree);
     char outputPath[] = "Draw_Valid_PerfectTree_2Levels.output";
     FILE *outputFile = fopen(outputPath, "w");
 
@@ -43,12 +42,12 @@ TEST_F(BSTBoxTest, Draw_PerfectTree_2Levels) {
 }
 
 TEST_F(BSTBoxTest, Draw_Valid_LargeValues) {
-    avl = avl_create_node(1);
-    avl_insert_node(&avl, 1000000000);
-    avl_insert_node(&avl, 1000000001);
-    avl_insert_node(&avl, -100000000);
+    tree = btbox_create_node(1000000000);
+    tree->left = btbox_create_node(1);
+    tree->right = btbox_create_node(1000000001);
+    tree->left->left = btbox_create_node(-100000000);
 
-    box = btbox_create_tree(avl);
+    box = btbox_create_tree(tree);
     char outputPath[] = "Draw_Valid_LargeValues.output";
     FILE *outputFile = fopen(outputPath, "w");
 
@@ -69,15 +68,15 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_PerfectTree_2Levels) {
     FILE* inputFile = fopen(inputPath, "r");
     ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
 
-    avl = btbox_restore_tree(inputFile);
+    tree = btbox_restore_tree(inputFile);
     fclose(inputFile);
 
-    ASSERT_NE(avl, nullptr);
-    EXPECT_EQ(avl->value, 222);
-    EXPECT_NE(avl->left, nullptr);
-    EXPECT_EQ(avl->left->value, 111);
-    EXPECT_NE(avl->right, nullptr);
-    EXPECT_EQ(avl->right->value, 333);
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 222);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, 111);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 333);
 }
 
 TEST_F(BSTBoxTest, RestoreTree_Valid_LargeValues) {
@@ -86,17 +85,17 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_LargeValues) {
     FILE* inputFile = fopen(inputPath, "r");
     ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
 
-    avl = btbox_restore_tree(inputFile);
+    tree = btbox_restore_tree(inputFile);
     fclose(inputFile);
 
-    ASSERT_NE(avl, nullptr);
-    EXPECT_EQ(avl->value, 1000000000);
-    EXPECT_NE(avl->left, nullptr);
-    EXPECT_EQ(avl->left->value, 1);
-    EXPECT_NE(avl->left->left, nullptr);
-    EXPECT_EQ(avl->left->left->value, -100000000);
-    EXPECT_NE(avl->right, nullptr);
-    EXPECT_EQ(avl->right->value, 1000000001);
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1000000000);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, 1);
+    EXPECT_NE(tree->left->left, nullptr);
+    EXPECT_EQ(tree->left->left->value, -100000000);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 1000000001);
 }
 
 TEST_F(BSTBoxTest, RestoreTree_Valid_Randomized10Nodes) {
@@ -105,28 +104,28 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_Randomized10Nodes) {
     FILE* inputFile = fopen(inputPath, "r");
     ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
 
-    avl = btbox_restore_tree(inputFile);
+    tree = btbox_restore_tree(inputFile);
     fclose(inputFile);
 
-    ASSERT_NE(avl, nullptr);
-    EXPECT_EQ(avl->value, 2015);
-    EXPECT_NE(avl->left, nullptr);
-    EXPECT_EQ(avl->left->value, -362798);
-    EXPECT_NE(avl->left->left, nullptr);
-    EXPECT_EQ(avl->left->left->value, -103024993);
-    EXPECT_NE(avl->left->right, nullptr);
-    EXPECT_EQ(avl->left->right->value, 1);
-    EXPECT_NE(avl->left->right->left, nullptr);
-    EXPECT_EQ(avl->left->right->left->value, -3);
-    EXPECT_EQ(avl->left->right->right, nullptr);
-    EXPECT_NE(avl->right, nullptr);
-    EXPECT_EQ(avl->right->value, 44678227);
-    EXPECT_NE(avl->right->left, nullptr);
-    EXPECT_EQ(avl->right->left->value, 69257);
-    EXPECT_NE(avl->right->right, nullptr);
-    EXPECT_EQ(avl->right->right->value, 245850917);
-    EXPECT_NE(avl->right->left->right, nullptr);
-    EXPECT_EQ(avl->right->left->right->value, 25774486);
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 2015);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, -362798);
+    EXPECT_NE(tree->left->left, nullptr);
+    EXPECT_EQ(tree->left->left->value, -103024993);
+    EXPECT_NE(tree->left->right, nullptr);
+    EXPECT_EQ(tree->left->right->value, 1);
+    EXPECT_NE(tree->left->right->left, nullptr);
+    EXPECT_EQ(tree->left->right->left->value, -3);
+    EXPECT_EQ(tree->left->right->right, nullptr);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 44678227);
+    EXPECT_NE(tree->right->left, nullptr);
+    EXPECT_EQ(tree->right->left->value, 69257);
+    EXPECT_NE(tree->right->right, nullptr);
+    EXPECT_EQ(tree->right->right->value, 245850917);
+    EXPECT_NE(tree->right->left->right, nullptr);
+    EXPECT_EQ(tree->right->left->right->value, 25774486);
 }
 
 TEST_F(BSTBoxTest, RestoreTree_Invalid_MissingRootValue) {
@@ -135,10 +134,10 @@ TEST_F(BSTBoxTest, RestoreTree_Invalid_MissingRootValue) {
     FILE* inputFile = fopen(inputPath, "r");
     ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
 
-    avl = btbox_restore_tree(inputFile);
+    tree = btbox_restore_tree(inputFile);
     fclose(inputFile);
 
-    EXPECT_EQ(avl, nullptr) << "Tree should be null for malformed input with no root";
+    EXPECT_EQ(tree, nullptr) << "Tree should be null for malformed input with no root";
 }
 
 TEST_F(BSTBoxTest, RestoreTree_Valid_NotUniformed) {
@@ -147,21 +146,21 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_NotUniformed) {
     FILE* inputFile = fopen(inputPath, "r");
     ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
 
-    avl = btbox_restore_tree(inputFile);
+    tree = btbox_restore_tree(inputFile);
     fclose(inputFile);
 
-    ASSERT_NE(avl, nullptr);
-    EXPECT_EQ(avl->value, 1);
-    EXPECT_NE(avl->left, nullptr);
-    EXPECT_EQ(avl->left->value, 0);
-    EXPECT_EQ(avl->left->left, nullptr);
-    EXPECT_EQ(avl->left->right, nullptr);
-    EXPECT_NE(avl->right, nullptr);
-    EXPECT_EQ(avl->right->value, 24454);
-    EXPECT_NE(avl->right->left, nullptr);
-    EXPECT_EQ(avl->right->left->value, 852);
-    EXPECT_NE(avl->right->right, nullptr);
-    EXPECT_EQ(avl->right->right->value, 1576992);
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, 0);
+    EXPECT_EQ(tree->left->left, nullptr);
+    EXPECT_EQ(tree->left->right, nullptr);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 24454);
+    EXPECT_NE(tree->right->left, nullptr);
+    EXPECT_EQ(tree->right->left->value, 852);
+    EXPECT_NE(tree->right->right, nullptr);
+    EXPECT_EQ(tree->right->right->value, 1576992);
 }
 
 string readFileContent(const std::string& path) {

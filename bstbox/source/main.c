@@ -37,6 +37,27 @@ int* parse_input_ints(char* input, int* size);
 
 #pragma endregion
 
+#define DEFINE_TREE_CONVERTER(__TYPE__) \
+BTNode* convert_##__TYPE__(__TYPE__ *tree) { \
+    if (tree == NULL) { \
+        return NULL; \
+    } \
+    BTNode *btNode = NULL, *left = NULL, *right = NULL; \
+    if (tree->left) { \
+        left = convert_##__TYPE__(tree->left); \
+    } \
+    if (tree->right) { \
+        right = convert_##__TYPE__(tree->right); \
+    } \
+    btNode = (BTNode*)malloc(sizeof(BTNode)); \
+    btNode->value = tree->value; \
+    btNode->left = left; \
+    btNode->right = right; \
+    return btNode; \
+}
+
+DEFINE_TREE_CONVERTER(AVLNode);
+
 /**
  Binary Tree Visualization
          ┏━━━┓         
@@ -174,7 +195,8 @@ void print_tree(AVLNode* root) {
         return;
     }
 
-    BTBox* treeBox = btbox_create_tree(root);
+    BTNode* btRoot = convert_AVLNode(root);
+    BTBox* treeBox = btbox_create_tree(btRoot);
 
     printf("\n");
     print_frame("CURRENT TREE", FLAG_CLOSED);
@@ -183,6 +205,7 @@ void print_tree(AVLNode* root) {
     btbox_print(stdout, treeBox);
 
     btbox_free_tree(treeBox);
+    btbox_free_node(btRoot);
 }
 
 /**
@@ -205,7 +228,8 @@ void export_to_file(AVLNode* root, char* input) {
         return;
     }
 
-    BTBox* box = btbox_create_tree(root);
+    BTNode *btRoot = convert_AVLNode(root);
+    BTBox* box = btbox_create_tree(btRoot);
 
     btbox_print(file, box); // Print the tree into output file stream instead of console output stream.
 
@@ -214,6 +238,7 @@ void export_to_file(AVLNode* root, char* input) {
     fclose(file);
     free(fileName);
     btbox_free_tree(box);
+    btbox_free_node(btRoot);
 }
 
 /**

@@ -1,8 +1,6 @@
 #ifndef BT_BOX_H
 #define BT_BOX_H
 
-#include "avl_tree.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,10 +42,18 @@ typedef struct BTBox {
     int rightOffset;
 } BTBox;
 
+typedef struct BTNode {
+    int value;
+    struct BTNode* left;
+    struct BTNode* right;
+} BTNode;
+
 // Function declarations
-BTBox* btbox_create_tree(struct AVLNode* avlNode);
+BTNode* btbox_create_node(int value);
+BTBox* btbox_create_tree(BTNode* tree);
 void btbox_free_tree(BTBox* root);
+void btbox_free_node(BTNode *node);
 void btbox_print(FILE* file, BTBox* node);
-AVLNode* btbox_restore_tree(FILE* file);
+BTNode* btbox_restore_tree(FILE* file);
 
 #endif
