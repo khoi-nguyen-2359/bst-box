@@ -163,6 +163,55 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_NotUniformed) {
     EXPECT_EQ(tree->right->right->value, 1576992);
 }
 
+TEST_F(BSTBoxTest, RestoreTree_Valid_Randomized15Nodes) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_Randomized15Nodes.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+
+    // Root node
+    EXPECT_EQ(tree->value, -24);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_NE(tree->right, nullptr);
+
+    // Level 1
+    EXPECT_EQ(tree->left->value, -117178);
+    EXPECT_EQ(tree->right->value, 2679185);
+
+    // Level 2
+    EXPECT_NE(tree->left->left, nullptr);
+    EXPECT_NE(tree->left->right, nullptr);
+    EXPECT_NE(tree->right->left, nullptr);
+    EXPECT_NE(tree->right->right, nullptr);
+    EXPECT_EQ(tree->left->left->value, -16417570);
+    EXPECT_EQ(tree->left->right->value, -1421);
+    EXPECT_EQ(tree->right->left->value, 228);
+    EXPECT_EQ(tree->right->right->value, 3810973);
+
+    // Level 3
+    EXPECT_NE(tree->left->left->left, nullptr);
+    EXPECT_NE(tree->left->left->right, nullptr);
+    EXPECT_NE(tree->left->right->left, nullptr);
+    EXPECT_NE(tree->left->right->right, nullptr);
+    EXPECT_NE(tree->right->left->left, nullptr);
+    EXPECT_NE(tree->right->left->right, nullptr);
+    EXPECT_NE(tree->right->right->left, nullptr);
+    EXPECT_NE(tree->right->right->right, nullptr);
+    EXPECT_EQ(tree->left->left->left->value, -26542876);
+    EXPECT_EQ(tree->left->left->right->value, -200137);
+    EXPECT_EQ(tree->left->right->left->value, -21472);
+    EXPECT_EQ(tree->left->right->right->value, -1420);
+    EXPECT_EQ(tree->right->left->left->value, 2);
+    EXPECT_EQ(tree->right->left->right->value, 192395);
+    EXPECT_EQ(tree->right->right->left->value, 2735221);
+    EXPECT_EQ(tree->right->right->right->value, 474209835);
+}
+
 string readFileContent(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {

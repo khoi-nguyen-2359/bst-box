@@ -27,6 +27,7 @@ void delete_nodes(AVLNode** root, char* input);
 void print_tree(AVLNode* root);
 void reset_current_tree(AVLNode** root);
 void export_to_file(AVLNode* root, char* input);
+void import_from_file(AVLNode** root, char* input);
 int* get_input_integers(int* size);
 int verify_tree_content(AVLNode* root);
 char* print_action_menu();
@@ -37,26 +38,27 @@ int* parse_input_ints(char* input, int* size);
 
 #pragma endregion
 
-#define DEFINE_TREE_CONVERTER(__TYPE__) \
-BTNode* convert_##__TYPE__(__TYPE__ *tree) { \
+#define DEFINE_TREE_CONVERTER(__TYPE_S__, __TYPE_D__) \
+__TYPE_D__* convert_##__TYPE_S__##_to_##__TYPE_D__(__TYPE_S__ *tree) { \
     if (tree == NULL) { \
         return NULL; \
     } \
-    BTNode *btNode = NULL, *left = NULL, *right = NULL; \
+    __TYPE_D__ *btNode = NULL, *left = NULL, *right = NULL; \
     if (tree->left) { \
-        left = convert_##__TYPE__(tree->left); \
+        left = convert_##__TYPE_S__##_to_##__TYPE_D__(tree->left); \
     } \
     if (tree->right) { \
-        right = convert_##__TYPE__(tree->right); \
+        right = convert_##__TYPE_S__##_to_##__TYPE_D__(tree->right); \
     } \
-    btNode = (BTNode*)malloc(sizeof(BTNode)); \
+    btNode = (__TYPE_D__*)malloc(sizeof(__TYPE_D__)); \
     btNode->value = tree->value; \
     btNode->left = left; \
     btNode->right = right; \
     return btNode; \
 }
 
-DEFINE_TREE_CONVERTER(AVLNode);
+DEFINE_TREE_CONVERTER(AVLNode, BTNode);
+DEFINE_TREE_CONVERTER(BTNode, AVLNode);
 
 /**
  Binary Tree Visualization
@@ -69,8 +71,9 @@ DEFINE_TREE_CONVERTER(AVLNode);
  */
 int main(int argc, char* argv[]) {
     AVLNode* tree = NULL;  // Pointer to the main tree object of the program.
-    char* input;
+    char* input = NULL;    // Pointer to hold user input.
     while (1) {
+        free(input); // Free input after each iteration.
         input = print_action_menu();
         if (!input) {
             continue;
@@ -106,12 +109,17 @@ int main(int argc, char* argv[]) {
                 export_to_file(tree, input);
                 break;
 
-            default:
-                return 0;
+            case 'M':
+            case 'm':
+                import_from_file(&tree, input);
+                break;
+
+            default: goto clean_up;
         }
-        free(input);
     }
 
+clean_up:
+    free(input);
     avl_free_tree(&tree);
     logger_close();
 
@@ -144,7 +152,7 @@ void create_random_tree(AVLNode** root, char* input) {
     }
     logger_printf("\n");
 
-    avl_free_tree(root);
+    avl_free_tree(root); // Free the existing tree before creating a new one.
     avl_insert_nodes(root, randValues, nodeCount);
 
     free(randValues);
@@ -195,7 +203,7 @@ void print_tree(AVLNode* root) {
         return;
     }
 
-    BTNode* btRoot = convert_AVLNode(root);
+    BTNode* btRoot = convert_AVLNode_to_BTNode(root);
     BTBox* treeBox = btbox_create_tree(btRoot);
 
     printf("\n");
@@ -219,16 +227,17 @@ void export_to_file(AVLNode* root, char* input) {
     }
 
     char* fileName = strndup(input + 2, strlen(input) - 3); // Remove two chars at the beginning and the line break at the end of the input.
-    printf("Exporting current tree content to file \"%s\"\n", fileName);
+    printf("Writing current tree content to file \"%s\"\n", fileName);
 
     FILE* file = fopen(fileName, "w");
 
     if (!file) {
         printf("Error opening file \"%s\"\n", fileName);
+        free(fileName);
         return;
     }
 
-    BTNode *btRoot = convert_AVLNode(root);
+    BTNode *btRoot = convert_AVLNode_to_BTNode(root);
     BTBox* box = btbox_create_tree(btRoot);
 
     btbox_print(file, box); // Print the tree into output file stream instead of console output stream.
@@ -283,6 +292,7 @@ char* print_action_menu() {
         "    > [V]iew current tree.\n"
         "    > [R]eset current tree.\n"
         "    > [E]xport to text file.\n"
+        "    > I[M]port from text file.\n"
         "    > [Q]uit.\n"
         "Please enter your choice: [C|I|D|V|R|E|Q][ENTER]\n",
         FLAG_SIDES | FLAG_BOTTOM);
@@ -387,4 +397,28 @@ int* parse_input_ints(char* input, int* size) {
         token = strtok(NULL, " ");
     }
     return values;
+}
+
+void import_from_file(AVLNode** root, char* input) {
+    char* fileName = strndup(input + 2, strlen(input) - 3); // Remove two chars at the beginning and the line break at the end of the input.
+    printf("Reading tree content from file \"%s\"\n", fileName);
+
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Error opening file %s\n. Stop.", fileName);
+        free(fileName);
+        return;
+    }
+
+    BTNode *btRoot = btbox_restore_tree(file);
+    AVLNode *avlRoot = convert_BTNode_to_AVLNode(btRoot);
+    AVLNode *temp = *root;
+    *root = avlRoot;
+
+    print_tree(*root);
+
+    fclose(file);
+    free(fileName);
+    btbox_free_node(btRoot);
+    avl_free_tree(&temp); // Free the old tree after replacing it with the new one.
 }
