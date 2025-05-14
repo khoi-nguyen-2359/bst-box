@@ -48,5 +48,6 @@ typedef struct BTBox {
 BTBox* btbox_create_tree(struct AVLNode* avlNode);
 void btbox_free_tree(BTBox* root);
 void btbox_print(FILE* file, BTBox* node);
+AVLNode* btbox_restore_tree(FILE* file);
 
 #endif
