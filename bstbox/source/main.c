@@ -126,7 +126,7 @@ clean_up:
 void create_random_tree(AVLNode** root, char* input) {
     static const int MAX_RAND_VALUE = 1000;
     int nodeCount = atoi(input + 2);    // Skip the first two characters, which are 'C' and a space.
-    printf("Creating tree with %d random nodes\n", nodeCount);
+    printf("Creating tree with %d random nodes:", nodeCount);
 
     srand(time(NULL));
     int* randValues = (int*)malloc(nodeCount * sizeof(int));
@@ -135,7 +135,9 @@ void create_random_tree(AVLNode** root, char* input) {
         int min = pow(10, digits - 1);
         int max = pow(10, digits) - 1;
         randValues[i] = rand_range(min, max) - max / 2;
+        printf(" %d", randValues[i]);
     }
+    printf("\n");
     
     avl_free_tree(root); // Free the existing tree before creating a new one.
     avl_insert_nodes(root, randValues, nodeCount);
@@ -284,7 +286,7 @@ char* print_action_menu() {
 
     char* input = NULL;
     size_t inputLen = 0;
-    getline(&input, &inputLen, stdin);
+    size_t read = getline(&input, &inputLen, stdin);
     return input;
 }
 

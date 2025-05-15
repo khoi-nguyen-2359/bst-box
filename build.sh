@@ -8,9 +8,6 @@ for arg in "$@"; do
             BUILD_FLAGS="-O3"
             BUILD_TYPE=""
             ;;
-        loggable)
-            BUILD_FLAGS="$BUILD_FLAGS -DLOGGABLE"
-            ;;
     esac
 done
 
@@ -24,7 +21,8 @@ gcc -Werror \
     $BUILD_FLAGS \
     bstbox/source/*.c tree/source/*.c tools/source/*.c \
     -Itree/include -Itools/include \
-    -o $OUTPUT_FILE
+    -o $OUTPUT_FILE \
+    -lm
 
 if [[ $? -eq 0 ]]; then
     echo "Build succeeded. Output file: $OUTPUT_FILE"
