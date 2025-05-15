@@ -18,8 +18,8 @@ set OUTPUT_FILE=build\bstbox%BUILD_TYPE%_windows.exe
 if not exist build mkdir build
 
 gcc %BUILD_FLAGS% ^
-    bstbox\source\*.c tree\source\*.c log\source\*.c ^
-    -Itree\include -Ilog\include ^
+    bstbox\source\*.c tree\source\*.c tools\source\*.c ^
+    -Itree\include -Itools\include ^
     -o %OUTPUT_FILE%
 
 if %errorlevel% neq 0 (

@@ -22,8 +22,8 @@ fi
 
 gcc -Werror \
     $BUILD_FLAGS \
-    bstbox/source/*.c tree/source/*.c log/source/*.c \
-    -Itree/include -Ilog/include \
+    bstbox/source/*.c tree/source/*.c tools/source/*.c \
+    -Itree/include -Itools/include \
     -o $OUTPUT_FILE
 
 if [[ $? -eq 0 ]]; then

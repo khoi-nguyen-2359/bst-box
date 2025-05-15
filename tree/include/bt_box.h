@@ -6,22 +6,23 @@
 #include <string.h>
 
 /**
- * @brief Contain calculation results for BST drawing. 
- * BSTBox node replicates the BST structure it draws.
+ * @brief Contain calculation results for printing. 
+ * BSTBox node replicates the binary tree structure it prints.
  *
- * Drawing origin
- *  (0,0) ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
- *        ┆          _____           ┆ 
- *        ┆         |     |          ┆ 
- *        ┆      ___|  B  |____      ┆ 
- *        ┆     |   |_____|    |     ┆ 
- *        ┆┄┄┄┄┄|┄┄┄┬┄┄┄┄┄┄┬┄┄┄|┄┄┄┄┄┆ total height
- *        ┆   __|__ ┆      ┆ __|__   ┆ 
- *        ┆  |     |┆      ┆|     |  ┆ 
- *        ┆  |  A  |┆margin┆|  C  |  ┆ 
- *        ┆  |_____|┆      ┆|_____|  ┆ 
- *        ╰┄┄┄┄┄┄┄┄┄┴┄┄┄┄┄┄┴┄┄┄┄┄┄┄┄┄╯
- *         A's width + (m)argin + C's width
+ * Origin
+ *  (0,0) ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮
+ *        ┆         _____         ┆ 
+ *        ┆        |     |        ┆ 
+ *        ┆    ____|  B  |____    ┆ 
+ *        ┆   |    |_____|    |   ┆ 
+ *        ┆┄┄┄|┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|┄┄┄┆
+ *        ┆   |    spacing    ┆   ┆ total height
+ *        ┆┄┄┄|┄┄┄┬┄┄┄┄┄┄┄┬┄┄┄|┄┄┄┆
+ *        ┆ __|__ ┆       ┆ __|__ ┆ 
+ *        ┆|     |┆       ┆|     |┆ 
+ *        ┆|  A  |┆spacing┆|  C  |┆ 
+ *        ┆|_____|┆       ┆|_____|┆ 
+ *        ╰┄┄┄┄┄┄┄┴┄┄┄┄┄┄┄┴┄┄┄┄┄┄┄╯
  *                total width
  */
 typedef struct BTBox {
@@ -42,6 +43,9 @@ typedef struct BTBox {
     int rightOffset;
 } BTBox;
 
+/**
+ * Data of the binary tree to print out.
+ */
 typedef struct BTNode {
     int value;
     struct BTNode* left;

@@ -1,12 +1,13 @@
+#include "avl_tree.h"
+#include "bt_box.h"
+#include "L.h"
+#include "utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-
-#include "avl_tree.h"
-#include "bt_box.h"
-#include "L.h"
 
 // Width of the decoration frame for action menu and texts
 #define FRAME_WIDTH 60
@@ -19,6 +20,8 @@
 #define FLAG_SIDES      (FLAG_LEFT | FLAG_RIGHT)
 #define FLAG_CLOSED     (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
 
+#define MAX_INTS_INPUT 100
+
 #pragma region Function Declarations
 
 void create_random_tree(AVLNode** root, char* input);
@@ -28,13 +31,10 @@ void print_tree(AVLNode* root);
 void reset_current_tree(AVLNode** root);
 void export_to_file(AVLNode* root, char* input);
 void import_from_file(AVLNode** root, char* input);
-int* get_input_integers(int* size);
 int verify_tree_content(AVLNode* root);
 char* print_action_menu();
 void print_frame(const char* text, int mask);
 int rand_range(int min, int max);
-
-int* parse_input_ints(char* input, int* size);
 
 #pragma endregion
 
@@ -79,40 +79,33 @@ int main(int argc, char* argv[]) {
             continue;
         }
         switch (input[0]) { // Action user chooses from the menu.
-            case 'C':
-            case 'c':
+            case 'C': case 'c':
                 create_random_tree(&tree, input);
-                break;
+            break;
 
-            case 'I':
-            case 'i':
+            case 'I': case 'i':
                 insert_nodes(&tree, input);
-                break;
+            break;
 
-            case 'D':
-            case 'd':
+            case 'D': case 'd':
                 delete_nodes(&tree, input);
-                break;
+            break;
 
-            case 'V':
-            case 'v':
+            case 'V': case 'v':
                 print_tree(tree);
-                break;
+            break;
 
-            case 'R':
-            case 'r':
+            case 'R': case 'r':
                 reset_current_tree(&tree);
-                break;
+            break;
 
-            case 'E':
-            case 'e':
+            case 'E': case 'e':
                 export_to_file(tree, input);
-                break;
+            break;
 
-            case 'M':
-            case 'm':
+            case 'M': case 'm':
                 import_from_file(&tree, input);
-                break;
+            break;
 
             default: goto clean_up;
         }
@@ -165,8 +158,8 @@ void create_random_tree(AVLNode** root, char* input) {
  * @param root Tree's root node, will be allocated before insertion if null.
  */
 void insert_nodes(AVLNode** root, char* input) {
-    int size = 0;
-    int* ints = parse_input_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
+    int size = MAX_INTS_INPUT;
+    int* ints = bstbox_read_input_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
     printf("Inserting %d integers.\n", size);
     avl_insert_nodes(root, ints, size);
     free(ints);
@@ -183,8 +176,8 @@ void delete_nodes(AVLNode** root, char* input) {
     if (!verify_tree_content(*root)) {
         return;
     }
-    int size = 0;
-    int* ints = parse_input_ints(input + 2, &size);
+    int size = MAX_INTS_INPUT;
+    int* ints = bstbox_read_input_ints(input + 2, &size);
     printf("Removing %d integers.\n", size);
     for (int i = 0; i < size; ++i) {
         avl_remove_node(root, ints[i]);
@@ -361,42 +354,8 @@ void print_frame(const char* text, int mask) {
     }
 }
 
-/**
- * @brief Read user input as an array of integers before returning when hitting a line break.
- * 
- * @return Pointer to an array of integers and its size.
- */
-int* get_input_integers(int* size) {
-    int* values = (int*)malloc(100 * sizeof(int));
-    int count = 0;
-    int response;
-    while (scanf("%d", &response) == 1) {
-        values[count++] = response;
-    }
-    *size = count;
-    return values;
-}
-
 int rand_range(int min, int max) {
     return min + (rand() % (max - min + 1));
-}
-
-int* parse_input_ints(char* input, int* size) {
-    const int inputLen = strlen(input);
-    for (int i = 0; i < inputLen; ++i) {
-        *size += (input[i-1] == ' ' && input[i] != ' ') ? 1 : 0;
-    }
-    int* values = (int*)malloc(*size * sizeof(int));
-    if (!values) {
-        return NULL;
-    }
-    char* token = strtok(input, " ");
-    int i = 0;
-    while (token != NULL) {
-        values[i++] = atoi(token);
-        token = strtok(NULL, " ");
-    }
-    return values;
 }
 
 void import_from_file(AVLNode** root, char* input) {

@@ -1,7 +1,7 @@
 g++ -std=c++14 -g \
-    tree/source/*.c log/source/*.c \
-    tree/test/avl/*.cpp tree/test/btbox/*.cpp \
-    -Itree/include -Ilog/include \
+    tree/source/*.c tools/source/*.c \
+    tools/test/*.cpp tree/test/avl/*.cpp tree/test/btbox/*.cpp \
+    -Itree/include -Itools/include \
     -o build/treetest \
     -lspdlog -lfmt -lgtest -lpthread
 
