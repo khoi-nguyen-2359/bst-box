@@ -1,5 +1,4 @@
 #include "bt_box.h"
-#include "L.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -314,9 +313,6 @@ void btbox_print(FILE* file, BTBox* node) {
     fflush(file);
 
 cleanup:
-    if (actualRows < node->height) {
-        logger_printf("Tree printing buffer allocation failed at %d\n", actualRows);
-    }
     for (int i = 0; i < actualRows; ++i) {
         free(buffer[i]);
     }

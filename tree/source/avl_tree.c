@@ -1,5 +1,4 @@
 #include "avl_tree.h"
-#include "L.h"
 
 #include <stdlib.h>
 
@@ -61,7 +60,6 @@ void avl_insert_nodes(AVLNode** root, const int* values, const int len) {
 void avl_free_tree(AVLNode** root) {
     if (!(*root)) return;
     int rootValue = (*root)->value;
-    logger_printf("Deleting tree: %d\n", rootValue);
     avl_free_tree(&(*root)->left);
     avl_free_tree(&(*root)->right);
     free(*root);
@@ -118,9 +116,6 @@ void balance(AVLNode* root) {
     if (balanceFactor >= -1 && balanceFactor <= 1) {
         return;
     }
-    logger_printf("Balancing at node %d:\n", root->value);
-    logger_printf("    left: %d\n", get_height(root->left));
-    logger_printf("    right: %d\n", get_height(root->right));
 
     if (balanceFactor < -1) {   // Left child is by 2 higher than right child, consider right rotation.
 
@@ -180,7 +175,6 @@ void balance(AVLNode* root) {
  *   ┗━━━┛     ┗━━━┛
  */
 void rotate_left(AVLNode* root) {
-    logger_printf("Rotating left at node %d\n", root->value);
     // Right child node is taken out and reserved as its value will shift to the root node's position
     AVLNode* reservedNode = root->right;
     
@@ -204,7 +198,6 @@ void rotate_left(AVLNode* root) {
  * @ref rotateLeft
  */
 void rotate_right(AVLNode* root) {
-    logger_printf("Rotating right at node %d\n", root->value);
     AVLNode* toReuseNode = root->left;
     int tempRootValue = root->value;
     root->value = root->left->value;
@@ -221,7 +214,6 @@ void rotate_right(AVLNode* root) {
  * @param root Tree's root node.
  */
 int avl_remove_node(AVLNode** root, int value) {
-    logger_printf("Removing %d from node %d\n", value, (*root)->value);
     int removed = 0;
     if (value < (*root)->value) {
         // Continue finding on left sub-tree.
@@ -253,7 +245,6 @@ int avl_remove_node(AVLNode** root, int value) {
             free(tempLeft);
         }
         removed = 1;
-        logger_printf("Removed %d\n", value);
     }
 
     if (removed && *root) {
@@ -275,7 +266,6 @@ int remove_max(AVLNode* parent, AVLNode** current) {
     } else {
         removedValue = (*current)->value;
         AVLNode* currentLeft = (*current)->left;
-        logger_printf("Removing maximum child %d\n", removedValue);
         free(*current);
         *current = currentLeft;
     }

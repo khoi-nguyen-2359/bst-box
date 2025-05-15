@@ -1,6 +1,5 @@
 #include "avl_tree.h"
 #include "bt_box.h"
-#include "L.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -114,7 +113,6 @@ int main(int argc, char* argv[]) {
 clean_up:
     free(input);
     avl_free_tree(&tree);
-    logger_close();
 
     return 0;
 }
@@ -139,12 +137,6 @@ void create_random_tree(AVLNode** root, char* input) {
         randValues[i] = rand_range(min, max) - max / 2;
     }
     
-    logger_printf("Random values: ");
-    for (int i = 0; i < nodeCount; ++i) {
-        logger_printf("%d ", randValues[i]);
-    }
-    logger_printf("\n");
-
     avl_free_tree(root); // Free the existing tree before creating a new one.
     avl_insert_nodes(root, randValues, nodeCount);
 
