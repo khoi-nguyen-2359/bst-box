@@ -163,6 +163,19 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_NotUniformed) {
     EXPECT_EQ(tree->right->right->value, 1576992);
 }
 
+TEST_F(BSTBoxTest, RestoreTree_Valid_OneNode) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_OneNode.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1);
+}
+
 TEST_F(BSTBoxTest, RestoreTree_Valid_Randomized15Nodes) {
     const char* inputPath = "../tree/test/btbox/Restore_Valid_Randomized15Nodes.input";
 

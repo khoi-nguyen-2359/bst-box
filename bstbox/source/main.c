@@ -1,6 +1,6 @@
 #include "avl_tree.h"
 #include "bt_box.h"
-#include "bstbox_io.h"
+#include "bstbox_input.h"
 
 #include <stdio.h>
 #include <stdlib.h>

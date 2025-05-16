@@ -1,56 +1,74 @@
-#include "bstbox_io.h"
+#include "bstbox_input.h"
 #include "bstbox_utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 /**
- * @brief Read integers in input string.
+ * @brief Read integers in input string, dynamically growing the output array as needed.
  * @param input Input string.
- * @param size The expected number of integers read from the input string, could be trimmed down to the actual number.
+ * @param size Pointer to store the number of integers read.
+ * @return Dynamically allocated array of integers, or NULL if no integers are found.
  */
 int* bstbox_read_ints(char* input, int *size) {
-    if (*size <= 0) {
+    if (!input || !size) {
         return NULL;
     }
-    int* values = (int*)malloc(*size * sizeof(int));
-    if (values == NULL) {
+
+    size_t capacity = 32; // Initial capacity
+    int* values = (int*)malloc(capacity * sizeof(int));
+    if (!values) {
         *size = 0;
         return NULL;
     }
 
     char *current = input;
+    *size = 0;
 
-    // forward to the first integer
-    while (*current != '\0' && !bstbox_is_numeric(*current)) {
-        ++current;
-    }
-
-    int i = 0;
-    int scanned = 1;
-    while (i < *size && *current != '\0' && (scanned = sscanf(current, "%d", &values[i++]))) {
-        while (*current != '\0' && bstbox_is_numeric(*current)) {
-            ++current;
-        }
+    while (*current != '\0') {
+        // Skip non-numeric characters
         while (*current != '\0' && !bstbox_is_numeric(*current)) {
             ++current;
         }
-    }
-    if (scanned == 0) {
-        // the last scan has failed
-        i--;
-    }
-    if (i == 0) {
-        free(values);
-        *size = 0;
-        return NULL;
-    }
-    if (i < *size) {
-        int* temp = (int*)realloc(values, i * sizeof(int));
-        if (temp && temp != values) {
+
+        if (*current == '\0') {
+            break;
+        }
+
+        // Parse the integer
+        int value;
+        int scanned = sscanf(current, "%d", &value);
+        if (scanned == 0) {
+            break;
+        }
+
+        // Grow the array if needed
+        if (*size >= capacity) {
+            capacity *= 2;
+            int* temp = (int*)realloc(values, capacity * sizeof(int));
+            if (!temp) {
+                return values;
+            }
             values = temp;
         }
-        *size = i;
+
+        values[(*size)++] = value;
+
+        // Move to the next potential integer
+        while (*current != '\0' && bstbox_is_numeric(*current)) {
+            ++current;
+        }
+    }
+
+    if (*size == 0) {
+        free(values);
+        return NULL;
+    }
+
+    // Shrink the array to fit the actual size
+    int* temp = (int*)realloc(values, (*size) * sizeof(int));
+    if (temp) {
+        values = temp;
     }
 
     return values;

@@ -1,10 +1,10 @@
-#include "utils.h"
+#include "bstbox_input.h"
 #include "gtest/gtest.h"
 
-class UtilsTest : public ::testing::Test {
+class IoTest : public ::testing::Test {
 };
 
-TEST(UtilsTest, ReadInputInts_ValidInput) {
+TEST(IoTest, ReadInputInts_ValidInput) {
     char input[] = "10 20 30 40 50 60 70 80 90 100\n";
 
     int size = 10;
@@ -24,7 +24,7 @@ TEST(UtilsTest, ReadInputInts_ValidInput) {
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_PartialInput) {
+TEST(IoTest, ReadInputInts_PartialInput) {
     char input[] = "5 10 15 20\n";
 
     int size = 10;
@@ -38,7 +38,7 @@ TEST(UtilsTest, ReadInputInts_PartialInput) {
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_NoInput) {
+TEST(IoTest, ReadInputInts_NoInput) {
     char input[] = "\n";
 
     int size = 4;
@@ -48,21 +48,23 @@ TEST(UtilsTest, ReadInputInts_NoInput) {
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(UtilsTest, ReadInputInts_ExcessNumberOfValues) {
+TEST(IoTest, ReadInputInts_ExcessNumberOfValues) {
     char input[] = "1 2 3 4 5 6\n";
 
     int size = 4;
     int *arr = bstbox_read_ints(input, &size);
 
-    EXPECT_EQ(size, 4);
+    EXPECT_EQ(size, 6);
     EXPECT_EQ(arr[0], 1);
     EXPECT_EQ(arr[1], 2);
     EXPECT_EQ(arr[2], 3);
     EXPECT_EQ(arr[3], 4);
+    EXPECT_EQ(arr[4], 5);
+    EXPECT_EQ(arr[5], 6);
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_InvalidNumbersInFront) {
+TEST(IoTest, ReadInputInts_InvalidNumbersInFront) {
     char input[] = "abc 123 def 456 ghi 789\n";
 
     int size = 10;
@@ -75,7 +77,7 @@ TEST(UtilsTest, ReadInputInts_InvalidNumbersInFront) {
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_NegativeAndDecimal) {
+TEST(IoTest, ReadInputInts_NegativeAndDecimal) {
     char input[] = "42 -15 0 3.14 100\n";
 
     int size = 10;
@@ -91,7 +93,7 @@ TEST(UtilsTest, ReadInputInts_NegativeAndDecimal) {
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_EmptyString) {
+TEST(IoTest, ReadInputInts_EmptyString) {
     char input[] = "";
 
     int size = 5;
@@ -101,7 +103,7 @@ TEST(UtilsTest, ReadInputInts_EmptyString) {
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(UtilsTest, ReadInputInts_SpacesOnly) {
+TEST(IoTest, ReadInputInts_SpacesOnly) {
     char input[] = "     \n";
 
     int size = 5;
@@ -111,8 +113,8 @@ TEST(UtilsTest, ReadInputInts_SpacesOnly) {
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(UtilsTest, ReadInputInts_SpecialCharacters) {
-    char input[] = "!@# $%^ &*() 123\n";
+TEST(IoTest, ReadInputInts_SpecialCharacters) {
+    char input[] = "!@# $%^ &*(123)\n";
 
     int size = 10;
     int *arr = bstbox_read_ints(input, &size);
@@ -122,7 +124,7 @@ TEST(UtilsTest, ReadInputInts_SpecialCharacters) {
     free(arr);
 }
 
-TEST(UtilsTest, ReadInputInts_MultipleSeparatingSpaces) {
+TEST(IoTest, ReadInputInts_MultipleSeparatingSpaces) {
     char input[] = "   12   abc   -34  56.78   90   xyz   \n";
 
     int size = 10;
@@ -136,26 +138,3 @@ TEST(UtilsTest, ReadInputInts_MultipleSeparatingSpaces) {
     EXPECT_EQ(arr[4], 90);
     free(arr);
 }
-
-TEST(UtilsTest, ToString_ValidInput) {
-    char *result = bstbox_to_string(666);
-    EXPECT_STREQ(result, "666");
-    free(result);
-
-    result = bstbox_to_string(-133759);
-    EXPECT_STREQ(result, "-133759");
-    free(result);
-
-    result = bstbox_to_string(0);
-    EXPECT_STREQ(result, "0");
-    free(result);
-
-    result = bstbox_to_string(1000000000);
-    EXPECT_STREQ(result, "1000000000");
-    free(result);
-
-    result = bstbox_to_string(-1000000000);
-    EXPECT_STREQ(result, "-1000000000");
-    free(result);
-}
-

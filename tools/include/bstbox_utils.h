@@ -1,5 +1,5 @@
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef _BSTBOX_UTILS_H_
+#define _BSTBOX_UTILS_H_
 
 char* bstbox_to_string(int value);
 

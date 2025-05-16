@@ -1,6 +1,6 @@
 #include "bt_box.h"
 #include "bstbox_utils.h"
-#include "bstbox_io.h"
+#include "bstbox_input.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -380,7 +380,7 @@ BTNode* btbox_restore_tree(FILE* file) {
     LinkedListEntry_BTBoxRestoreNode *list = NULL;
     BTBoxRestoreNode *rootInfo = NULL;
     // First loop: find the root node.
-    do {
+    while (!feof(file)) {
         buffer = bstbox_read_line(file, &bufferSize); // Replace getline
         len = buffer ? bufferSize : -1;
         list = restore_nodes(buffer, len);
@@ -397,7 +397,7 @@ BTNode* btbox_restore_tree(FILE* file) {
             }
             break;
         }
-    } while (!feof(file));
+    };
 
     if (rootInfo == NULL) {
         return NULL;
@@ -408,7 +408,7 @@ BTNode* btbox_restore_tree(FILE* file) {
     // Second loop: parse nodes in each levels and connect to their parent above.
     Queue_BTBoxRestoreNode *queue = queue_create();
     queue_push(queue, rootInfo);
-    do {
+    while (!feof(file) && queue->head != NULL) {
         // 1. Parse information of nodes on a line.
         buffer = bstbox_read_line(file, &bufferSize);
         len = buffer ? bufferSize : -1;
@@ -450,7 +450,7 @@ BTNode* btbox_restore_tree(FILE* file) {
             free(current);
             current = next;
         }
-    } while (queue->head != NULL);
+    };
 
 clean_up:
     free(queue); // queue is already empty here
@@ -467,6 +467,9 @@ BTBoxRestoreNode* create_restore_node() {
 }
 
 LinkedListEntry_BTBoxRestoreNode* restore_nodes(char* buffer, int len) {
+    if (buffer == NULL) {
+        return NULL;
+    }
     LinkedListEntry_BTBoxRestoreNode* list = NULL;
     int detectNum = 0;
     int c = 1;
