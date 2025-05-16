@@ -225,6 +225,38 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_Randomized15Nodes) {
     EXPECT_EQ(tree->right->right->right->value, 474209835);
 }
 
+TEST_F(BSTBoxTest, RestoreTree_Valid_OneNodeAndLeftChild) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_OneNodeAndLeftChild.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1);
+    EXPECT_EQ(tree->right, nullptr);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, 1);
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Valid_OneNodeAndRightChild) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_OneNodeAndRightChild.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1);
+    EXPECT_EQ(tree->left, nullptr);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 1);
+}
+
 string readFileContent(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {

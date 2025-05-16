@@ -1,13 +1,13 @@
 #include "bstbox_input.h"
 #include "gtest/gtest.h"
 
-class IoTest : public ::testing::Test {
+class InputTest : public ::testing::Test {
 };
 
-TEST(IoTest, ReadInputInts_ValidInput) {
+TEST(InputTest, ReadInputInts_ValidInput) {
     char input[] = "10 20 30 40 50 60 70 80 90 100\n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 10);
@@ -24,10 +24,10 @@ TEST(IoTest, ReadInputInts_ValidInput) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_PartialInput) {
+TEST(InputTest, ReadInputInts_PartialInput) {
     char input[] = "5 10 15 20\n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 4);
@@ -38,20 +38,20 @@ TEST(IoTest, ReadInputInts_PartialInput) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_NoInput) {
+TEST(InputTest, ReadInputInts_NoInput) {
     char input[] = "\n";
 
-    int size = 4;
+    size_t size = 4;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(IoTest, ReadInputInts_ExcessNumberOfValues) {
+TEST(InputTest, ReadInputInts_ExcessNumberOfValues) {
     char input[] = "1 2 3 4 5 6\n";
 
-    int size = 4;
+    size_t size = 4;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 6);
@@ -64,10 +64,10 @@ TEST(IoTest, ReadInputInts_ExcessNumberOfValues) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_InvalidNumbersInFront) {
+TEST(InputTest, ReadInputInts_InvalidNumbersInFront) {
     char input[] = "abc 123 def 456 ghi 789\n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 3);
@@ -77,10 +77,10 @@ TEST(IoTest, ReadInputInts_InvalidNumbersInFront) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_NegativeAndDecimal) {
+TEST(InputTest, ReadInputInts_NegativeAndDecimal) {
     char input[] = "42 -15 0 3.14 100\n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 6);
@@ -93,30 +93,30 @@ TEST(IoTest, ReadInputInts_NegativeAndDecimal) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_EmptyString) {
+TEST(InputTest, ReadInputInts_EmptyString) {
     char input[] = "";
 
-    int size = 5;
+    size_t size = 5;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(IoTest, ReadInputInts_SpacesOnly) {
+TEST(InputTest, ReadInputInts_SpacesOnly) {
     char input[] = "     \n";
 
-    int size = 5;
+    size_t size = 5;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
 }
 
-TEST(IoTest, ReadInputInts_SpecialCharacters) {
+TEST(InputTest, ReadInputInts_SpecialCharacters) {
     char input[] = "!@# $%^ &*(123)\n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 1);
@@ -124,10 +124,10 @@ TEST(IoTest, ReadInputInts_SpecialCharacters) {
     free(arr);
 }
 
-TEST(IoTest, ReadInputInts_MultipleSeparatingSpaces) {
+TEST(InputTest, ReadInputInts_MultipleSeparatingSpaces) {
     char input[] = "   12   abc   -34  56.78   90   xyz   \n";
 
-    int size = 10;
+    size_t size = 10;
     int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 5);

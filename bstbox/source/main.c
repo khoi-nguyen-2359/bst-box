@@ -279,7 +279,7 @@ char* print_action_menu() {
         "    > I[M]port from text file.\n"
         "    > [Q]uit.\n"
         "Please enter your choice: [LETTER] [SPACE] [ARGUMENTS] [ENTER]\n"
-        "Example: \"I 1 2 3\" to insert 3 nodes, \"E tree.txt\" to export file.\n",
+        "Example: \"I 1 2 3\" to insert 3 nodes, \"E tree.txt\" to export to file.\n",
         FLAG_SIDES | FLAG_BOTTOM);
 
     char* input = NULL;
