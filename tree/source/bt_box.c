@@ -43,73 +43,73 @@ typedef struct BTBoxRestoreNode {
     int rightChild; // 0 for having no right child, 1 otherwise
 } BTBoxRestoreNode;
 
-#define DEFINE_QUEUE(__TYPE__) \
-typedef struct LinkedListEntry_##__TYPE__ { \
-    __TYPE__ *data; \
-    struct LinkedListEntry_##__TYPE__ *next; \
-} LinkedListEntry_##__TYPE__; \
-\
-typedef struct Queue_##__TYPE__ { \
-    LinkedListEntry_##__TYPE__ *head; \
-    LinkedListEntry_##__TYPE__ *tail; \
-} Queue_##__TYPE__; \
-static LinkedListEntry_##__TYPE__* linkedlist_create_entry(__TYPE__ *data) { \
-    LinkedListEntry_##__TYPE__ *entry = (LinkedListEntry_##__TYPE__*)malloc(sizeof(LinkedListEntry_##__TYPE__)); \
-    if (!entry) { \
-        return NULL; \
-    } \
-    entry->data = data; \
-    entry->next = NULL; \
-    return entry; \
-} \
-static Queue_##__TYPE__ * queue_create() {\
-    Queue_##__TYPE__ *queue = (Queue_##__TYPE__*)malloc(sizeof(Queue_##__TYPE__)); \
-    if (!queue) { \
-        return NULL; \
-    } \
-    queue->head = NULL; \
-    queue->tail = NULL; \
-    return queue; \
-} \
-static void queue_push(Queue_##__TYPE__ *queue, __TYPE__ *data) { \
-    if (!queue) { \
-        return; \
-    } \
-    LinkedListEntry_##__TYPE__ *entry = linkedlist_create_entry(data); \
-    if (!entry) { \
-        return; \
-    } \
-    if (queue->tail == NULL) { \
-        queue->head = queue->tail = entry; \
-    } else { \
-        queue->tail->next = entry; \
-        queue->tail = entry; \
-    } \
-} \
-static __TYPE__* queue_pop(Queue_##__TYPE__ *queue) { \
-    if (!queue || queue->head == NULL) { \
-        return NULL; \
-    } \
-    LinkedListEntry_##__TYPE__ *popped = queue->head; \
-    queue->head = queue->head->next; \
-    if (queue->head == NULL) { \
-        queue->tail = NULL; \
-    } \
-    __TYPE__* poppedData = popped->data; \
-    free(popped); \
-    return poppedData; \
+typedef struct RestoreLinkedListEntry {
+    BTBoxRestoreNode *data;
+    struct RestoreLinkedListEntry *next;
+} RestoreLinkedListEntry;
+
+typedef struct RestoreQueue {
+    RestoreLinkedListEntry *head;
+    RestoreLinkedListEntry *tail;
+} RestoreQueue;
+
+static RestoreLinkedListEntry* linkedlist_create_entry(BTBoxRestoreNode *data) {
+    RestoreLinkedListEntry *entry = (RestoreLinkedListEntry*)malloc(sizeof(RestoreLinkedListEntry));
+    if (!entry) {
+        return NULL;
+    }
+    entry->data = data;
+    entry->next = NULL;
+    return entry;
 }
 
-DEFINE_QUEUE(BTBoxRestoreNode);
+static RestoreQueue* queue_create() {
+    RestoreQueue *queue = (RestoreQueue*)malloc(sizeof(RestoreQueue));
+    if (!queue) {
+        return NULL;
+    }
+    queue->head = NULL;
+    queue->tail = NULL;
+    return queue;
+}
 
-static void linkedlist_free(LinkedListEntry_BTBoxRestoreNode *list) {
+static void queue_push(RestoreQueue *queue, BTBoxRestoreNode *data) {
+    if (!queue) {
+        return;
+    }
+    RestoreLinkedListEntry *entry = linkedlist_create_entry(data);
+    if (!entry) {
+        return;
+    }
+    if (queue->tail == NULL) {
+        queue->head = queue->tail = entry;
+    } else {
+        queue->tail->next = entry;
+        queue->tail = entry;
+    }
+}
+
+static BTBoxRestoreNode* queue_pop(RestoreQueue *queue) {
+    if (!queue || queue->head == NULL) {
+        return NULL;
+    }
+    RestoreLinkedListEntry *popped = queue->head;
+    queue->head = queue->head->next;
+    if (queue->head == NULL) {
+        queue->tail = NULL;
+    }
+    BTBoxRestoreNode* poppedData = popped->data;
+    free(popped);
+    return poppedData;
+}
+
+static void linkedlist_free(RestoreLinkedListEntry *list) {
     if (list == NULL) {
         return;
     }
-    LinkedListEntry_BTBoxRestoreNode *current = list;
+    RestoreLinkedListEntry *current = list;
     while (current != NULL) {
-        LinkedListEntry_BTBoxRestoreNode *next = current->next;
-        free(current->data->node);
+        RestoreLinkedListEntry *next = current->next;
         free(current->data);
         free(current);
         current = next;
@@ -125,7 +125,7 @@ static int get_box_center_x(BTBox* node, int offset);
 
 static int search_arm(char *line, int len, int start, int step);
 static BTBoxRestoreNode* create_restore_node();
-static LinkedListEntry_BTBoxRestoreNode* restore_nodes(char* line, int len);
+static RestoreLinkedListEntry* restore_nodes(char* line, int len);
 
 // Return width of the node, or zero if node is null.
 static inline int get_width(BTBox* node) {
@@ -375,15 +375,13 @@ int get_box_center_x(BTBox* node, int offset) {
 BTNode* btbox_restore_tree(FILE* file) {
     char *buffer = NULL;
     size_t bufferSize = 0;
-    ssize_t len = 0;
 
-    LinkedListEntry_BTBoxRestoreNode *list = NULL;
+    RestoreLinkedListEntry *list = NULL;
     BTBoxRestoreNode *rootInfo = NULL;
     // First loop: find the root node.
     while (!feof(file)) {
         buffer = bstbox_read_line(file, &bufferSize); // Replace getline
-        len = buffer ? bufferSize : -1;
-        list = restore_nodes(buffer, len);
+        list = restore_nodes(buffer, bufferSize);
         free(buffer);
         buffer = NULL;
         if (list != NULL) {
@@ -406,13 +404,12 @@ BTNode* btbox_restore_tree(FILE* file) {
     BTNode *root = rootInfo->node; // keep the root for something to return
 
     // Second loop: parse nodes in each levels and connect to their parent above.
-    Queue_BTBoxRestoreNode *queue = queue_create();
+    RestoreQueue *queue = queue_create();
     queue_push(queue, rootInfo);
     while (!feof(file) && queue->head != NULL) {
         // 1. Parse information of nodes on a line.
         buffer = bstbox_read_line(file, &bufferSize);
-        len = buffer ? bufferSize : -1;
-        list = restore_nodes(buffer, len);
+        list = restore_nodes(buffer, bufferSize);
         free(buffer);
         buffer = NULL;
         if (list == NULL) {
@@ -421,7 +418,7 @@ BTNode* btbox_restore_tree(FILE* file) {
         }
 
         // 2. Connect each node on this level with its parent node in the queue.
-        LinkedListEntry_BTBoxRestoreNode *current = list;
+        RestoreLinkedListEntry *current = list;
         while (queue->head != NULL) {
             BTBoxRestoreNode *parent = queue_pop(queue);
             if (parent->leftChild && current != NULL) {
@@ -446,14 +443,15 @@ BTNode* btbox_restore_tree(FILE* file) {
                 // don't need to process nodes without children
                 free(current->data);
             }
-            LinkedListEntry_BTBoxRestoreNode *next = current->next;
+            RestoreLinkedListEntry *next = current->next;
             free(current);
             current = next;
         }
     };
 
 clean_up:
-    free(queue); // queue is already empty here
+    linkedlist_free(queue->head); // queue might not be empty here
+    free(queue);
 
     return root;
 }
@@ -466,11 +464,11 @@ BTBoxRestoreNode* create_restore_node() {
     return node;
 }
 
-LinkedListEntry_BTBoxRestoreNode* restore_nodes(char* buffer, int len) {
+RestoreLinkedListEntry* restore_nodes(char* buffer, int len) {
     if (buffer == NULL) {
         return NULL;
     }
-    LinkedListEntry_BTBoxRestoreNode* list = NULL;
+    RestoreLinkedListEntry* list = NULL;
     int detectNum = 0;
     int c = 1;
     int numStart = -1, numEnd = -1;
@@ -496,7 +494,7 @@ LinkedListEntry_BTBoxRestoreNode* restore_nodes(char* buffer, int len) {
                 node->rightChild = search_arm(buffer, len, numEnd + 1, 1);
                 node->node = btbox_create_node(detectNum);
 
-                LinkedListEntry_BTBoxRestoreNode* entry = linkedlist_create_entry(node);
+                RestoreLinkedListEntry* entry = linkedlist_create_entry(node);
                 entry->next = list;
                 list = entry;
 

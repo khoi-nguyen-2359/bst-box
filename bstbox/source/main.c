@@ -9,7 +9,7 @@
 #include <time.h>
 
 // Width of the decoration frame for action menu and texts
-#define FRAME_WIDTH 60
+#define FRAME_WIDTH 70
 
 // Flags indicate which sides a text should be bound in a frame
 #define FLAG_TOP        0x01
@@ -18,8 +18,6 @@
 #define FLAG_BOTTOM     0x08
 #define FLAG_SIDES      (FLAG_LEFT | FLAG_RIGHT)
 #define FLAG_CLOSED     (FLAG_TOP | FLAG_LEFT | FLAG_RIGHT | FLAG_BOTTOM)
-
-#define MAX_INTS_INPUT 100
 
 #pragma region Function Declarations
 
@@ -152,9 +150,9 @@ void create_random_tree(AVLNode** root, char* input) {
  * @param root Tree's root node, will be allocated before insertion if null.
  */
 void insert_nodes(AVLNode** root, char* input) {
-    int size = MAX_INTS_INPUT;
+    size_t size = 0;
     int* ints = bstbox_read_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
-    printf("Inserting %d integers.\n", size);
+    printf("Inserting %lu integers.\n", size);
     avl_insert_nodes(root, ints, size);
     free(ints);
     print_tree(*root);
@@ -170,9 +168,9 @@ void delete_nodes(AVLNode** root, char* input) {
     if (!verify_tree_content(*root)) {
         return;
     }
-    int size = MAX_INTS_INPUT;
+    size_t size = 0;
     int* ints = bstbox_read_ints(input + 2, &size);
-    printf("Removing %d integers.\n", size);
+    printf("Removing %lu integers.\n", size);
     for (int i = 0; i < size; ++i) {
         avl_remove_node(root, ints[i]);
     }
@@ -280,7 +278,8 @@ char* print_action_menu() {
         "    > [E]xport to text file.\n"
         "    > I[M]port from text file.\n"
         "    > [Q]uit.\n"
-        "Please enter your choice: [C|I|D|V|R|E|Q][ENTER]\n",
+        "Please enter your choice: [LETTER] [SPACE] [ARGUMENTS] [ENTER]\n"
+        "Example: \"I 1 2 3\" to insert 3 nodes, \"E tree.txt\" to export file.\n",
         FLAG_SIDES | FLAG_BOTTOM);
 
     char* input = NULL;

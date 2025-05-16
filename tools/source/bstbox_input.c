@@ -10,7 +10,7 @@
  * @param size Pointer to store the number of integers read.
  * @return Dynamically allocated array of integers, or NULL if no integers are found.
  */
-int* bstbox_read_ints(char* input, int *size) {
+int* bstbox_read_ints(char* input, size_t *size) {
     if (!input || !size) {
         return NULL;
     }
@@ -80,13 +80,13 @@ int* bstbox_read_ints(char* input, int *size) {
  * @param len Pointer to store the length of the line read.
  * @return Dynamically allocated string containing the line, or NULL on failure.
  */
-char* bstbox_read_line(FILE* file, size_t* len) {
-    if (!file || !len) {
+char* bstbox_read_line(FILE* file, size_t* size) {
+    if (!file) {
         return NULL;
     }
 
-    size_t capacity = 128; // Initial buffer size
-    size_t size = 0;
+    int capacity = 128; // Initial buffer size
+    *size = 0;
     char* buffer = (char*)malloc(capacity);
     if (!buffer) {
         return NULL;
@@ -94,7 +94,7 @@ char* bstbox_read_line(FILE* file, size_t* len) {
 
     int ch;
     while ((ch = fgetc(file)) != EOF) {
-        if (size + 1 >= capacity) {
+        if (*size + 1 >= capacity) {
             capacity *= 2;
             char* temp = (char*)realloc(buffer, capacity);
             if (!temp) {
@@ -103,7 +103,7 @@ char* bstbox_read_line(FILE* file, size_t* len) {
             }
             buffer = temp;
         }
-        buffer[size++] = (char)ch;
+        buffer[(*size)++] = (char)ch;
         if (ch == '\n') {
             break;
         }
@@ -114,7 +114,6 @@ char* bstbox_read_line(FILE* file, size_t* len) {
         return NULL;
     }
 
-    buffer[size] = '\0';
-    *len = size;
+    buffer[*size] = '\0';
     return buffer;
 }

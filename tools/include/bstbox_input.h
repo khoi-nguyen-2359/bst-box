@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-int* bstbox_read_ints(char* input, int *size);
+int* bstbox_read_ints(char* input, size_t *size);
 char* bstbox_read_line(FILE* file, size_t* len);
 
 #endif
