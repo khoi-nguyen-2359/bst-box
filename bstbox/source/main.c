@@ -1,6 +1,6 @@
 #include "avl_tree.h"
 #include "bt_box.h"
-#include "utils.h"
+#include "bstbox_io.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -153,7 +153,7 @@ void create_random_tree(AVLNode** root, char* input) {
  */
 void insert_nodes(AVLNode** root, char* input) {
     int size = MAX_INTS_INPUT;
-    int* ints = bstbox_read_input_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
+    int* ints = bstbox_read_ints(input + 2, &size); // Skip the first two characters, which are 'I' and a space.
     printf("Inserting %d integers.\n", size);
     avl_insert_nodes(root, ints, size);
     free(ints);
@@ -171,7 +171,7 @@ void delete_nodes(AVLNode** root, char* input) {
         return;
     }
     int size = MAX_INTS_INPUT;
-    int* ints = bstbox_read_input_ints(input + 2, &size);
+    int* ints = bstbox_read_ints(input + 2, &size);
     printf("Removing %d integers.\n", size);
     for (int i = 0; i < size; ++i) {
         avl_remove_node(root, ints[i]);
@@ -213,14 +213,14 @@ void export_to_file(AVLNode* root, char* input) {
         return;
     }
 
-    char* fileName = strndup(input + 2, strlen(input) - 3); // Remove two chars at the beginning and the line break at the end of the input.
+    char c, fileName[strlen(input)];
+    sscanf(input, "%c %s", &c, fileName);
     printf("Writing current tree content to file \"%s\"\n", fileName);
 
     FILE* file = fopen(fileName, "w");
 
     if (!file) {
         printf("Error opening file \"%s\"\n", fileName);
-        free(fileName);
         return;
     }
 
@@ -232,7 +232,6 @@ void export_to_file(AVLNode* root, char* input) {
     printf("File exported successfully at %s\n", fileName);
 
     fclose(file);
-    free(fileName);
     btbox_free_tree(box);
     btbox_free_node(btRoot);
 }
@@ -286,7 +285,7 @@ char* print_action_menu() {
 
     char* input = NULL;
     size_t inputLen = 0;
-    size_t read = getline(&input, &inputLen, stdin);
+    input = bstbox_read_line(stdin, &inputLen);
     return input;
 }
 
@@ -353,13 +352,13 @@ int rand_range(int min, int max) {
 }
 
 void import_from_file(AVLNode** root, char* input) {
-    char* fileName = strndup(input + 2, strlen(input) - 3); // Remove two chars at the beginning and the line break at the end of the input.
+    char c, fileName[strlen(input)];
+    sscanf(input, "%c %s", &c, fileName);
     printf("Reading tree content from file \"%s\"\n", fileName);
 
     FILE *file = fopen(fileName, "r");
     if (file == NULL) {
         printf("Error opening file %s\n. Stop.", fileName);
-        free(fileName);
         return;
     }
 
@@ -371,7 +370,6 @@ void import_from_file(AVLNode** root, char* input) {
     print_tree(*root);
 
     fclose(file);
-    free(fileName);
     btbox_free_node(btRoot);
     avl_free_tree(&temp); // Free the old tree after replacing it with the new one.
 }

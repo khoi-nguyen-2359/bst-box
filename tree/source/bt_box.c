@@ -1,5 +1,6 @@
 #include "bt_box.h"
-#include "utils.h"
+#include "bstbox_utils.h"
+#include "bstbox_io.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -380,7 +381,8 @@ BTNode* btbox_restore_tree(FILE* file) {
     BTBoxRestoreNode *rootInfo = NULL;
     // First loop: find the root node.
     do {
-        len = getline(&buffer, &bufferSize, file);
+        buffer = bstbox_read_line(file, &bufferSize); // Replace getline
+        len = buffer ? bufferSize : -1;
         list = restore_nodes(buffer, len);
         free(buffer);
         buffer = NULL;
@@ -408,7 +410,8 @@ BTNode* btbox_restore_tree(FILE* file) {
     queue_push(queue, rootInfo);
     do {
         // 1. Parse information of nodes on a line.
-        len = getline(&buffer, &bufferSize, file);
+        buffer = bstbox_read_line(file, &bufferSize);
+        len = buffer ? bufferSize : -1;
         list = restore_nodes(buffer, len);
         free(buffer);
         buffer = NULL;

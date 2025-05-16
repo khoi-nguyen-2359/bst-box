@@ -8,7 +8,7 @@ TEST(UtilsTest, ReadInputInts_ValidInput) {
     char input[] = "10 20 30 40 50 60 70 80 90 100\n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 10);
     EXPECT_EQ(arr[0], 10);
@@ -28,7 +28,7 @@ TEST(UtilsTest, ReadInputInts_PartialInput) {
     char input[] = "5 10 15 20\n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 4);
     EXPECT_EQ(arr[0], 5);
@@ -42,7 +42,7 @@ TEST(UtilsTest, ReadInputInts_NoInput) {
     char input[] = "\n";
 
     int size = 4;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
@@ -52,7 +52,7 @@ TEST(UtilsTest, ReadInputInts_ExcessNumberOfValues) {
     char input[] = "1 2 3 4 5 6\n";
 
     int size = 4;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 4);
     EXPECT_EQ(arr[0], 1);
@@ -66,7 +66,7 @@ TEST(UtilsTest, ReadInputInts_InvalidNumbersInFront) {
     char input[] = "abc 123 def 456 ghi 789\n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 3);
     EXPECT_EQ(arr[0], 123);
@@ -79,7 +79,7 @@ TEST(UtilsTest, ReadInputInts_NegativeAndDecimal) {
     char input[] = "42 -15 0 3.14 100\n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 6);
     EXPECT_EQ(arr[0], 42);
@@ -95,7 +95,7 @@ TEST(UtilsTest, ReadInputInts_EmptyString) {
     char input[] = "";
 
     int size = 5;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
@@ -105,7 +105,7 @@ TEST(UtilsTest, ReadInputInts_SpacesOnly) {
     char input[] = "     \n";
 
     int size = 5;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 0);
     EXPECT_EQ(arr, nullptr);
@@ -115,7 +115,7 @@ TEST(UtilsTest, ReadInputInts_SpecialCharacters) {
     char input[] = "!@# $%^ &*() 123\n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 1);
     EXPECT_EQ(arr[0], 123);
@@ -126,7 +126,7 @@ TEST(UtilsTest, ReadInputInts_MultipleSeparatingSpaces) {
     char input[] = "   12   abc   -34  56.78   90   xyz   \n";
 
     int size = 10;
-    int *arr = bstbox_read_input_ints(input, &size);
+    int *arr = bstbox_read_ints(input, &size);
 
     EXPECT_EQ(size, 5);
     EXPECT_EQ(arr[0], 12);

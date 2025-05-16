@@ -1,31 +1,15 @@
-#include "utils.h"
+#include "bstbox_io.h"
+#include "bstbox_utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-char* bstbox_to_string(int value) {
-    const int max = 11;
-    char* buffer = (char*)malloc(max + 1); // 32 bits int can be represented in 11 digits + 1 for null terminator
-    if (buffer == NULL) {
-        return NULL;
-    }
-    int actual = snprintf(buffer, max + 1, "%d", value);
-    if (actual < max) {
-        char* temp = (char*)realloc(buffer, actual + 1);
-        if (temp && temp != buffer) {
-            buffer = temp;
-        }
-    }
-
-    return buffer;
-}
 
 /**
  * @brief Read integers in input string.
  * @param input Input string.
  * @param size The expected number of integers read from the input string, could be trimmed down to the actual number.
  */
-int* bstbox_read_input_ints(char* input, int *size) {
+int* bstbox_read_ints(char* input, int *size) {
     if (*size <= 0) {
         return NULL;
     }
@@ -70,4 +54,49 @@ int* bstbox_read_input_ints(char* input, int *size) {
     }
 
     return values;
+}
+
+/**
+ * @brief Read a line from a file, dynamically allocating memory for the line.
+ * @param file Input file stream.
+ * @param len Pointer to store the length of the line read.
+ * @return Dynamically allocated string containing the line, or NULL on failure.
+ */
+char* bstbox_read_line(FILE* file, size_t* len) {
+    if (!file || !len) {
+        return NULL;
+    }
+
+    size_t capacity = 128; // Initial buffer size
+    size_t size = 0;
+    char* buffer = (char*)malloc(capacity);
+    if (!buffer) {
+        return NULL;
+    }
+
+    int ch;
+    while ((ch = fgetc(file)) != EOF) {
+        if (size + 1 >= capacity) {
+            capacity *= 2;
+            char* temp = (char*)realloc(buffer, capacity);
+            if (!temp) {
+                free(buffer);
+                return NULL;
+            }
+            buffer = temp;
+        }
+        buffer[size++] = (char)ch;
+        if (ch == '\n') {
+            break;
+        }
+    }
+
+    if (size == 0 && ch == EOF) {
+        free(buffer);
+        return NULL;
+    }
+
+    buffer[size] = '\0';
+    *len = size;
+    return buffer;
 }
