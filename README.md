@@ -53,17 +53,21 @@ Currently the program demonstrates how AVL Tree changes through out insertion an
 
 | **Technology**         | **Description**                                   |
 |-------------------------|---------------------------------------------------|
-| **Programming Language**| C++ 11                                             |
+| **Programming Language**| C                                             |
 | **Testing Framework**   | Google Test                     |
-| **Version Control**     | Git for source code management                   |
 
-## Future Enhancements
-- **Visualization**: 
-   - Show tree changes step-by-step for each insertion and deletion.
-   - Add different drawing styles for nodes and connection arms.
-   - Support non-monospaced font types for sharing over different apps.
-- **BST Types**: Implement different BST balancing methods.
-- **Sharing**:
-   - Export to different content types (now only text file supported).
-   - Allow reading tree content from file.
-- **Performance**: Optimize drawing buffer memory.
+## Features & Future Enhancements
+
+| Feature / Enhancement                                      | Status      |
+|------------------------------------------------------------|-------------|
+| Visualize Binary Search Tree (BST) in console UI           | ✅  |
+| ASCII-based tree drawing                                   | ✅  |
+| AVL Tree insertion and deletion visualization              | ✅  |
+| Export output to text file                                 | ✅  |
+| Read tree content from file                                | ✅  |
+| Export to various content types                            | ⬜  |
+| Implement different BST balancing methods                  | ⬜  |
+| Step-by-step tree changes for each operation               | ⬜  |
+| Multiple drawing styles for nodes and connections          | ⬜  |
+| Support for non-monospaced fonts                           | ⬜  |
+| Optimize drawing buffer memory                             | ⬜  |
