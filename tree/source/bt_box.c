@@ -107,12 +107,13 @@ static void linkedlist_free(RestoreLinkedListEntry *list) {
     if (list == NULL) {
         return;
     }
-    RestoreLinkedListEntry *current = list;
-    while (current != NULL) {
-        RestoreLinkedListEntry *next = current->next;
-        free(current->data);
-        free(current);
-        current = next;
+    RestoreLinkedListEntry *curr = list;
+    while (curr != NULL) {
+        RestoreLinkedListEntry *next = curr->next;
+        free(curr->data->node);
+        free(curr->data);
+        free(curr);
+        curr = next;
     }
 }
 
@@ -125,7 +126,9 @@ static int get_box_center_x(BTBox* node, int offset);
 
 static int search_arm(char *line, int len, int start, int step);
 static BTBoxRestoreNode* create_restore_node();
-static RestoreLinkedListEntry* restore_nodes(char* line, int len);
+static RestoreLinkedListEntry* restore_nodes(FILE *file);
+static BTBoxRestoreNode* find_root_node(FILE *file);
+static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file);
 
 // Return width of the node, or zero if node is null.
 static inline int get_width(BTBox* node) {
@@ -373,87 +376,89 @@ int get_box_center_x(BTBox* node, int offset) {
  * @return The binary tree, or NULL if malformed input is given.
  */
 BTNode* btbox_restore_tree(FILE* file) {
-    char *buffer = NULL;
-    size_t bufferSize = 0;
-
-    RestoreLinkedListEntry *list = NULL;
-    BTBoxRestoreNode *rootInfo = NULL;
     // First loop: find the root node.
-    while (!feof(file)) {
-        buffer = bstbox_read_line(file, &bufferSize); // Replace getline
-        list = restore_nodes(buffer, bufferSize);
-        free(buffer);
-        buffer = NULL;
-        if (list != NULL) {
-            if (list->next == NULL) {
-                // the root is found
-                rootInfo = list->data;
-                free(list);
-            } else {
-                // malformed input, multiple nodes found
-                linkedlist_free(list);
-            }
-            break;
-        }
-    };
-
-    if (rootInfo == NULL) {
+    BTBoxRestoreNode *rootInfo = find_root_node(file);
+    if (!rootInfo) {
         return NULL;
     }
-    
     BTNode *root = rootInfo->node; // keep the root for something to return
+    if (!rootInfo->leftChild && !rootInfo->rightChild) {
+        free(rootInfo);
+        return root;
+    }
 
+    parse_child_nodes(rootInfo, file);
+
+    return root;
+}
+
+static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file) {
+    RestoreLinkedListEntry* restoredChilds = NULL;
     // Second loop: parse nodes in each levels and connect to their parent above.
-    RestoreQueue *queue = queue_create();
+    RestoreQueue* queue = queue_create();
     queue_push(queue, rootInfo);
     while (!feof(file) && queue->head != NULL) {
-        // 1. Parse information of nodes on a line.
-        buffer = bstbox_read_line(file, &bufferSize);
-        list = restore_nodes(buffer, bufferSize);
-        free(buffer);
-        buffer = NULL;
-        if (list == NULL) {
-            // this line doesn't contain any nodes
+        if ((restoredChilds = restore_nodes(file)) == NULL) {
             continue;
         }
 
-        // 2. Connect each node on this level with its parent node in the queue.
-        RestoreLinkedListEntry *current = list;
+        RestoreLinkedListEntry *lastChild = restoredChilds;
         while (queue->head != NULL) {
-            BTBoxRestoreNode *parent = queue_pop(queue);
-            if (parent->leftChild && current != NULL) {
-                BTBoxRestoreNode *leftChild = current->data;
-                parent->node->left = leftChild->node;
-                current = current->next;
+            BTBoxRestoreNode* parent = queue_pop(queue);
+            if (parent->leftChild && lastChild != NULL) {
+                parent->node->left = lastChild->data->node;
+                lastChild = lastChild->next;
             }
-            if (parent->rightChild && current != NULL) {
-                BTBoxRestoreNode *rightChild = current->data;
-                parent->node->right = rightChild->node;
-                current = current->next;
+            if (parent->rightChild && lastChild != NULL) {
+                parent->node->right = lastChild->data->node;
+                lastChild = lastChild->next;
             }
             free(parent);
         }
-
-        // 3. Enqueue all nodes on this level for the next iteration.
-        current = list;
-        while (current != NULL) {
-            if (current->data->leftChild || current->data->rightChild) {
-                queue_push(queue, current->data);
-            } else {
-                // don't need to process nodes without children
-                free(current->data);
-            }
-            RestoreLinkedListEntry *next = current->next;
-            free(current);
-            current = next;
+        if (lastChild) {
+            // mis-match numbers of parents and children, skip the exceeded children
+            linkedlist_free(lastChild);
         }
-    };
 
-clean_up:
-    linkedlist_free(queue->head); // queue might not be empty here
+        RestoreLinkedListEntry *curr = restoredChilds;
+        while (curr != lastChild) {
+            if (curr->data->leftChild || curr->data->rightChild) {
+                queue_push(queue, curr->data);
+            } else {
+                free(curr->data);
+            }
+            RestoreLinkedListEntry* next = curr->next;
+            free(curr);
+            curr = next;
+        }
+    }
+
+    BTBoxRestoreNode* popped = NULL;
+    while ((popped = queue_pop(queue))) {
+        free(popped);
+    }
     free(queue);
+}
 
-    return root;
+/**
+ * @brief Helper function to find the root node from the file.
+ * @param file Text file in the export format.
+ * @return The root BTBoxRestoreNode, or NULL if malformed input is given.
+ */
+static BTBoxRestoreNode* find_root_node(FILE* file) {
+    RestoreLinkedListEntry *restoredNodes = NULL;
+    while (!feof(file) && (restoredNodes = restore_nodes(file)) == NULL);
+
+    if (restoredNodes == NULL || restoredNodes->next) {
+        // malformed input, multiple nodes found
+        linkedlist_free(restoredNodes);
+        return NULL;
+    }
+
+    // one single root is found
+    BTBoxRestoreNode *rootInfo = restoredNodes->data;
+    free(restoredNodes);
+    return rootInfo;
 }
 
 BTBoxRestoreNode* create_restore_node() {
@@ -464,7 +469,9 @@ BTBoxRestoreNode* create_restore_node() {
     return node;
 }
 
-RestoreLinkedListEntry* restore_nodes(char* buffer, int len) {
+RestoreLinkedListEntry* restore_nodes(FILE *file) {
+    size_t bufferSize = 0;
+    char* buffer = bstbox_read_line(file, &bufferSize);
     if (buffer == NULL) {
         return NULL;
     }
@@ -472,7 +479,7 @@ RestoreLinkedListEntry* restore_nodes(char* buffer, int len) {
     int detectNum = 0;
     int c = 1;
     int numStart = -1, numEnd = -1;
-    for (int i = len - 1; i >= 0; --i) {
+    for (int i = bufferSize - 1; i >= 0; --i) {
         if (bstbox_is_numeric(buffer[i])) {
             if (buffer[i] == '-') {
                 detectNum *= -1;
@@ -490,8 +497,8 @@ RestoreLinkedListEntry* restore_nodes(char* buffer, int len) {
             // a number detected, check if there're arms at two sides of it
             if (numStart != -1 && numEnd != -1) {
                 BTBoxRestoreNode *node = create_restore_node();
-                node->leftChild = search_arm(buffer, len, numStart - 1, -1);
-                node->rightChild = search_arm(buffer, len, numEnd + 1, 1);
+                node->leftChild = search_arm(buffer, bufferSize, numStart - 1, -1);
+                node->rightChild = search_arm(buffer, bufferSize, numEnd + 1, 1);
                 node->node = btbox_create_node(detectNum);
 
                 RestoreLinkedListEntry* entry = linkedlist_create_entry(node);
@@ -506,6 +513,7 @@ RestoreLinkedListEntry* restore_nodes(char* buffer, int len) {
         }
     }
 
+    free(buffer);
     return list;
 }
 

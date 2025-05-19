@@ -21,19 +21,19 @@ class BSTBoxTest : public ::testing::Test {
         }
 };
 
-TEST_F(BSTBoxTest, Draw_PerfectTree_2Levels) {
+TEST_F(BSTBoxTest, Print_Valid_CompleteTree_2Levels) {
     tree = btbox_create_node(2);
     tree->left = btbox_create_node(1);
     tree->right = btbox_create_node(3);
 
     box = btbox_create_tree(tree);
-    char outputPath[] = "Draw_Valid_PerfectTree_2Levels.output";
+    char outputPath[] = "Print_Valid_CompleteTree_2Levels.output";
     FILE *outputFile = fopen(outputPath, "w");
 
     btbox_print(outputFile, box);
 
     string output = readFileContent(outputPath);
-    string expect = readFileContent("../tree/test/btbox/Draw_Valid_PerfectTree_2Levels.expect");
+    string expect = readFileContent("../tree/test/btbox/Print_Valid_CompleteTree_2Levels.expect");
 
     EXPECT_EQ(output, expect);
 
@@ -41,20 +41,85 @@ TEST_F(BSTBoxTest, Draw_PerfectTree_2Levels) {
     remove(outputPath);
 }
 
-TEST_F(BSTBoxTest, Draw_Valid_LargeValues) {
+TEST_F(BSTBoxTest, Print_Valid_LargeValues) {
     tree = btbox_create_node(1000000000);
     tree->left = btbox_create_node(1);
     tree->right = btbox_create_node(1000000001);
     tree->left->left = btbox_create_node(-100000000);
 
     box = btbox_create_tree(tree);
-    char outputPath[] = "Draw_Valid_LargeValues.output";
+    char outputPath[] = "Print_Valid_LargeValues.output";
     FILE *outputFile = fopen(outputPath, "w");
 
     btbox_print(outputFile, box);
 
     string output = readFileContent(outputPath);
-    string expect = readFileContent("../tree/test/btbox/Draw_Valid_LargeValues.expect");
+    string expect = readFileContent("../tree/test/btbox/Print_Valid_LargeValues.expect");
+
+    EXPECT_EQ(output, expect);
+
+    fclose(outputFile);
+    remove(outputPath);
+}
+
+TEST_F(BSTBoxTest, Print_10Nodes) {
+    tree = btbox_create_node(285);
+    tree->left = btbox_create_node(-188048);
+    tree->left->left = btbox_create_node(-90012316);
+    tree->left->left->left = btbox_create_node(-366852902);
+    tree->left->right = btbox_create_node(-3311);
+    tree->left->right->left = btbox_create_node(-38413);
+    tree->left->right->right = btbox_create_node(29);
+    tree->right = btbox_create_node(8157435);
+    tree->right->left = btbox_create_node(210637);
+    tree->right->right = btbox_create_node(34868604);
+
+    box = btbox_create_tree(tree);
+    char outputPath[] = "Print_10Nodes.output";
+    FILE *outputFile = fopen(outputPath, "w");
+
+    btbox_print(outputFile, box);
+
+    string output = readFileContent(outputPath);
+    string expect = readFileContent("../tree/test/btbox/Print_10Nodes.expect");
+
+    EXPECT_EQ(output, expect);
+
+    fclose(outputFile);
+    remove(outputPath);
+}
+
+TEST_F(BSTBoxTest, Print_OneNodeWithLeftChild) {
+    tree = btbox_create_node(60192);
+    tree->left = btbox_create_node(-2314590);
+
+    box = btbox_create_tree(tree);
+    char outputPath[] = "Print_OneNodeWithLeftChild.output";
+    FILE *outputFile = fopen(outputPath, "w");
+
+    btbox_print(outputFile, box);
+
+    string output = readFileContent(outputPath);
+    string expect = readFileContent("../tree/test/btbox/Print_OneNodeWithLeftChild.expect");
+
+    EXPECT_EQ(output, expect);
+
+    fclose(outputFile);
+    remove(outputPath);
+}
+
+TEST_F(BSTBoxTest, Print_OneNodeWithRightChild) {
+    tree = btbox_create_node(-229184031);
+    tree->right = btbox_create_node(339);
+
+    box = btbox_create_tree(tree);
+    char outputPath[] = "Print_OneNodeWithRightChild.output";
+    FILE *outputFile = fopen(outputPath, "w");
+
+    btbox_print(outputFile, box);
+
+    string output = readFileContent(outputPath);
+    string expect = readFileContent("../tree/test/btbox/Print_OneNodeWithRightChild.expect");
 
     EXPECT_EQ(output, expect);
 
@@ -255,6 +320,79 @@ TEST_F(BSTBoxTest, RestoreTree_Valid_OneNodeAndRightChild) {
     EXPECT_EQ(tree->left, nullptr);
     EXPECT_NE(tree->right, nullptr);
     EXPECT_EQ(tree->right->value, 1);
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Invalid_EmptyTree) {
+    const char* inputPath = "../tree/test/btbox/Restore_Invalid_EmptyTree.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    EXPECT_EQ(tree, nullptr) << "Tree should be null for empty input file";
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Valid_IncompleteTree_WithRoot) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_IncompleteTree_WithRoot.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 1000000000);
+    EXPECT_EQ(tree->left, nullptr);
+    EXPECT_EQ(tree->right, nullptr);
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Invalid_IncompleteTree_WithoutRoot) {
+    const char* inputPath = "../tree/test/btbox/Restore_Invalid_IncompleteTree_WithoutRoot.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    EXPECT_EQ(tree, nullptr) << "Tree should be null for input file without root node";
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Valid_IncompleteTree_2Levels) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_IncompleteTree_2Levels.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 2);
+    EXPECT_EQ(tree->left, nullptr);
+    EXPECT_EQ(tree->right, nullptr);
+}
+
+TEST_F(BSTBoxTest, RestoreTree_Valid_MissingMidLevels) {
+    const char* inputPath = "../tree/test/btbox/Restore_Valid_MissingMidLevels.input";
+
+    FILE* inputFile = fopen(inputPath, "r");
+    ASSERT_NE(inputFile, nullptr) << "Failed to open input file";
+
+    tree = btbox_restore_tree(inputFile);
+    fclose(inputFile);
+
+    ASSERT_NE(tree, nullptr);
+    EXPECT_EQ(tree->value, 2015);
+    EXPECT_NE(tree->left, nullptr);
+    EXPECT_EQ(tree->left->value, -103024993);
+    EXPECT_NE(tree->right, nullptr);
+    EXPECT_EQ(tree->right->value, 1);
+    EXPECT_NE(tree->right->left, nullptr);
+    EXPECT_EQ(tree->right->left->value, -3);
 }
 
 string readFileContent(const std::string& path) {
