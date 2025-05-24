@@ -64,6 +64,26 @@ TEST(InputTest, ReadInputInts_ExcessNumberOfValues) {
     free(arr);
 }
 
+TEST(InputTest, ReadInputInts_CommaSeparatedInts) {
+    char input[] = "1, 2, 3, 4, 5, 6, 7, 8, 9, 10,\n";
+
+    size_t size = 0;
+    int *arr = bstbox_read_ints(input, &size);
+
+    EXPECT_EQ(size, 10);
+    EXPECT_EQ(arr[0], 1);
+    EXPECT_EQ(arr[1], 2);
+    EXPECT_EQ(arr[2], 3);
+    EXPECT_EQ(arr[3], 4);
+    EXPECT_EQ(arr[4], 5);
+    EXPECT_EQ(arr[5], 6);
+    EXPECT_EQ(arr[6], 7);
+    EXPECT_EQ(arr[7], 8);
+    EXPECT_EQ(arr[8], 9);
+    EXPECT_EQ(arr[9], 10);
+    free(arr);
+}
+
 TEST(InputTest, ReadInputInts_InvalidNumbersInFront) {
     char input[] = "abc 123 def 456 ghi 789\n";
 
@@ -136,5 +156,17 @@ TEST(InputTest, ReadInputInts_MultipleSeparatingSpaces) {
     EXPECT_EQ(arr[2], 56);
     EXPECT_EQ(arr[3], 78);
     EXPECT_EQ(arr[4], 90);
+    free(arr);
+}
+
+
+TEST(InputTest, ReadInputInts_MultipleLines) {
+    char input[] = "   12 \n  abc   \n -34 \n";
+
+    size_t size = 0;
+    int *arr = bstbox_read_ints(input, &size);
+
+    EXPECT_EQ(size, 1);
+    EXPECT_EQ(arr[0], 12);
     free(arr);
 }

@@ -4,8 +4,11 @@
 #include <string.h>
 #include <stdio.h>
 
+static inline int is_not_eol(char c);
+static inline int is_eol(char c);
+
 /**
- * @brief Read integers in input string, dynamically growing the output array as needed.
+ * @brief Read integers from the first line of the input string, dynamically growing the output array as needed.
  * @param input Input string.
  * @param size Pointer to store the number of integers read.
  * @return Dynamically allocated array of integers, or NULL if no integers are found.
@@ -25,13 +28,13 @@ int* bstbox_read_ints(char* input, size_t *size) {
     char *current = input;
     *size = 0;
 
-    while (*current != '\0') {
+    while (is_not_eol(*current)) {
         // Skip non-numeric characters
-        while (*current != '\0' && !bstbox_is_numeric(*current)) {
+        while (is_not_eol(*current) && !bstbox_is_numeric(*current)) {
             ++current;
         }
 
-        if (*current == '\0') {
+        if (is_eol(*current)) {
             break;
         }
 
@@ -55,7 +58,7 @@ int* bstbox_read_ints(char* input, size_t *size) {
         values[(*size)++] = value;
 
         // Move to the next potential integer
-        while (*current != '\0' && bstbox_is_numeric(*current)) {
+        while (is_not_eol(*current) && bstbox_is_numeric(*current)) {
             ++current;
         }
     }
@@ -116,4 +119,12 @@ char* bstbox_read_line(FILE* file, size_t* size) {
 
     buffer[*size] = '\0';
     return buffer;
+}
+
+static inline int is_eol(char c) {
+    return c == '\0' || c == '\n';
+}
+
+static inline int is_not_eol(char c) {
+    return !is_eol(c);
 }

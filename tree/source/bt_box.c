@@ -37,24 +37,24 @@
 #define ARM_L_JUNCTION LINE_VERT_2
 #define ARM_T_JUNCTION LINE_VERT_2
 
-typedef struct BTBoxRestoreNode {
+typedef struct BTBoxRestoredNode {
     BTNode* node;
     int leftChild; // 0 for having no left child, 1 otherwise
     int rightChild; // 0 for having no right child, 1 otherwise
-} BTBoxRestoreNode;
+} BTBoxRestoredNode;
 
-typedef struct RestoreLinkedListEntry {
-    BTBoxRestoreNode *data;
-    struct RestoreLinkedListEntry *next;
-} RestoreLinkedListEntry;
+typedef struct LinkedListEntry {
+    BTBoxRestoredNode *data;
+    struct LinkedListEntry *next;
+} LinkedListEntry;
 
-typedef struct RestoreQueue {
-    RestoreLinkedListEntry *head;
-    RestoreLinkedListEntry *tail;
-} RestoreQueue;
+typedef struct Queue {
+    LinkedListEntry *head;
+    LinkedListEntry *tail;
+} Queue;
 
-static RestoreLinkedListEntry* linkedlist_create_entry(BTBoxRestoreNode *data) {
-    RestoreLinkedListEntry *entry = (RestoreLinkedListEntry*)malloc(sizeof(RestoreLinkedListEntry));
+static LinkedListEntry* linkedlist_create_entry(BTBoxRestoredNode *data) {
+    LinkedListEntry *entry = (LinkedListEntry*)malloc(sizeof(LinkedListEntry));
     if (!entry) {
         return NULL;
     }
@@ -63,8 +63,8 @@ static RestoreLinkedListEntry* linkedlist_create_entry(BTBoxRestoreNode *data) {
     return entry;
 }
 
-static RestoreQueue* queue_create() {
-    RestoreQueue *queue = (RestoreQueue*)malloc(sizeof(RestoreQueue));
+static Queue* queue_create() {
+    Queue *queue = (Queue*)malloc(sizeof(Queue));
     if (!queue) {
         return NULL;
     }
@@ -73,11 +73,11 @@ static RestoreQueue* queue_create() {
     return queue;
 }
 
-static void queue_push(RestoreQueue *queue, BTBoxRestoreNode *data) {
+static void queue_push(Queue *queue, BTBoxRestoredNode *data) {
     if (!queue) {
         return;
     }
-    RestoreLinkedListEntry *entry = linkedlist_create_entry(data);
+    LinkedListEntry *entry = linkedlist_create_entry(data);
     if (!entry) {
         return;
     }
@@ -89,27 +89,27 @@ static void queue_push(RestoreQueue *queue, BTBoxRestoreNode *data) {
     }
 }
 
-static BTBoxRestoreNode* queue_pop(RestoreQueue *queue) {
+static BTBoxRestoredNode* queue_pop(Queue *queue) {
     if (!queue || queue->head == NULL) {
         return NULL;
     }
-    RestoreLinkedListEntry *popped = queue->head;
+    LinkedListEntry *popped = queue->head;
     queue->head = queue->head->next;
     if (queue->head == NULL) {
         queue->tail = NULL;
     }
-    BTBoxRestoreNode* poppedData = popped->data;
+    BTBoxRestoredNode* poppedData = popped->data;
     free(popped);
     return poppedData;
 }
 
-static void linkedlist_free(RestoreLinkedListEntry *list) {
+static void linkedlist_free(LinkedListEntry *list) {
     if (list == NULL) {
         return;
     }
-    RestoreLinkedListEntry *curr = list;
+    LinkedListEntry *curr = list;
     while (curr != NULL) {
-        RestoreLinkedListEntry *next = curr->next;
+        LinkedListEntry *next = curr->next;
         free(curr->data->node);
         free(curr->data);
         free(curr);
@@ -125,10 +125,10 @@ static void print_box(char** buffer, int x, int y, BTBox* parent, BTBox* node);
 static int get_box_center_x(BTBox* node, int offset);
 
 static int search_arm(char *line, int len, int start, int step);
-static BTBoxRestoreNode* create_restore_node();
-static RestoreLinkedListEntry* restore_nodes(FILE *file);
-static BTBoxRestoreNode* find_root_node(FILE *file);
-static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file);
+static BTBoxRestoredNode* create_restore_node();
+static LinkedListEntry* restore_nodes(FILE *file);
+static BTBoxRestoredNode* find_root_node(FILE *file);
+static void parse_child_nodes(BTBoxRestoredNode* rootInfo, FILE* file);
 
 // Return width of the node, or zero if node is null.
 static inline int get_width(BTBox* node) {
@@ -377,7 +377,7 @@ int get_box_center_x(BTBox* node, int offset) {
  */
 BTNode* btbox_restore_tree(FILE* file) {
     // First loop: find the root node.
-    BTBoxRestoreNode *rootInfo = find_root_node(file);
+    BTBoxRestoredNode *rootInfo = find_root_node(file);
     if (!rootInfo) {
         return NULL;
     }
@@ -392,19 +392,19 @@ BTNode* btbox_restore_tree(FILE* file) {
     return root;
 }
 
-static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file) {
-    RestoreLinkedListEntry* restoredChilds = NULL;
+static void parse_child_nodes(BTBoxRestoredNode* rootInfo, FILE* file) {
+    LinkedListEntry* restoredChilds = NULL;
     // Second loop: parse nodes in each levels and connect to their parent above.
-    RestoreQueue* queue = queue_create();
+    Queue* queue = queue_create();
     queue_push(queue, rootInfo);
     while (!feof(file) && queue->head != NULL) {
         if ((restoredChilds = restore_nodes(file)) == NULL) {
             continue;
         }
 
-        RestoreLinkedListEntry *lastChild = restoredChilds;
+        LinkedListEntry *lastChild = restoredChilds;
         while (queue->head != NULL) {
-            BTBoxRestoreNode* parent = queue_pop(queue);
+            BTBoxRestoredNode* parent = queue_pop(queue);
             if (parent->leftChild && lastChild != NULL) {
                 parent->node->left = lastChild->data->node;
                 lastChild = lastChild->next;
@@ -420,20 +420,20 @@ static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file) {
             linkedlist_free(lastChild);
         }
 
-        RestoreLinkedListEntry *curr = restoredChilds;
+        LinkedListEntry *curr = restoredChilds;
         while (curr != lastChild) {
             if (curr->data->leftChild || curr->data->rightChild) {
                 queue_push(queue, curr->data);
             } else {
                 free(curr->data);
             }
-            RestoreLinkedListEntry* next = curr->next;
+            LinkedListEntry* next = curr->next;
             free(curr);
             curr = next;
         }
     }
 
-    BTBoxRestoreNode* popped = NULL;
+    BTBoxRestoredNode* popped = NULL;
     while ((popped = queue_pop(queue))) {
         free(popped);
     }
@@ -445,8 +445,8 @@ static void parse_child_nodes(BTBoxRestoreNode* rootInfo, FILE* file) {
  * @param file Text file in the export format.
  * @return The root BTBoxRestoreNode, or NULL if malformed input is given.
  */
-static BTBoxRestoreNode* find_root_node(FILE* file) {
-    RestoreLinkedListEntry *restoredNodes = NULL;
+static BTBoxRestoredNode* find_root_node(FILE* file) {
+    LinkedListEntry *restoredNodes = NULL;
     while (!feof(file) && (restoredNodes = restore_nodes(file)) == NULL);
 
     if (restoredNodes == NULL || restoredNodes->next) {
@@ -456,26 +456,26 @@ static BTBoxRestoreNode* find_root_node(FILE* file) {
     }
 
     // one single root is found
-    BTBoxRestoreNode *rootInfo = restoredNodes->data;
+    BTBoxRestoredNode *rootInfo = restoredNodes->data;
     free(restoredNodes);
     return rootInfo;
 }
 
-BTBoxRestoreNode* create_restore_node() {
-    BTBoxRestoreNode *node = (BTBoxRestoreNode*)malloc(sizeof(BTBoxRestoreNode));
+BTBoxRestoredNode* create_restore_node() {
+    BTBoxRestoredNode *node = (BTBoxRestoredNode*)malloc(sizeof(BTBoxRestoredNode));
     node->leftChild = 0;
     node->rightChild = 0;
     node->node = NULL;
     return node;
 }
 
-RestoreLinkedListEntry* restore_nodes(FILE *file) {
+LinkedListEntry* restore_nodes(FILE *file) {
     size_t bufferSize = 0;
     char* buffer = bstbox_read_line(file, &bufferSize);
     if (buffer == NULL) {
         return NULL;
     }
-    RestoreLinkedListEntry* list = NULL;
+    LinkedListEntry* list = NULL;
     int detectNum = 0;
     int c = 1;
     int numStart = -1, numEnd = -1;
@@ -496,12 +496,12 @@ RestoreLinkedListEntry* restore_nodes(FILE *file) {
 
             // a number detected, check if there're arms at two sides of it
             if (numStart != -1 && numEnd != -1) {
-                BTBoxRestoreNode *node = create_restore_node();
+                BTBoxRestoredNode *node = create_restore_node();
                 node->leftChild = search_arm(buffer, bufferSize, numStart - 1, -1);
                 node->rightChild = search_arm(buffer, bufferSize, numEnd + 1, 1);
                 node->node = btbox_create_node(detectNum);
 
-                RestoreLinkedListEntry* entry = linkedlist_create_entry(node);
+                LinkedListEntry* entry = linkedlist_create_entry(node);
                 entry->next = list;
                 list = entry;
 

@@ -27,6 +27,7 @@ int avl_insert_node(AVLNode** root, int value);
 void avl_insert_nodes(AVLNode** root, const int* values, const int len);
 int avl_remove_node(AVLNode** root, int value);
 void avl_free_tree(AVLNode** root);
+void avl_update_tree_height(AVLNode *root);
 
 #pragma endregion
 

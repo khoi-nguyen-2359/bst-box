@@ -363,6 +363,7 @@ void import_from_file(AVLNode** root, char* input) {
 
     BTNode *btRoot = btbox_restore_tree(file);
     AVLNode *avlRoot = convert_BTNode_to_AVLNode(btRoot);
+    avl_update_tree_height(avlRoot);
     AVLNode *temp = *root;
     *root = avlRoot;
 
