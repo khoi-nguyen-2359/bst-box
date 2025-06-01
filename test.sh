@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ ! -d build ]]; then
     mkdir build
 fi
@@ -7,7 +9,7 @@ g++ -g \
     tools/test/*.cpp tree/test/avl/*.cpp tree/test/btbox/*.cpp \
     -Itree/include -Itools/include \
     -o build/treetest \
-    -lspdlog -lfmt -lgtest -lpthread
+    -lfmt -lgtest -lpthread
 
 if [ $? -ne 0 ]; then
     echo "Compilation failed. Exiting."

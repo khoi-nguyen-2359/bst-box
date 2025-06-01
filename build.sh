@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 OS_TYPE=$(uname | tr '[:upper:]' '[:lower:]')
 
 BUILD_FLAGS="-g"
