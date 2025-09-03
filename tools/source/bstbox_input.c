@@ -80,11 +80,11 @@ int* bstbox_read_ints(char* input, size_t *size) {
 /**
  * @brief Read a line from a file, dynamically allocating memory for the line.
  * @param file Input file stream.
- * @param len Pointer to store the length of the line read.
+ * @param size Pointer to store the length of the line read.
  * @return Dynamically allocated string containing the line, or NULL on failure.
  */
 char* bstbox_read_line(FILE* file, size_t* size) {
-    if (!file) {
+    if (!file || !size) {
         return NULL;
     }
 
@@ -112,7 +112,7 @@ char* bstbox_read_line(FILE* file, size_t* size) {
         }
     }
 
-    if (size == 0 && ch == EOF) {
+    if (*size == 0 && ch == EOF) {
         free(buffer);
         return NULL;
     }
