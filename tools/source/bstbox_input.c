@@ -83,13 +83,13 @@ int* bstbox_read_ints(char* input, size_t *size) {
  * @param len Pointer to store the length of the line read.
  * @return Dynamically allocated string containing the line, or NULL on failure.
  */
-char* bstbox_read_line(FILE* file, size_t* size) {
-    if (!file) {
+char* bstbox_read_line(FILE* file, size_t* len) {
+    if (!file || !len) {
         return NULL;
     }
 
     int capacity = 128; // Initial buffer size
-    *size = 0;
+    *len = 0;
     char* buffer = (char*)malloc(capacity);
     if (!buffer) {
         return NULL;
@@ -97,7 +97,7 @@ char* bstbox_read_line(FILE* file, size_t* size) {
 
     int ch;
     while ((ch = fgetc(file)) != EOF) {
-        if (*size + 1 >= capacity) {
+        if (*len + 1 >= capacity) {
             capacity *= 2;
             char* temp = (char*)realloc(buffer, capacity);
             if (!temp) {
@@ -106,18 +106,18 @@ char* bstbox_read_line(FILE* file, size_t* size) {
             }
             buffer = temp;
         }
-        buffer[(*size)++] = (char)ch;
+        buffer[(*len)++] = (char)ch;
         if (ch == '\n') {
             break;
         }
     }
 
-    if (size == 0 && ch == EOF) {
+    if (*len == 0 && ch == EOF) {
         free(buffer);
         return NULL;
     }
 
-    buffer[*size] = '\0';
+    buffer[*len] = '\0';
     return buffer;
 }
 
