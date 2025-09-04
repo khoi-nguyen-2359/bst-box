@@ -73,13 +73,13 @@ static Queue* queue_create() {
     return queue;
 }
 
-static void queue_push(Queue *queue, BTBoxRestoredNode *data) {
+static int queue_push(Queue *queue, BTBoxRestoredNode *data) {
     if (!queue) {
-        return;
+        return 0;
     }
     LinkedListEntry *entry = linkedlist_create_entry(data);
     if (!entry) {
-        return;
+        return 0;
     }
     if (queue->tail == NULL) {
         queue->head = queue->tail = entry;
@@ -87,6 +87,7 @@ static void queue_push(Queue *queue, BTBoxRestoredNode *data) {
         queue->tail->next = entry;
         queue->tail = entry;
     }
+    return 1;
 }
 
 static BTBoxRestoredNode* queue_pop(Queue *queue) {
@@ -396,7 +397,17 @@ static void parse_child_nodes(BTBoxRestoredNode* rootInfo, FILE* file) {
     LinkedListEntry* restoredChilds = NULL;
     // Second loop: parse nodes in each levels and connect to their parent above.
     Queue* queue = queue_create();
-    queue_push(queue, rootInfo);
+    if (!queue) {
+        btbox_free_node(rootInfo->node);
+        free(rootInfo);
+        return;
+    }
+    if (!queue_push(queue, rootInfo)) {
+        btbox_free_node(rootInfo->node);
+        free(rootInfo);
+        free(queue);
+        return;
+    }
     while (!feof(file) && queue->head != NULL) {
         if ((restoredChilds = restore_nodes(file)) == NULL) {
             continue;
@@ -423,7 +434,10 @@ static void parse_child_nodes(BTBoxRestoredNode* rootInfo, FILE* file) {
         LinkedListEntry *curr = restoredChilds;
         while (curr != lastChild) {
             if (curr->data->leftChild || curr->data->rightChild) {
-                queue_push(queue, curr->data);
+                if (!queue_push(queue, curr->data)) {
+                    btbox_free_node(curr->data->node);
+                    free(curr->data);
+                }
             } else {
                 free(curr->data);
             }
